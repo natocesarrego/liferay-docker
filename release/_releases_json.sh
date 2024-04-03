@@ -52,7 +52,10 @@ function _process_product {
 		tr -d "/" | \
 		uniq)
 	do
-		_process_product_version "${product_name}" "${product_version}"
+		if [[ ! "${product_version}" =~ (7\.[0-9]+\.[0-9]+\-u1(1[3-9]|[2-9][0-9]+|[0-9]{3,})) ]]
+		then
+			_process_product_version "${product_name}" "${product_version}"
+		fi
 	done
 }
 
