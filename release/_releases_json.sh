@@ -1,6 +1,18 @@
 #!/bin/bash
 
+function _add_new_version {
+	if [ -n "${ADD_VERSION%/*}" ]
+	then
+		echo -en "\n${ADD_VERSION#*/}" >> ./supported-"${ADD_VERSION%/*}"-versions.txt
+	else
+		echo "    ADD_VERSION: Set to \"portal\" or \"dxp\"/{version} to add version to supported-{product}-versions.txt"
+		echo "Example: ADD_VERSION=dxp/2024.q1 ${0}"
+	fi
+}
+
 function regenerate_releases_json {
+	_add_new_version
+
 	_process_product dxp
 	_process_product portal
 
