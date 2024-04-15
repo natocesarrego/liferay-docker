@@ -1,6 +1,21 @@
 #!/bin/bash
 
+function _add_new_version {
+	echo "Add ${LIFERAY_RELEASE_VERSION} version to supported-${LIFERAY_RELEASE_PRODUCT_NAME}-versions.txt"
+
+	if [ -n "${LIFERAY_RELEASE_PRODUCT_NAME}" ]
+	then
+		echo -en "\n${LIFERAY_RELEASE_VERSION}" >> "${_RELEASE_ROOT_DIR}"/supported-"${LIFERAY_RELEASE_PRODUCT_NAME}"-versions.txt
+	else
+		echo "    LIFERAY_RELEASE_PRODUCT_NAME: Set to \"portal\" or \"dxp\" "
+		echo "    LIFERAY_RELEASE_VERSION=Set a version to add it in supported-{product}-versions.txt"
+		echo "Example: LIFERAY_RELEASE_PRODUCT_NAME=dxp LIFERAY_RELEASE_VERSION=2024.q1 ${0}"
+	fi
+}
+
 function regenerate_releases_json {
+	_add_new_version
+
 	_process_product dxp
 	_process_product portal
 
