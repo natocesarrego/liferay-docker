@@ -1,6 +1,31 @@
 #!/bin/bash
 
+function _add_new_version {
+	if [ -z "${LIFERAY_RELEASE_PRODUCT_NAME}" ] || [ -z "${LIFERAY_RELEASE_VERSION}" ]
+	then
+		return
+	fi
+
+	if [[ "${LIFERAY_RELEASE_PRODUCT_NAME}" =~ ^(dxp|portal)$ ]] && [[ "${LIFERAY_RELEASE_VERSION}" =~ ^[0-9]+.([0-9])|(q[0-9])$ ]]
+	then
+		if grep -q "${LIFERAY_RELEASE_VERSION}" "${_RELEASE_ROOT_DIR}"/supported-"${LIFERAY_RELEASE_PRODUCT_NAME}"-versions.txt
+		then
+			lc_log INFO "Version is already on the list"
+		else
+			lc_log INFO "Add ${LIFERAY_RELEASE_VERSION} version to supported-${LIFERAY_RELEASE_PRODUCT_NAME}-versions.txt"
+
+			echo -en "\n${LIFERAY_RELEASE_VERSION}" >> "${_RELEASE_ROOT_DIR}"/supported-"${LIFERAY_RELEASE_PRODUCT_NAME}"-versions.txt
+		fi
+	else
+		lc_log INFO "The given values are invalid"
+
+		print_help
+	fi
+}
+
 function regenerate_releases_json {
+	_add_new_version
+
 	_process_product dxp
 	_process_product portal
 
@@ -29,6 +54,17 @@ function _merge_json_snippets {
 
 		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 	fi
+}
+function print_help {
+	echo "Usage: ${0}"
+	echo ""
+	echo "The script reads the following environment variables:"
+	echo ""
+	echo "    LIFERAY_RELEASE_PRODUCT_NAME: Set to \"portal\" or \"dxp\" "
+	echo "    LIFERAY_RELEASE_VERSION: Set a version to add it in supported-{product}-versions.txt"
+	echo ""
+	echo "Example: LIFERAY_RELEASE_PRODUCT_NAME=dxp LIFERAY_RELEASE_VERSION=2024.q1 ${0}"
+	echo ""
 }
 
 function _process_product {
