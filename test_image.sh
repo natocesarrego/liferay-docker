@@ -69,6 +69,8 @@ function main {
 
 	test_health_status
 
+	test_docker_image_with_playwright
+
 	test_docker_image_files
 	test_docker_image_fix_pack_installed
 	test_docker_image_hotfix_installed
@@ -221,6 +223,39 @@ function test_docker_image_scripts_1 {
 
 function test_docker_image_scripts_2 {
 	test_page "http://${CONTAINER_HOSTNAME}:${CONTAINER_HTTP_PORT}/test_docker_image_scripts_2.jsp" "TEST2"
+}
+
+function test_docker_image_with_playwright {
+	echo ""
+	echo "Waiting for application to be fully ready..."
+
+	while true
+	do
+		if docker logs "${CONTAINER_ID}" 2>&1 | grep -q "License registered for DXP Development" #name is not right at all
+		then
+			echo "Application is fully ready!"
+
+			break
+		fi
+
+		echo -n "."
+		sleep 3
+	done
+
+	export CONTAINER_PORT_EXPORTED=$(docker port ${CONTAINER_ID} 8080 | head -n 1 | awk -F: '{print $2}')
+
+	cd playwright-dependencies
+
+	local playwright_test_result=$(npx playwright test)
+	
+	if [[ $playwright_test_result == *"1 passed"* ]]
+	then
+  		echo "Playwright test passed!"
+	else
+        echo "PLAYWRIGHT TEST FAILED!"
+		
+		exit 1
+	fi
 }
 
 function test_health_status {
