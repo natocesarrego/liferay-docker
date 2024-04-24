@@ -109,6 +109,50 @@ function cherry_pick_commits {
 	fi
 }
 
+function create_branch {
+	local original_branch_name="master"
+
+	if [ "${LIFERAY_RELEASE_SOFT}" == "true" ]
+	then
+		original_branch_name="${LIFERAY_RELEASE_GIT_PREV_REF}"
+	fi
+
+	local last_commit_sha=$(curl \
+		"https://api.github.com/repos/liferay/liferay-portal-ee/git/refs/heads/${original_branch_name}" \
+		--fail \
+		--header "Authorization: token ${LIFERAY_RELEASE_GITHUB_TOKEN}" \
+		--max-time 10 \
+		--retry 3 \
+		--silent |
+		jq -r '.object.sha')
+
+	local commits_interval_json=$(jq -n --arg ref "refs/heads/$LIFERAY_RELEASE_GIT_REF" --arg sha "$last_commit_sha" '{ref: $ref, sha: $sha}')
+
+	local http_response_code=$(curl \
+		"https://api.github.com/repos/liferay/liferay-portal-ee/git/refs" \
+		--data "${commits_interval_json}" \
+		--fail \
+		--header "Authorization: token ${LIFERAY_RELEASE_GITHUB_TOKEN}" \
+		--max-time 10 \
+		--output /dev/null \
+		--request POST \
+		--retry 3 \
+		--silent \
+		--write-out "%{response_code}")
+
+	if [ "${http_response_code}" == "201" ]
+	then
+		lc_log INFO "${LIFERAY_RELEASE_GIT_REF} branch successful created"
+
+		if [ "${LIFERAY_RELEASE_SOFT}" == "true" ]
+		then
+			cherry_pick_commits
+		fi
+	else
+		lc_log ERROR "Unable to create the ${LIFERAY_RELEASE_GIT_REF} branch"
+	fi
+}
+
 function main {
 	export ANT_OPTS="-Xmx10G"
 
