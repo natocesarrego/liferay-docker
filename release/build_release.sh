@@ -234,7 +234,7 @@ function main {
 
 		lc_time_run upload_release
 	else
-		lc_time_run create_branch
+		#lc_time_run create_branch
 
 		lc_time_run prepare_release_dir
 
