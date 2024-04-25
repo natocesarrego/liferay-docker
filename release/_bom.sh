@@ -278,6 +278,19 @@ function generate_pom_release_dxp_bom_third_party {
 		) >> "${pom_file_name}"
 }
 
+function generate_pom_release_dxp_distro {
+	local pom_file_name="release.dxp.distro-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.FROM_SCRATCH.pom"
+
+	lc_log DEBUG "Generating ${pom_file_name}."
+
+	sed \
+		-e "s/__BUILD_TIMESTAMP__/${_BUILD_TIMESTAMP}/" \
+		-e "s/__PRODUCT_VERSION__/${_PRODUCT_VERSION}/" \
+		-e "w ${pom_file_name}" \
+		"${_RELEASE_TOOL_DIR}/templates/release.dxp.distro.pom.tpl" > /dev/null
+}
+
+
 function generate_poms {
 	if (! echo "${_PRODUCT_VERSION}" | grep -q "q")
 	then
@@ -301,7 +314,7 @@ function generate_poms {
 
 	rm -f ./*.pom
 
-	for pom in "release.${LIFERAY_RELEASE_PRODUCT_NAME}.api" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom.compile.only" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom.third.party"
+	for pom in "release.${LIFERAY_RELEASE_PRODUCT_NAME}.api" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom.compile.only" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom.third.party" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.distro"
 	do
 		lc_download "https://repository.liferay.com/nexus/service/local/repositories/liferay-public-releases/content/com/liferay/portal/${pom}/${base_version}/${pom}-${base_version}.pom" "${pom}-${base_version}.pom"
 
@@ -323,6 +336,7 @@ function generate_poms_from_scratch {
 	lc_time_run generate_pom_release_dxp_bom
 	lc_time_run generate_pom_release_dxp_bom_compile_only
 	lc_time_run generate_pom_release_dxp_bom_third_party
+	lc_time_run generate_pom_release_dxp_distro
 }
 
 function _copy_file {
