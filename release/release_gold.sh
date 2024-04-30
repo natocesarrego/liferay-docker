@@ -110,23 +110,58 @@ function tag_release {
 		repository=liferay-portal
 	fi
 
-	if (! curl \
-			"https://api.github.com/repos/liferay/${repository}/git/tags" \
-			--data-raw '
-				{
-					"message": "",
-					"object": "'$(lc_get_property release-data/release.properties git.hash.liferay-portal-ee)'",
-					"tag": "'${LIFERAY_RELEASE_VERSION}'",
-					"type": "commit"
-				}' \
-			--fail \
-			--header "Accept: application/vnd.github+json" \
-			--header "Authorization: Bearer ${LIFERAY_RELEASE_GITHUB_PAT}" \
-			--header "X-GitHub-Api-Version: 2022-11-28" \
-			--max-time 10 \
-			--request POST \
-			--retry 3 \
-			--silent)
+	local username=liferay
+
+	if [ -n "${LIFERAY_RELEASE_USER_REPOSITORY}" ]
+	then
+		username=${LIFERAY_RELEASE_USER_REPOSITORY}
+	fi
+
+	local response_tag_creation=$(curl -i \
+		"https://api.github.com/repos/${username}/${repository}/git/tags" \
+		--data-raw '
+			{
+				"message": "",
+				"object": "'$(lc_get_property release-data/release.properties git.hash.liferay-portal-ee)'",
+				"tag": "'${LIFERAY_RELEASE_VERSION}'",
+				"type": "commit"
+			}' \
+		--fail \
+		--header "Accept: application/vnd.github+json" \
+		--header "Authorization: Bearer ${LIFERAY_RELEASE_GITHUB_PAT}" \
+		--header "X-GitHub-Api-Version: 2022-11-28" \
+		--max-time 10 \
+		--request POST \
+		--retry 3 \
+		--silent \
+		| awk '/^HTTP/{print $2}')
+
+	if [ "${response_tag_creation}" -ge 300 ]
+	then
+		lc_log ERROR "Unable to tag release."
+
+		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+	fi	
+
+	local response_ref_creation=$(curl -i \
+		"https://api.github.com/repos/${username}/${repository}/git/refs" \
+		--data-raw '
+			{
+				"message": "",
+				"ref": "refs/tags/'${LIFERAY_RELEASE_VERSION}'",
+				"sha": "'$(lc_get_property release-data/release.properties git.hash.liferay-portal-ee)'"
+			}' \
+		--fail \
+		--header "Accept: application/vnd.github+json" \
+		--header "Authorization: Bearer ${LIFERAY_RELEASE_GITHUB_PAT}" \
+		--header "X-GitHub-Api-Version: 2022-11-28" \
+		--max-time 10 \
+		--request POST \
+		--retry 3 \
+		--silent \
+		| awk '/^HTTP/{print $2}')
+
+	if [ "${response_ref_creation}" -ge 300 ]	
 	then
 		lc_log ERROR "Unable to tag release."
 
