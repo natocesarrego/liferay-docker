@@ -121,7 +121,11 @@ function main {
 
 		lc_time_run generate_api_source_jar
 
-		generate_poms
+		lc_time_run download_bnd_files 
+
+		lc_time_run generate_distro_jar
+
+		lc_time_run generate_poms
 
 		lc_time_run package_release
 
