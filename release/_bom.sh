@@ -1,5 +1,18 @@
 #!/bin/bash
 
+function download_bnd_files {
+	lc_cd "${_BUNDLES_DIR}/deploy"
+
+	if [ ! -e "${_BUNDLES_DIR}/osgi/modules/biz.aQute.remote.agent-6.4.0.jar" ]
+	then
+		lc_download "https://repo1.maven.org/maven2/biz/aQute/bnd/biz.aQute.remote.agent/6.4.0/biz.aQute.remote.agent-6.4.0.jar" "biz.aQute.remote.agent-6.4.0.jar"
+	fi
+
+	lc_cd "${_BUILD_DIR}/boms"
+
+	lc_download "https://repo1.maven.org/maven2/biz/aQute/bnd/biz.aQute.bnd/6.4.0/biz.aQute.bnd-6.4.0.jar" "biz.aQute.bnd-6.4.0.jar"
+}
+
 function generate_api_jars {
 	mkdir -p "${_BUILD_DIR}/boms"
 
@@ -76,7 +89,7 @@ function generate_api_jars {
 	do
 		_manage_bom_jar "${module_jar}"
 	done
-}
+} 
 
 function generate_api_source_jar {
 	lc_cd "${_PROJECTS_DIR}/liferay-portal-ee"
@@ -114,8 +127,35 @@ function generate_api_source_jar {
 	done
 }
 
+function generate_distro_jar {
+	lc_cd "${_BUNDLES_DIR}/tomcat/bin"
+
+	./catalina.sh start
+
+	lc_cd "${_BUILD_DIR}/boms"
+
+	chmod +x biz.aQute.bnd-6.4.0.jar
+
+	if [[ $(echo "${_PRODUCT_VERSION}" | grep "q") ]]
+	then
+		local osgi_version="7.4.13.$(echo "${_PRODUCT_VERSION}" | sed 's/\./-/g')"
+	else
+		local osgi_version=$(echo "${_PRODUCT_VERSION}" | sed 's/-/./g')
+	fi
+
+	java -jar biz.aQute.bnd-6.4.0.jar remote distro -o release.dxp.distro-"${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}".jar release.dxp.distro "${osgi_version}"
+
+	_manage_distro_jar
+
+	rm -f biz.aQute.bnd-6.4.0.jar
+
+	lc_cd "${_BUNDLES_DIR}/tomcat/bin"
+
+	./catalina.sh stop
+}
+
 function generate_pom_release_dxp_api {
-	local pom_file_name="release.dxp.api-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.FROM_SCRATCH.pom"
+	local pom_file_name="release.dxp.api-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.pom"
 
 	lc_log DEBUG "Generating ${pom_file_name}."
 
@@ -126,8 +166,20 @@ function generate_pom_release_dxp_api {
 		"${_RELEASE_TOOL_DIR}/templates/release.dxp.api.pom.tpl" > /dev/null
 }
 
+function generate_pom_release_dxp_distro {
+	local pom_file_name="release.dxp.distro-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.pom"
+
+	lc_log DEBUG "Generating ${pom_file_name}."
+
+	sed \
+		-e "s/__BUILD_TIMESTAMP__/${_BUILD_TIMESTAMP}/" \
+		-e "s/__PRODUCT_VERSION__/${_PRODUCT_VERSION}/" \
+		-e "w ${pom_file_name}" \
+		"${_RELEASE_TOOL_DIR}/templates/release.dxp.distro.pom.tpl" > /dev/null
+}
+
 function generate_pom_release_dxp_bom {
-	local pom_file_name="release.dxp.bom-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.FROM_SCRATCH.pom"
+	local pom_file_name="release.dxp.bom-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.pom"
 
 	lc_log DEBUG "Generating ${pom_file_name}."
 
@@ -186,7 +238,7 @@ function generate_pom_release_dxp_bom {
 }
 
 function generate_pom_release_dxp_bom_compile_only {
-	local pom_file_name="release.dxp.bom.compile.only-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.FROM_SCRATCH.pom"
+	local pom_file_name="release.dxp.bom.compile.only-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.pom"
 
 	lc_log DEBUG "Generating ${pom_file_name}."
 
@@ -214,7 +266,7 @@ function generate_pom_release_dxp_bom_compile_only {
 }
 
 function generate_pom_release_dxp_bom_third_party {
-	local pom_file_name="release.dxp.bom.third.party-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.FROM_SCRATCH.pom"
+	local pom_file_name="release.dxp.bom.third.party-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.pom"
 
 	lc_log DEBUG "Generating ${pom_file_name}."
 
@@ -301,7 +353,7 @@ function generate_poms {
 
 	rm -f ./*.pom
 
-	for pom in "release.${LIFERAY_RELEASE_PRODUCT_NAME}.api" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom.compile.only" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom.third.party"
+	for pom in "release.${LIFERAY_RELEASE_PRODUCT_NAME}.api" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom.compile.only" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom.third.party" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.distro"
 	do
 		lc_download "https://repository.liferay.com/nexus/service/local/repositories/liferay-public-releases/content/com/liferay/portal/${pom}/${base_version}/${pom}-${base_version}.pom" "${pom}-${base_version}.pom"
 
@@ -319,10 +371,18 @@ function generate_poms {
 }
 
 function generate_poms_from_scratch {
+	mkdir -p "${_BUILD_DIR}/boms"
+
+	lc_cd "${_BUILD_DIR}/boms"
+
+	rm -f ./*.pom
+	rm -f ./*.jar
+
 	lc_time_run generate_pom_release_dxp_api
 	lc_time_run generate_pom_release_dxp_bom
 	lc_time_run generate_pom_release_dxp_bom_compile_only
 	lc_time_run generate_pom_release_dxp_bom_third_party
+	lc_time_run generate_pom_release_dxp_distro
 }
 
 function _copy_file {
@@ -417,4 +477,32 @@ function _manage_bom_jar {
 	fi
 
 	rm -fr jar-temp
+}
+
+function _manage_distro_jar {
+	lc_log DEBUG "Processing release.dxp.distro-'${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}' for api jar."
+
+	if [[ ! $(echo "${_OSGI_VERSION}" | grep "q") ]]
+	then
+		lc_log INFO "The OSGI version is valid"
+
+		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+	fi
+
+	mkdir extracted_release.dxp.distro-"${_PRODUCT_VERSION}"
+	
+	lc_cd  extracted_release.dxp.distro-"${_PRODUCT_VERSION}"
+
+	jar xf ../release.dxp.distro-"${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}".jar
+
+	rm -f ../release.dxp.distro-"${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}".jar
+
+	sed -i s/"${_OSGI_VERSION}"/"${_PRODUCT_VERSION}"/g META-INF/MANIFEST.MF
+	sed -i s/"${_OSGI_VERSION}"/"${_PRODUCT_VERSION}"/g OSGI-OPT/obr.xml
+
+	jar cf ../release.dxp.distro-"${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}".jar -C extracted_release.dxp.distro-"${_PRODUCT_VERSION}"/ .
+
+	lc_cd ..
+
+	rm -fr extracted_release.dxp.distro-"${_PRODUCT_VERSION}"
 }
