@@ -4,7 +4,6 @@ JIRA_TOKEN=""
 SLACK_WEB_HOOK_URL=""
 
 function main {
-
     cd liferay-portal || (echo "Failed to change directory to liferay-portal"; exit)
 
     local git_pull_response
