@@ -3,6 +3,18 @@
 source ../_liferay_common.sh
 source ../_releases_json.sh
 
+function _assertEquals {
+    if "${1}" = true; then
+        echo "Test ${$FUNCNAME} passed"
+    else
+        echo "Test ${$FUNCNAME} failed"
+
+        if -n "${2}"; then
+            echo "${2}"
+        fi
+    fi
+}
+
 function merge_json_snipets_test {
     local earliest_url
     local latest_url
@@ -19,14 +31,7 @@ function merge_json_snipets_test {
     local earliest_count="$(grep -c "${earliest_url}" releases.json)"
     local latest_count="$(grep -c "${latest_url}" releases.json)"
 
-    if [[ "${earliest_count}" -eq 0 || "${latest_count}" -eq 0 ]]
-    then
-        echo Test failed
-
-        exit
-    fi
-
-    echo Test passed
+    _assertEquals ${"${earliest_count}" -eq 0 || "${latest_count}" -eq 0}
 }
 
 function promote_product_versions_test {
@@ -39,16 +44,9 @@ function promote_product_versions_test {
 
 		if [ -n "${last_version}" ]
 		then
-            if [ "$(jq -r '.[] | .promoted' "${last_version}")" = false ]
-            then
-                echo "Test failed. ""${last_version}"" should be promoted."
-
-                exit
-            fi
+            _assertEquals ${"$(jq -r '.[] | .promoted' "${last_version}")" = false} ""${last_version}" should be promoted."
 		fi
 	done < "${_RELEASE_ROOT_DIR}/supported-${product_name}-versions.txt"
-
-    echo Test passed
 }
 
 function setup {
