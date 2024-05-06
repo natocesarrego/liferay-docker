@@ -16,7 +16,7 @@ function main {
         exit
     fi
 
-    local not_yet_merged_blockers=""
+    local blockers_not_merged=""
 
     local blocker_issues_keys=($(curl --request GET --url 'https://liferay.atlassian.net/rest/api/3/search?jql=project%20%3D%20%22PUBLIC%20-%20Liferay%20Product%20Delivery%22%20and%20labels%20%3D%20release-blocker%20and%20status%20%21%3D%20Closed&fields=issuekey' --user "jira-cloud-enterprisereleasehu@liferay.com:<$JIRA_TOKEN>" --header 'Accept: application/json' | jq -r '.issues[].key'))
 
@@ -24,15 +24,15 @@ function main {
     do
         if [ -z "$(git log --grep="${blocker_issue_key}")" ]
         then
-            not_yet_merged_blockers+="<https://liferay.atlassian.net/browse/${blocker_issue_key}|${blocker_issue_key}> "
+            blockers_not_merged+="<https://liferay.atlassian.net/browse/${blocker_issue_key}|${blocker_issue_key}> "
         fi
     done
 
     local slack_message="All blockers are merged"
 
-    if [ -n "${not_yet_merged_blockers}" ]
+    if [ -n "${blockers_not_merged}" ]
     then
-        slack_message="These blockers still need to be merged: ${not_yet_merged_blockers}"
+        slack_message="These blockers still need to be merged: ${blockers_not_merged}"
     fi
 
     if (curl \
