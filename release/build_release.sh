@@ -107,6 +107,8 @@ function cherry_pick_commits {
 	if [ "${cherry_pick_all_commits}" == "true" ]
 	then
 		git push origin -q "${LIFERAY_RELEASE_GIT_REF}"
+	else
+		lc_log ERROR "Unable to cherry-pick all commits"
 	fi
 }
 
