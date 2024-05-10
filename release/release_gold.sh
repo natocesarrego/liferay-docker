@@ -110,15 +110,51 @@ function tag_release {
 		repository=liferay-portal
 	fi
 
+	release_properties_file=$(lc_download "https://releases.liferay.com/${LIFERAY_RELEASE_PRODUCT_NAME}/${_PRODUCT_VERSION}/release.properties")
+
+	if [ $? -gt 0 ]
+	then
+		lc_log ERROR "Unable to download release.properties"
+
+		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+	fi
+
+	local git_hash=$(lc_get_property "${release_properties_file}" git.hash.liferay-portal-ee)
+
+	if [ -z "${git_hash}" ]
+	then
+		lc_log ERROR "Unable to get git.hash.liferay-portal-ee"
+
+		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+	fi
+
+	tag_data="{\"message\":\"\", \"object\":\"${git_hash}\", \"tag\":\"${LIFERAY_RELEASE_VERSION}\", \"type\":\"commit\"}"
+
+	tag_data=$(
+		echo "{"
+		echo "    \"message\":\"\","
+		echo "    \"object\":\"${git_hash}\","
+		echo "    \"tag\":\"${LIFERAY_RELEASE_VERSION}\","
+		echo "	  \"type\":\"commit\""
+		echo "}"
+	)
+
+	ref_data=$(
+		echo "{"
+		echo "    \"message\":\"\","
+		echo "    \"ref\":\"refs/tags/${LIFERAY_RELEASE_VERSION}\","
+		echo "    \"sha\":\"${git_hash}\""
+		echo "}"
+	)
+
+	invoke_tag_api "https://api.github.com/repos/liferay/${repository}/git/tags" "${tag_data}"
+	invoke_tag_api "https://api.github.com/repos/liferay/${repository}/git/refs" "${ref_data}"
+}
+
+function invoke_tag_api {
 	if (! curl \
-			"https://api.github.com/repos/liferay/${repository}/git/tags" \
-			--data-raw '
-				{
-					"message": "",
-					"object": "'$(lc_get_property "${_PROJECTS_DIR}"/liferay-portal-ee/release.properties release.tool.sha)'",
-					"tag": "'"${LIFERAY_RELEASE_VERSION}"'",
-					"type": "commit"
-				}' \
+			"${1}" \
+			--data "${2}" \
 			--fail \
 			--header "Accept: application/vnd.github+json" \
 			--header "Authorization: Bearer ${LIFERAY_RELEASE_GITHUB_PAT}" \
@@ -129,28 +165,6 @@ function tag_release {
 			--silent)
 	then
 		lc_log ERROR "Unable to tag release."
-
-		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
-	fi
-
-	if (! curl \
-			"https://api.github.com/repos/liferay/${repository}/git/refs" \
-			--data-raw '
-				{
-					"message": "",
-					"ref": "refs/tags/'"${LIFERAY_RELEASE_VERSION}"'",
-					"sha": "'$(lc_get_property "${_PROJECTS_DIR}"/liferay-portal-ee/release.properties release.tool.sha)'"
-				}' \
-			--fail \
-			--header "Accept: application/vnd.github+json" \
-			--header "Authorization: Bearer ${LIFERAY_RELEASE_GITHUB_PAT}" \
-			--header "X-GitHub-Api-Version: 2022-11-28" \
-			--max-time 10 \
-			--request POST \
-			--retry 3 \
-			--silent)
-	then
-		echo "Unable to tag release."
 
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
