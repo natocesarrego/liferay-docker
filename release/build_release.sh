@@ -77,7 +77,7 @@ function cherry_pick_commits {
 
 	git pull origin -q "${LIFERAY_RELEASE_GIT_REF}"
 
-	local push_to_origin="true"
+	local cherry_pick_all_commits="true"
 
 	for liferay_release_ticket in "${liferay_release_tickets_array[@]}"
 	do
@@ -99,12 +99,12 @@ function cherry_pick_commits {
 			else
 				lc_log ERROR "Cherry-pick of commit ${liferay_release_commit_sha} failed"
 
-				push_to_origin="false"
+				cherry_pick_all_commits="false"
 			fi
 		done
 	done
 
-	if [ "${push_to_origin}" == "true" ]
+	if [ "${cherry_pick_all_commits}" == "true" ]
 	then
 		git push origin -q "${LIFERAY_RELEASE_GIT_REF}"
 	fi
