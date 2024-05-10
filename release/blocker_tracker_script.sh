@@ -19,7 +19,7 @@ function main {
 		exit "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
 
-	local not_yet_merged_blockers=""
+	local blockers_not_merged=""
 
 	local blocker_issues_keys=()
 
@@ -42,15 +42,15 @@ function main {
 	do
 		if [ -z "$(git log --grep="${blocker_issue_key}")" ]
 		then
-			not_yet_merged_blockers+="<https://liferay.atlassian.net/browse/${blocker_issue_key}|${blocker_issue_key}> "
+			blockers_not_merged+="<https://liferay.atlassian.net/browse/${blocker_issue_key}|${blocker_issue_key}> "
 		fi
 	done
 
 	local slack_message="All blockers are merged"
 
-	if [ -n "${not_yet_merged_blockers}" ]
+	if [ -n "${blockers_not_merged}" ]
 	then
-		slack_message="These blockers still need to be merged: ${not_yet_merged_blockers}"
+		slack_message="These blockers still need to be merged: ${blockers_not_merged}"
 	fi
 
 	if (curl \
