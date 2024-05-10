@@ -6,7 +6,6 @@ JIRA_TOKEN=""
 SLACK_WEB_HOOK_URL=""
 
 function main {
-
 	lc_cd liferay-portal
 
 	local git_pull_response
@@ -16,6 +15,7 @@ function main {
 	if [[ "${git_pull_response}" == *"Already up to date"* ]]
 	then
 		lc_log INFO "The master branch hasn't been updated since the last run, so no changes in the blockers have occurred."
+
 		exit "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
 
