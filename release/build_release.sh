@@ -91,14 +91,15 @@ function cherry_pick_commits {
 
 		for liferay_release_commit_sha in "${liferay_release_commits_sha[@]}"
 		do
-			git cherry-pick --strategy-option theirs "${liferay_release_commit_sha}" >/dev/null
+			git cherry-pick --strategy-option theirs "${liferay_release_commit_sha}" > /dev/null
 
 			if [ $? -eq 0 ]
 			then
 				lc_log INFO "Cherry-pick of commit ${liferay_release_commit_sha} successful"
 			else
-				push_to_origin="false"
 				lc_log ERROR "Cherry-pick of commit ${liferay_release_commit_sha} failed"
+
+				push_to_origin="false"
 			fi
 		done
 	done
