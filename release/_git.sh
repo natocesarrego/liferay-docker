@@ -1,5 +1,44 @@
 #!/bin/bash
 
+function cherry_pick_commits {
+	local liferay_release_tickets_array
+
+	IFS=',' read -ra liferay_release_tickets_array <<< "${LIFERAY_RELEASE_TICKETS}"
+
+	lc_cd "${_PROJECTS_DIR}"/liferay-portal-ee
+
+	git pull origin -q "${LIFERAY_RELEASE_GIT_REF}"
+
+	local cherry_pick_all_commits="true"
+
+	for liferay_release_ticket in "${liferay_release_tickets_array[@]}"
+	do
+		git checkout -q master
+
+		local liferay_release_commits_sha
+
+		read -r -d '' -a liferay_release_commits_sha < <(git log --grep="${liferay_release_ticket}" --pretty=format:%H --reverse)
+
+		git checkout -q "${LIFERAY_RELEASE_GIT_REF}"
+
+		for liferay_release_commit_sha in "${liferay_release_commits_sha[@]}"
+		do
+			git cherry-pick --strategy-option theirs "${liferay_release_commit_sha}" > /dev/null
+
+			if [ $? -eq 0 ]
+			then
+				lc_log INFO "Cherry-pick of commit ${liferay_release_commit_sha} successful"
+			else
+				lc_log ERROR "Cherry-pick of commit ${liferay_release_commit_sha} failed"
+
+				return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+			fi
+		done
+	done
+
+	git push origin -q "${LIFERAY_RELEASE_GIT_REF}"
+}
+
 function clean_portal_repository {
 	lc_cd "${_PROJECTS_DIR}"/liferay-portal-ee
 
