@@ -75,6 +75,7 @@ function main {
 	test_docker_image_patching_tool_updated
 	test_docker_image_scripts_1
 	test_docker_image_scripts_2
+	test_docker_image_with_playwright
 
 	generate_thread_dump
 
@@ -221,6 +222,28 @@ function test_docker_image_scripts_1 {
 
 function test_docker_image_scripts_2 {
 	test_page "http://${CONTAINER_HOSTNAME}:${CONTAINER_HTTP_PORT}/test_docker_image_scripts_2.jsp" "TEST2"
+}
+
+function test_docker_image_with_playwright {
+	export CONTAINER_EXPORTED_PORT=$(docker port "${CONTAINER_ID}" 8080 | head -n 1 | awk -F: '{print $2}')
+
+	if [ ! -d "playwright-dependencies" ]
+	then
+		echo "Directory playwright-dependencies does not exist"
+
+		exit 1
+	fi
+
+	cd playwright-dependencies || exit
+
+	local playwright_test_result=$(npx playwright test)
+
+	if [[ $playwright_test_result == *"1 passed"* ]]
+	then
+		log_test_success
+	else
+		log_test_failure
+	fi
 }
 
 function test_health_status {
