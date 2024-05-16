@@ -128,35 +128,6 @@ function upload_hotfix {
 	echo " - https://releases.liferay.com/dxp/hotfix/${_PRODUCT_VERSION}/${_HOTFIX_FILE_NAME}" >> ../output.md
 }
 
-function upload_release {
-	if [ "${LIFERAY_RELEASE_UPLOAD}" != "true" ]
-	then
-		lc_log INFO "Set the environment variable LIFERAY_RELEASE_UPLOAD to \"true\" to enable."
-
-		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
-	fi
-
-	lc_cd "${_BUILD_DIR}"/release
-
-	echo "# Uploaded" > ../output.md
-
-	ssh root@lrdcom-vm-1 mkdir -p "/www/releases.liferay.com/${LIFERAY_RELEASE_PRODUCT_NAME}/release-candidates/${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}"
-
-	for file in * .*
-	do
-		if [ -f "${file}" ]
-		then
-			echo "Copying ${file}."
-
-			gsutil cp "${_BUILD_DIR}/release/${file}" "gs://liferay-releases/${LIFERAY_RELEASE_PRODUCT_NAME}/${_PRODUCT_VERSION}"
-
-			scp "${file}" root@lrdcom-vm-1:"/www/releases.liferay.com/${LIFERAY_RELEASE_PRODUCT_NAME}/release-candidates/${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}"
-
-			echo " - https://releases.liferay.com/${LIFERAY_RELEASE_PRODUCT_NAME}/release-candidates/${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}/${file}" >> ../output.md
-		fi
-	done
-}
-
 function _upload_to_nexus {
 	local file_path="${1}"
 	local file_url="${2}"

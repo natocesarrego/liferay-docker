@@ -136,8 +136,6 @@ function main {
 		lc_time_run generate_release_notes
 
 		lc_time_run upload_boms xanadu
-
-		lc_time_run upload_release
 	else
 		lc_time_run prepare_release_dir
 
