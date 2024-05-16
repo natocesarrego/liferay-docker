@@ -144,7 +144,7 @@ function upload_release {
 
 	for file in * .*
 	do
-		if [ -f "${file}" ]
+		if [ -f "${file}" ] && ! [[ "${file}" == *.jar* || "${file}" == *.pom* ]]
 		then
 			echo "Copying ${file}."
 
