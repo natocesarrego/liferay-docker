@@ -7,7 +7,7 @@ RUN apt-get update && \
 	apt-get upgrade --yes && \
 	apt-get clean
 
-	RUN VERSION=8.7.1 && \
+RUN VERSION=8.7.1 && \
 	curl https://curl.se/download/curl-${VERSION}.tar.gz --output curl-${VERSION}.tar.gz && \
 	tar -xzvf curl-${VERSION}.tar.gz && \
 	rm -f curl-${VERSION}.tar.gz && \
