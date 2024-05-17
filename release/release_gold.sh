@@ -58,7 +58,7 @@ function main {
 
 	lc_time_run upload_releases_json
 
-	lc_time_run add_patcher_project_version
+	#lc_time_run add_patcher_project_version
 }
 
 function print_help {
