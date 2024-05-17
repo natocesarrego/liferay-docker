@@ -42,6 +42,46 @@ function add_fixed_issues_to_project_version {
 	lc_log INFO "The full fixed issues list has been added to the ${_PRODUCT_VERSION} project version."
 }
 
+function add_patcher_project_version {
+	local product_version_label="Quarterly Releases"
+
+	local root_patcher_project_version_name=""
+
+	case "${_PRODUCT_VERSION}" in
+	7.4.*)
+		product_version_label="DXP 7.4"
+
+		root_patcher_project_version_name="7.4.13-ga1"
+		;;
+	7.3.*)
+		product_version_label="DXP 7.3"
+
+		root_patcher_project_version_name="fix-pack-base-7310"
+		;;
+	esac
+
+	local add_by_name_response=$(\
+		curl \
+			"https://patcher.liferay.com/api/jsonws/osb-patcher-portlet.project_versions/addByName" \
+			--data-raw "combinedBranch=true&committish=${_PRODUCT_VERSION}&fixedIssues=&name=${_PRODUCT_VERSION}&productVersionLabel=${product_version_label}&repositoryName=liferay-portal-ee&rootPatcherProjectVersionName=${root_patcher_project_version_name}" \
+			--fail \
+			--max-time 10 \
+			--retry 3 \
+			--silent \
+			--user "${LIFERAY_RELEASE_PATCHER_PORTAL_EMAIL}:${LIFERAY_RELEASE_PATCHER_PORTAL_PASSWORD}")
+
+	if [ $? -eq 0 ]
+	then
+		lc_log INFO "Project version ${_PRODUCT_VERSION} added to Patcher Portal. Populating its fixed issues list."
+
+		add_fixed_issues_to_project_version $(echo "${add_by_name_response}" | jq -r '.data.patcherProjectVersionId')
+	else
+		lc_log ERROR "Unable to add project version ${_PRODUCT_VERSION} to Patcher Portal."
+
+		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+	fi
+}
+
 function check_url {
 	local file_url="${1}"
 
