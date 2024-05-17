@@ -62,7 +62,7 @@ function lc_clone_repository {
 
 	if [ -e "/opt/github/source-code-sharing/${repository_name}" ]
 	then
-		echo "Copying Git repository from /opt/github/source-code-sharing/${repository_name}."
+		echo "Copying Git repository from /opt/github/source-code-sharing/${repository_name}" to "${repository_path}"
 
 		cp -a "/opt/github/source-code-sharing/${repository_name}" "${repository_path}"
 	else
