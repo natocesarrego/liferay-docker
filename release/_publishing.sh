@@ -1,5 +1,47 @@
 #!/bin/bash
 
+function add_fixed_issues_to_project_version {
+	IFS=',' read -r -a fixed_issues_array < "${_BUILD_DIR}/release/release-notes.txt"
+
+	local fixed_issues_array_length="${#fixed_issues_array[@]}"
+
+	local fixed_issues_array_part_length=$((fixed_issues_array_length / 4))
+
+	local patcherProjectVersionId="${1}"
+
+	for counter in {0..3}
+	do
+		start_index=$((counter * fixed_issues_array_part_length))
+		end_index=$((start_index + fixed_issues_array_part_length))
+
+		if [ "${counter}" -eq 3 ]
+		then
+			end_index="${fixed_issues_array_length}"
+		fi
+
+		IFS=',' fixed_issues="${fixed_issues_array[*]:${start_index}:$((end_index - start_index))}"
+
+		if (curl \
+			"https://patcher.liferay.com/api/jsonws/osb-patcher-portlet.project_versions/updateFixedIssues" \
+			--data-raw "fixedIssues=${fixed_issues}&patcherProjectVersionId=${patcherProjectVersionId}" \
+			--fail \
+			--max-time 10 \
+			--output /dev/null \
+			--retry 3 \
+			--silent \
+			--user "${LIFERAY_RELEASE_PATCHER_PORTAL_EMAIL}:${LIFERAY_RELEASE_PATCHER_PORTAL_PASSWORD}")
+		then
+			lc_log INFO "Adding fixed issues to the ${_PRODUCT_VERSION} project version."
+		else
+			lc_log ERROR "Unable to add the full fixed issues list to the ${_PRODUCT_VERSION} project version."
+
+			return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+		fi
+	done
+
+	lc_log INFO "The full fixed issues list has been added to the ${_PRODUCT_VERSION} project version."
+}
+
 function check_url {
 	local file_url="${1}"
 
