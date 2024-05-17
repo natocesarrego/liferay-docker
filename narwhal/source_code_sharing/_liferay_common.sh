@@ -71,6 +71,8 @@ function lc_clone_repository {
 		git clone "git@github.com:liferay/${repository_name}.git" "${repository_path}"
 	fi
 
+	echo "cd into ${repository_path}"
+
 	lc_cd "${repository_path}"
 
 	if (git remote get-url upstream &>/dev/null)
@@ -81,6 +83,10 @@ function lc_clone_repository {
 	fi
 
 	git remote --verbose
+
+	echo "cd into ${BASE_DIR}"
+
+	lc_cd "${BASE_DIR}"
 }
 
 function lc_curl {

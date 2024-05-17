@@ -52,7 +52,18 @@ function _process_product {
 		tr -d "/" | \
 		uniq)
 	do
-		_process_product_version "${product_name}" "${product_version}"
+		local product_version_trivial=$(echo "${product_version}" | grep -oE '(\.u|-u)[0-9]+' | grep -oE '[0-9]+')
+        if [[ "${product_version#*.}" == 4* ]]
+        then
+            if [[ -z "${product_version_trivial}" || "${product_version_trivial}" -lt 113 ]]
+            then
+                _process_product_version "${product_name}" "${product_version}"
+            else
+                continue
+            fi
+        else
+            _process_product_version "${product_name}" "${product_version}"
+        fi
 	done
 }
 

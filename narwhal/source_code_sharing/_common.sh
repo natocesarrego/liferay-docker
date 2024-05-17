@@ -46,6 +46,7 @@ function fetch_repository {
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
 
+	echo "cd into ${BASE_DIR}/${1}"
 	lc_cd "${BASE_DIR}/${1}"
 
 	git fetch --all --force --tags
