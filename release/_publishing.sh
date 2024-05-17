@@ -42,6 +42,30 @@ function add_fixed_issues_to_project_version {
 	lc_log INFO "The full fixed issues list has been added to the ${_PRODUCT_VERSION} project version"
 }
 
+function add_patcher_project_version {
+	local add_by_name_response=$(\
+		curl \
+			"https://patcher.liferay.com/api/jsonws/osb-patcher-portlet.project_versions/addByName" \
+			--data-raw "combinedBranch=true&committish=${_PRODUCT_VERSION}&fixedIssues=&name=${_PRODUCT_VERSION}&productVersionLabel=Quarterly Releases&repositoryName=liferay-portal-ee&rootPatcherProjectVersionName=" \
+			--fail \
+			--max-time 10 \
+			--retry 3 \
+			--silent \
+			--user "er-hu@liferay.com:${LIFERAY_RELEASE_PASSWORD}")
+
+	if [ $? -eq 0 ]
+	then
+		lc_log INFO "Project version ${_PRODUCT_VERSION} released without the fixed issues list. Adding the required list."
+
+		add_fixed_issues_to_project_version $(echo "${add_by_name_response}" | jq -r '.data.patcherProjectVersionId')
+
+	else
+		lc_log ERROR "Unable to release the ${_PRODUCT_VERSION} project version"
+
+		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+	fi
+}
+
 function check_url {
 	local file_url="${1}"
 
