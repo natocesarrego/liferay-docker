@@ -32,9 +32,9 @@ function check_usage {
 	fi
 
 	if [ "${LIFERAY_RELEASE_SOFT}" == "true" ] && { [ -z "${LIFERAY_RELEASE_TICKETS}" ] || [ -z "${LIFERAY_RELEASE_GIT_PREV_REF}" ]; }
-    then
-        print_help
-    fi
+	then
+		print_help
+	fi
 
 	_BUILD_TIMESTAMP=$(date +%s)
 
