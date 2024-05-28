@@ -238,25 +238,18 @@ function create_branch {
 			--silent \
 			--write-out "%{response_code}")
 
-	if [ $? -gt 0 ]
+	if [ ${http_response_code} -ne 201 ]
 	then
-    	lc_log ERROR "Unable to create the ${LIFERAY_RELEASE_GIT_REF} branch"
+		lc_log ERROR "Unable to create the ${LIFERAY_RELEASE_GIT_REF} branch"
 
 		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 	fi
 
-	if [ "${http_response_code}" == "201" ]
+	lc_log INFO "${LIFERAY_RELEASE_GIT_REF} branch successful created"
+
+	if [ "${LIFERAY_RELEASE_SOFT}" == "true" ]
 	then
-		lc_log INFO "${LIFERAY_RELEASE_GIT_REF} branch successful created"
-
-		if [ "${LIFERAY_RELEASE_SOFT}" == "true" ]
-		then
-			cherry_pick_commits
-		fi
-	else
-		lc_log ERROR "Unable to create the ${LIFERAY_RELEASE_GIT_REF} branch"
-
-		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+		cherry_pick_commits
 	fi
 }
 
