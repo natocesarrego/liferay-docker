@@ -202,34 +202,41 @@ function create_branch {
 		original_branch_name="${LIFERAY_RELEASE_GIT_PREV_REF}"
 	fi
 
-	local last_commit=$(curl \
-		"https://api.github.com/repos/liferay/liferay-portal-ee/git/refs/heads/${original_branch_name}" \
-		--fail \
-		--header "Authorization: token ${LIFERAY_RELEASE_GITHUB_TOKEN}" \
-		--max-time 10 \
-		--retry 3 \
-		--silent)
+	local last_commit=$(\
+		curl \
+			"https://api.github.com/repos/liferay/liferay-portal-ee/git/refs/heads/${original_branch_name}" \
+			--fail \
+			--header "Authorization: token ${LIFERAY_RELEASE_GITHUB_TOKEN}" \
+			--max-time 10 \
+			--retry 3 \
+			--silent)
 
 	if [ $? -gt 0 ]
 	then
-    	lc_log ERROR "Unable to get the last commit from the ${original_branch_name} branch"
+		lc_log ERROR "Unable to get the last commit from the ${original_branch_name} branch"
 
 		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 	fi
 
-	local commits_interval_json=$(jq -n --arg ref "refs/heads/${LIFERAY_RELEASE_GIT_REF}" --arg last_commit_sha "$(echo "${last_commit}" | jq -r '.object.sha')" '{ref: $ref, sha: $last_commit_sha}')
+	local commits_interval_json=$(\
+		jq \
+			-n \
+			--arg ref "refs/heads/${LIFERAY_RELEASE_GIT_REF}" \
+			--arg last_commit_sha "$(echo "${last_commit}" | jq -r '.object.sha')" \
+			'{ref: $ref, sha: $last_commit_sha}')
 
-	local http_response_code=$(curl \
-		"https://api.github.com/repos/liferay/liferay-portal-ee/git/refs" \
-		--data "${commits_interval_json}" \
-		--fail \
-		--header "Authorization: token ${LIFERAY_RELEASE_GITHUB_TOKEN}" \
-		--max-time 10 \
-		--output /dev/null \
-		--request POST \
-		--retry 3 \
-		--silent \
-		--write-out "%{response_code}")
+	local http_response_code=$(\
+		curl \
+			"https://api.github.com/repos/liferay/liferay-portal-ee/git/refs" \
+			--data "${commits_interval_json}" \
+			--fail \
+			--header "Authorization: token ${LIFERAY_RELEASE_GITHUB_TOKEN}" \
+			--max-time 10 \
+			--output /dev/null \
+			--request POST \
+			--retry 3 \
+			--silent \
+			--write-out "%{response_code}")
 
 	if [ $? -gt 0 ]
 	then
