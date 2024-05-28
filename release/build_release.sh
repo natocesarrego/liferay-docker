@@ -31,7 +31,9 @@ function check_usage {
 		LIFERAY_RELEASE_SOFT="false"
 	fi
 
-	if [ "${LIFERAY_RELEASE_SOFT}" == "true" ] && { [ -z "${LIFERAY_RELEASE_TICKETS}" ] || [ -z "${LIFERAY_RELEASE_GIT_PREV_REF}" ]; }
+	if [ "${LIFERAY_RELEASE_SOFT}" == "true" ] &&
+	   { [ -z "${LIFERAY_RELEASE_TICKETS}" ] ||
+		 [ -z "${LIFERAY_RELEASE_GIT_PREV_REF}" ]; }
 	then
 		print_help
 	fi
