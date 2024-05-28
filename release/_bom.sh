@@ -224,58 +224,55 @@ function generate_pom_release_dxp_bom_third_party {
 		-e "w ${pom_file_name}" \
 		"${_RELEASE_TOOL_DIR}/templates/release.dxp.bom.third.party.pom.tpl" > /dev/null
 
-	local property_files=(
-		"${_PROJECTS_DIR}/liferay-portal-ee/lib/development/dependencies.properties"
-		"${_PROJECTS_DIR}/liferay-portal-ee/lib/portal/dependencies.properties"
-	)
+	IFS=$'\n' read -d '' -r -a development_properties < "${_PROJECTS_DIR}/liferay-portal-ee/lib/development/dependencies.properties"
 
-	find "${_BUNDLES_DIR}/tomcat/webapps/ROOT/WEB-INF/shielded-container-lib" -name "*.jar" -print0 | \
-		while IFS= read -d '' -r jar_file
-		do
-			if (unzip -l "${jar_file}" | grep -q "pom.xml$")
-			then
-				local artifact_name="${jar_file##*/}"
+	for property in "${development_properties[@]}"
+	do
+		local development_artifact_properties=$(echo "${property}" | cut -d= -f2)
 
-				artifact_name="${artifact_name/%\.jar}"
+		IFS=':' read -ra development_artifact_properties <<< "$development_artifact_properties"
 
-				if [[ "${artifact_name}" == com.liferay.* ]]
-				then
-					continue
-				fi
-
-				artifact_name="${artifact_name##*.}"
-
-				local artifact_properties=$(grep -w "^$artifact_name" "${property_files[@]}")
-
-				if [ -z "${artifact_properties}" ]
-				then
-					continue
-				fi
-
-				if [[ "${artifact_properties}" == *development/dependencies.properties* ]] && [[ "${artifact_properties}" == *portal/dependencies.properties* ]]
-				then
-					artifact_properties=$(echo "${artifact_properties}" | grep "portal/dependencies.properties" | cut -d= -f2)
-				else
-					artifact_properties=$(echo "$artifact_properties" | cut -d= -f2)
-				fi
-
-				echo "$artifact_properties" | \
-					while IFS=: read -r group_id artifact_id version
-					do
-						echo -e "\t\t\t<dependency>"
-						echo -e "\t\t\t\t<groupId>${group_id}</groupId>"
-						echo -e "\t\t\t\t<artifactId>${artifact_id}</artifactId>"
-						echo -e "\t\t\t\t<version>${version}</version>"
-						echo -e "\t\t\t</dependency>"
-					done >> "${pom_file_name}"
-			fi
-		done
+		if (grep -q "<artifactId>${development_artifact_properties[1]}</artifactId>" "${pom_file_name}")
+		then
+			continue
+		fi
 
 		(
-			echo -e "\t\t</dependencies>"
-			echo -e "\t</dependencyManagement>"
-			echo "</project>"
-		) >> "${pom_file_name}"
+			echo -e "\t\t\t<dependency>"
+			echo -e "\t\t\t\t<groupId>${development_artifact_properties[0]}</groupId>"
+			echo -e "\t\t\t\t<artifactId>${development_artifact_properties[1]}</artifactId>"
+			echo -e "\t\t\t\t<version>${development_artifact_properties[2]}</version>"
+			echo -e "\t\t\t</dependency>"
+        ) >> "${pom_file_name}"
+	done
+
+	IFS=$'\n' read -d '' -r -a portal_properties < "${_PROJECTS_DIR}/liferay-portal-ee/lib/portal/dependencies.properties"
+
+	for property in "${portal_properties[@]}"
+	do
+		local portal_artifact_properties=$(echo "${property}" | cut -d= -f2)
+
+		IFS=':' read -ra portal_artifact_properties <<< "$portal_artifact_properties"
+
+		if (grep -q "<artifactId>${portal_artifact_properties[1]}</artifactId>" "${pom_file_name}")
+		then
+			continue
+		fi
+
+		(
+			echo -e "\t\t\t<dependency>"
+			echo -e "\t\t\t\t<groupId>${portal_artifact_properties[0]}</groupId>"
+			echo -e "\t\t\t\t<artifactId>${portal_artifact_properties[1]}</artifactId>"
+			echo -e "\t\t\t\t<version>${portal_artifact_properties[2]}</version>"
+			echo -e "\t\t\t</dependency>"
+        ) >> "${pom_file_name}"
+	done
+
+	(
+		echo -e "\t\t</dependencies>"
+		echo -e "\t</dependencyManagement>"
+		echo "</project>"
+	) >> "${pom_file_name}"
 }
 
 function generate_poms {
