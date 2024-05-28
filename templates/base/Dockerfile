@@ -1,17 +1,17 @@
-FROM --platform=${TARGETPLATFORM} ubuntu:jammy AS ubuntu-jammy
+FROM --platform=${TARGETPLATFORM} ubuntu:mantic AS ubuntu-mantic
 
 COPY resources/etc/created-date /etc/created-date
 
 RUN apt-get update && \
-	DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install --no-install-recommends --yes bash ca-certificates curl jq less libnss3 telnet tini tree unzip && \
+	DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install --no-install-recommends --yes adduser bash ca-certificates curl jq less libnss3 telnet tini tree unzip && \
 	apt-get upgrade --yes && \
 	apt-get clean
 
-RUN adduser --disabled-password --home /home/liferay liferay --uid 1000 && \
-	addgroup liferay liferay && \
+RUN userdel ubuntu && \
+	adduser --disabled-password --home /home/liferay liferay --uid 1000 && \
 	usermod -g 1000 liferay
 
-FROM ubuntu-jammy
+FROM ubuntu-mantic
 
 ARG LABEL_BUILD_DATE
 ARG LABEL_NAME
