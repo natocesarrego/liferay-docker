@@ -10,6 +10,8 @@ function download_bnd_files {
 
 	lc_cd "${_BUILD_DIR}/boms"
 
+	rm -f ./*.jar
+
 	lc_download "https://repo1.maven.org/maven2/biz/aQute/bnd/biz.aQute.bnd/6.4.0/biz.aQute.bnd-6.4.0.jar" "biz.aQute.bnd-6.4.0.jar"
 }
 
@@ -89,7 +91,7 @@ function generate_api_jars {
 	do
 		_manage_bom_jar "${module_jar}"
 	done
-} 
+}
 
 function generate_api_source_jar {
 	lc_cd "${_PROJECTS_DIR}/liferay-portal-ee"
@@ -376,7 +378,6 @@ function generate_poms_from_scratch {
 	lc_cd "${_BUILD_DIR}/boms"
 
 	rm -f ./*.pom
-	rm -f ./*.jar
 
 	lc_time_run generate_pom_release_dxp_api
 	lc_time_run generate_pom_release_dxp_bom
@@ -482,7 +483,7 @@ function _manage_bom_jar {
 function _manage_distro_jar {
 	lc_log DEBUG "Processing release.dxp.distro-'${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}' for api jar."
 
-	if [[ ! $(echo "${_OSGI_VERSION}" | grep "q") ]]
+	if [[ ! $(echo "${osgi_version}" | grep "q") ]]
 	then
 		lc_log INFO "The OSGI version is valid"
 
@@ -497,8 +498,8 @@ function _manage_distro_jar {
 
 	rm -f ../release.dxp.distro-"${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}".jar
 
-	sed -i s/"${_OSGI_VERSION}"/"${_PRODUCT_VERSION}"/g META-INF/MANIFEST.MF
-	sed -i s/"${_OSGI_VERSION}"/"${_PRODUCT_VERSION}"/g OSGI-OPT/obr.xml
+	sed -i s/"${osgi_version}"/"${_PRODUCT_VERSION}"/g META-INF/MANIFEST.MF
+	sed -i s/"${osgi_version}"/"${_PRODUCT_VERSION}"/g OSGI-OPT/obr.xml
 
 	jar cf ../release.dxp.distro-"${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}".jar -C extracted_release.dxp.distro-"${_PRODUCT_VERSION}"/ .
 
