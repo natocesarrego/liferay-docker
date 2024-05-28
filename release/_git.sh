@@ -9,8 +9,6 @@ function cherry_pick_commits {
 
 	git pull origin -q "${LIFERAY_RELEASE_GIT_REF}"
 
-	local cherry_pick_all_commits="true"
-
 	for liferay_release_ticket in "${liferay_release_tickets_array[@]}"
 	do
 		git checkout -q master
