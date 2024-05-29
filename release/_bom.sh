@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source _liferay_common.sh
+
 function generate_api_jars {
 	mkdir -p "${_BUILD_DIR}/boms"
 
@@ -67,12 +69,16 @@ function generate_api_jars {
 		rm -f "${name}-${version}.jar"
 	done
 
-	for portal_jar in portal-impl portal-kernel support-tomcat util-bridges util-java util-slf4j util-taglib
+	_manage_bom_jar "${_BUNDLES_DIR}/tomcat-9.0.83/lib/ext/portal-kernel.jar"
+
+	_manage_bom_jar "${_BUNDLES_DIR}/tomcat-9.0.83/lib/ext/support-tomcat.jar"
+
+	for portal_jar in portal-impl util-bridges util-java util-slf4j util-taglib
 	do
-		_manage_bom_jar "${_BUNDLES_DIR}/tomcat/webapps/ROOT/WEB-INF/shielded-container-lib/${portal_jar}.jar"
+		_manage_bom_jar "${_BUNDLES_DIR}/tomcat-9.0.83/webapps/ROOT/WEB-INF/lib/${portal_jar}.jar"
 	done
 
-	find "${_BUNDLES_DIR}/osgi" "${_BUNDLES_DIR}/tomcat/webapps/ROOT/WEB-INF/shielded-container-lib" -name "com.liferay.*.jar" -type f -print0 | while IFS= read -r -d '' module_jar
+	find "${_BUNDLES_DIR}/osgi" "${_BUNDLES_DIR}/tomcat-9.0.83/lib/ext" "${_BUNDLES_DIR}/tomcat-9.0.83/webapps/ROOT/WEB-INF/lib" -name "com.liferay.*.jar" -type f -print0 | while IFS= read -r -d '' module_jar
 	do
 		_manage_bom_jar "${module_jar}"
 	done
@@ -115,24 +121,22 @@ function generate_api_source_jar {
 }
 
 function generate_pom_release_dxp_api {
-	local pom_file_name="release.dxp.api-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.pom"
+	local pom_file_name="release.dxp.api-${_PRODUCT_VERSION}.pom"
 
 	lc_log DEBUG "Generating ${pom_file_name}."
 
 	sed \
-		-e "s/__BUILD_TIMESTAMP__/${_BUILD_TIMESTAMP}/" \
 		-e "s/__PRODUCT_VERSION__/${_PRODUCT_VERSION}/" \
 		-e "w ${pom_file_name}" \
 		"${_RELEASE_TOOL_DIR}/templates/release.dxp.api.pom.tpl" > /dev/null
 }
 
 function generate_pom_release_dxp_bom {
-	local pom_file_name="release.dxp.bom-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.pom"
+	local pom_file_name="release.dxp.bom-${_PRODUCT_VERSION}.pom"
 
 	lc_log DEBUG "Generating ${pom_file_name}."
 
 	sed \
-		-e "s/__BUILD_TIMESTAMP__/${_BUILD_TIMESTAMP}/" \
 		-e "s/__PRODUCT_VERSION__/${_PRODUCT_VERSION}/" \
 		-e "w ${pom_file_name}" \
 		"${_RELEASE_TOOL_DIR}/templates/release.dxp.bom.pom.tpl" > /dev/null
@@ -142,7 +146,7 @@ function generate_pom_release_dxp_bom {
 		> /tmp/artifact_urls.txt
 
 	for artifact_file in $(
-		find "${_BUNDLES_DIR}/osgi" "${_BUNDLES_DIR}/tomcat/webapps/ROOT/WEB-INF" -name '*.jar' | \
+		find "${_BUNDLES_DIR}/osgi" "${_BUNDLES_DIR}/tomcat-9.0.83/webapps/ROOT/WEB-INF" "${_BUNDLES_DIR}/tomcat-9.0.83/lib/ext" -name '*.jar' | \
 			sed \
 				-e 's/\.jar$//' \
 				-e "s@.*/@@" \
@@ -186,12 +190,11 @@ function generate_pom_release_dxp_bom {
 }
 
 function generate_pom_release_dxp_bom_compile_only {
-	local pom_file_name="release.dxp.bom.compile.only-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.pom"
+	local pom_file_name="release.dxp.bom.compile.only-${_PRODUCT_VERSION}.pom"
 
 	lc_log DEBUG "Generating ${pom_file_name}."
 
 	sed \
-		-e "s/__BUILD_TIMESTAMP__/${_BUILD_TIMESTAMP}/" \
 		-e "s/__PRODUCT_VERSION__/${_PRODUCT_VERSION}/" \
 		-e "w ${pom_file_name}" \
 		"${_RELEASE_TOOL_DIR}/templates/release.dxp.bom.compile.only.pom.tpl" > /dev/null
@@ -214,12 +217,11 @@ function generate_pom_release_dxp_bom_compile_only {
 }
 
 function generate_pom_release_dxp_bom_third_party {
-	local pom_file_name="release.dxp.bom.third.party-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.pom"
+	local pom_file_name="release.dxp.bom.third.party-${_PRODUCT_VERSION}.pom"
 
 	lc_log DEBUG "Generating ${pom_file_name}."
 
 	sed \
-		-e "s/__BUILD_TIMESTAMP__/${_BUILD_TIMESTAMP}/" \
 		-e "s/__PRODUCT_VERSION__/${_PRODUCT_VERSION}/" \
 		-e "w ${pom_file_name}" \
 		"${_RELEASE_TOOL_DIR}/templates/release.dxp.bom.third.party.pom.tpl" > /dev/null
@@ -375,3 +377,88 @@ function _manage_bom_jar {
 
 	rm -fr jar-temp
 }
+
+function generate_checksum_files {
+	lc_cd "${_BUILD_DIR}"/release
+
+	for file in *
+	do
+		if [ -f "${file}" ]
+		then
+
+			#
+			# TODO Remove *.MD5 in favor of *.sha512.
+			#
+
+			md5sum "${file}" | sed -e "s/ .*//" > "${file}.MD5"
+
+			sha512sum "${file}" | sed -e "s/ .*//" > "${file}.sha512"
+		fi
+	done
+}
+
+function package_boms {
+	lc_cd "${_BUILD_DIR}/boms"
+
+	rm -r "${_BUILD_DIR}/release"
+
+	mkdir -p "${_BUILD_DIR}/release"
+
+	# cp -a ./*.pom "${_BUILD_DIR}/release"
+
+	touch .touch
+
+	jar cvfm "${_BUILD_DIR}/release/release.dxp.api-${_PRODUCT_VERSION}.jar" .touch -C api-jar .
+	jar cvfm "${_BUILD_DIR}/release/release.dxp.api-${_PRODUCT_VERSION}-sources.jar" .touch -C api-sources-jar .
+
+	rm -f .touch
+}
+
+_RELEASE_ROOT_DIR="/home/me"
+_BUILD_DIR="${_RELEASE_ROOT_DIR}"/build
+_BUNDLES_DIR="${_RELEASE_ROOT_DIR}"/dev/projects/bundles
+_PROJECTS_DIR="${_RELEASE_ROOT_DIR}"/dev/projects
+_PRODUCT_VERSION=7.3.10.u36
+_TAG_NAME=7.3.10-u36
+LIFERAY_RELEASE_PRODUCT_NAME=dxp
+_BUILD_TIMESTAMP=$(date +%s)
+_RELEASE_TOOL_DIR="${_PROJECTS_DIR}/liferay-docker/release"
+
+lc_cd "${_PROJECTS_DIR}/liferay-portal-ee"
+
+git restore .
+git tag -d "${_TAG_NAME}"
+git fetch --no-tags upstream "${_TAG_NAME}":"${_TAG_NAME}"
+git checkout "${_TAG_NAME}"
+
+ant all
+
+# ant setup-profile-dxp
+
+lc_cd "${_PROJECTS_DIR}/liferay-docker"
+
+rm -r "${_BUILD_DIR}/boms"
+
+# mkdir -p "${_BUILD_DIR}/boms"
+
+# lc_cd "${_BUILD_DIR}/boms"
+
+generate_api_jars
+generate_api_source_jar
+
+# lc_cd "${_BUILD_DIR}/boms"
+
+generate_poms
+package_boms
+
+mv "${_BUILD_DIR}"/boms/*.pom "${_BUILD_DIR}"/release/
+
+generate_checksum_files
+
+# vai para liferay-portal-ee
+# vai para a tag que deseja gerar o bom
+# roda ant setup-profile-dxp
+# executa o script _bom.sh modificado
+# executa o script _publishing.sh modificado
+# verificar se os arquivos no repository.liferay.com e repository-cdn.liferay.com
+	# estão iguais, caso não, pedir para TI limpar o cache do repository-cdn.liferay.com.
