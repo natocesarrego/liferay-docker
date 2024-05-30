@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function generate_checksum_files {
-	lc_cd "${_BUILD_DIR}"/release
+	lc_cd "${_BUILD_DIR}"/boms
 
 	for file in *
 	do

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source _liferay_common.sh
+
 function check_url {
 	local file_url="${1}"
 
@@ -176,9 +178,21 @@ function _upload_to_nexus {
 			--max-time 300 \
 			--retry 3 \
 			--retry-delay 10 \
-			--silent \
 			--upload-file "${file_path}" \
 			--user "${LIFERAY_RELEASE_NEXUS_REPOSITORY_USER}:${LIFERAY_RELEASE_NEXUS_REPOSITORY_PASSWORD}" \
 			"${file_url}"
 	fi
 }
+
+for product_version in 2024.q1.1 2024.q1.2 2024.q1.3 2024.q1.4 2024.q1.5; do
+
+	LIFERAY_RELEASE_UPLOAD=true
+	LIFERAY_RELEASE_NEXUS_REPOSITORY_USER=
+	LIFERAY_RELEASE_NEXUS_REPOSITORY_PASSWORD=
+	_RELEASE_ROOT_DIR=/home/me
+	_PROMOTION_DIR="${_RELEASE_ROOT_DIR}/build/${product_version}-release"
+	_PRODUCT_VERSION="${product_version}"
+
+	upload_boms liferay-public-releases
+
+done
