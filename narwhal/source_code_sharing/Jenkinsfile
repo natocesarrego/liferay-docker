@@ -210,7 +210,11 @@ pipeline {
 	post {
 		always {
 			sh '''
-			rm -f logs/latest
+			if [ -d logs/latest ]
+			then
+				rm -f logs/latest
+			fi
+
 			ln -r -s "logs/${BUILD_NUMBER}" logs/latest
 			'''
 
