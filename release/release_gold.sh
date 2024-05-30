@@ -36,8 +36,21 @@ function check_usage {
 	LIFERAY_COMMON_LOG_DIR="${_PROMOTION_DIR%/*}"
 }
 
+function check_supported_versions {
+	version="${LIFERAY_RELEASE_VERSION%.*}"
+
+	if [ -z $(grep "${version}" "${_RELEASE_ROOT_DIR}"/supported-"${LIFERAY_RELEASE_PRODUCT_NAME}"-versions.txt) ]
+	then
+		lc_log INFO "Version ${version} is not in the supported-${LIFERAY_RELEASE_PRODUCT_NAME}-versions.txt"
+
+		exit "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+	fi
+}
+
 function main {
 	check_usage
+
+	check_supported_versions
 
 	lc_time_run promote_packages
 
