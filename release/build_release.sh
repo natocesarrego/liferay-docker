@@ -214,7 +214,7 @@ function print_help {
 	echo "    LIFERAY_RELEASE_GCS_TOKEN (optional): *.json file containing the token to authenticate with Google Cloud Storage"
 	echo "    LIFERAY_RELEASE_GIT_PREV_REF (required if LIFERAY_RELEASE_SOFT is equals to \"true\"): Previous branch to build from"
 	echo "    LIFERAY_RELEASE_GIT_REF: Git SHA to build from"
-	echo "    LIFERAY_RELEASE_GITHUB_TOKEN: GitHub authentication token"
+	echo "    LIFERAY_RELEASE_GITHUB_PAT: GitHub personal access token"
 	echo "    LIFERAY_RELEASE_HOTFIX_BUILD_ID (optional): Build ID on Patcher"
 	echo "    LIFERAY_RELEASE_HOTFIX_FIXED_ISSUES (optional): Comma delimited list of fixed issues in the hotfix"
 	echo "    LIFERAY_RELEASE_HOTFIX_ID (optional): Hotfix ID"
