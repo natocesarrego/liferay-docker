@@ -69,6 +69,7 @@ function main {
 
 	test_health_status
 
+	test_docker_image_bundle
 	test_docker_image_files
 	test_docker_image_fix_pack_installed
 	test_docker_image_hotfix_installed
@@ -165,6 +166,29 @@ function stop_container {
 
 	docker kill "${CONTAINER_ID}" > /dev/null
 	docker rm "${CONTAINER_ID}" > /dev/null
+}
+
+function test_docker_image_bundle {
+	export CONTAINER_EXPORTED_PORT=$(docker port "${CONTAINER_ID}" 8080 | head -n 1 | awk -F: '{print $2}')
+
+	if [ ! -d "playwright-dependencies" ]
+	then
+		echo "Directory playwright-dependencies does not exist"
+
+		exit 1
+	fi
+
+	cd playwright-dependencies || exit
+
+	local playwright_test_result=$(npx playwright test)
+
+	if [[ $playwright_test_result == *"failed"* ]]
+	then
+		log_test_failure
+		echo "${playwright_test_result}"
+	else
+		log_test_success
+	fi
 }
 
 function test_docker_image_files {
