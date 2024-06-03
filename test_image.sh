@@ -185,6 +185,7 @@ function test_docker_image_bundle {
 	if [[ $playwright_test_result == *"failed"* ]]
 	then
 		log_test_failure
+
 		echo "${playwright_test_result}"
 	else
 		log_test_success
