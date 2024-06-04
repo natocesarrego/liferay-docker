@@ -7,14 +7,14 @@
 >
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.liferay.portal</groupId>
-	<artifactId>release.dxp.bom.third.party</artifactId>
+	<artifactId>__LIFERAY_RELEASE_PRODUCT_NAME__</artifactId>
 	<version>__PRODUCT_VERSION__-__BUILD_TIMESTAMP__</version>
 	<packaging>pom</packaging>
 	<licenses>
-		<license>
-			<name>LGPL 2.1</name>
-			<url>http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt</url>
-		</license>
+	  <license>
+		<name>LGPL 2.1</name>
+		<url>http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt</url>
+	  </license>
 	</licenses>
 	<developers>
 		<developer>
@@ -29,5 +29,17 @@
 		<tag>__PRODUCT_VERSION__</tag>
 		<url>https://github.com/liferay/liferay-dxp</url>
 	</scm>
+	<repositories>
+		<repository>
+			<id>liferay-public-releases</id>
+			<name>Liferay Public Releases</name>
+			<url>https://repository-cdn.liferay.com/nexus/content/repositories/liferay-public-releases/</url>
+		</repository>
+	</repositories>
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>com.liferay.portal</groupId>
+				<artifactId>__LIFERAY_RELEASE_PRODUCT_NAME__</artifactId>
+				<version>__PRODUCT_VERSION__-__BUILD_TIMESTAMP__</version>
+			</dependency>
