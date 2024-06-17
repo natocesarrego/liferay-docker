@@ -148,9 +148,10 @@ function check_usage {
 		echo "    LIFERAY_DOCKER_LICENSE_API_HEADER (required for DXP): API header used to generate the trial license"
 		echo "    LIFERAY_DOCKER_LICENSE_API_URL (required for DXP): API URL to generate the trial license"
 		echo "    LIFERAY_DOCKER_RELEASE_FILE_URL (required): URL to a Liferay bundle"
+		echo "    LIFERAY_DOCKER_RELEASE_VERSION (required): Version of a Liferay release"
 		echo "    LIFERAY_DOCKER_REPOSITORY (optional): Docker repository"
 		echo ""
-		echo "Example: LIFERAY_DOCKER_RELEASE_FILE_URL=files.liferay.com/private/ee/portal/7.2.10/liferay-dxp-tomcat-7.2.10-ga1-20190531140450482.7z ${0} push"
+		echo "Example: LIFERAY_DOCKER_RELEASE_FILE_URL=files.liferay.com/private/ee/portal/7.2.10/liferay-dxp-tomcat-7.2.10-ga1-20190531140450482.7z LIFERAY_DOCKER_RELEASE_VERSION=7.2.10 ${0} push"
 		echo ""
 		echo "Set \"push\" as a parameter to automatically push the image to Docker Hub."
 
@@ -271,12 +272,25 @@ function push_docker_image {
 function set_parent_image {
 	if (echo "${LIFERAY_DOCKER_RELEASE_VERSION}" | grep -q "q")
 	then
-		return
-	fi
+		if [ $(echo "${LIFERAY_DOCKER_RELEASE_VERSION}" | cut -d '.' -f 1) -gt 2024 ]
+		then
+			return
+		fi
 
-	if [ "$(echo "${LIFERAY_DOCKER_RELEASE_VERSION%-*}" | cut -f1,2,3 -d'.' | cut -f1 -d '-' | sed 's/\.//g' )" -le 7310 ]
-	then
-		sed -i 's/liferay\/jdk11:latest/liferay\/jdk11-jdk8:latest/g' "${TEMP_DIR}"/Dockerfile
+		if [ $(echo "${LIFERAY_DOCKER_RELEASE_VERSION}" | cut -d '.' -f 1) -eq 2024 ] &&
+		   [ $(echo "${LIFERAY_DOCKER_RELEASE_VERSION}" | cut -d '.' -f 2 | tr -d q) -ge 2 ]
+		then
+			return
+		fi
+
+		sed -i 's/liferay\/jdk21:latest AS liferay-jdk21/liferay\/jdk11:latest AS liferay-jdk11/g' "${TEMP_DIR}"/Dockerfile
+		sed -i 's/FROM liferay-jdk21/FROM liferay-jdk11/g' "${TEMP_DIR}"/Dockerfile
+	else
+		if [[ $(echo "${LIFERAY_DOCKER_RELEASE_VERSION%-*}" | cut -f1,2,3 -d'.' | cut -f1 -d '-' | sed 's/\.//g' ) -le 7310 ]]
+		then
+			sed -i 's/liferay\/jdk21:latest AS liferay-jdk21/liferay\/jdk11-jdk8:latest AS liferay-jdk11-jdk8/g' "${TEMP_DIR}"/Dockerfile
+			sed -i 's/FROM liferay-jdk21/FROM liferay-jdk11/g' "${TEMP_DIR}"/Dockerfile
+		fi
 	fi
 }
 
