@@ -1,8 +1,15 @@
 #!/bin/bash
 
-function regenerate_releases_json {
-	_process_product dxp
-	_process_product portal
+function generate_releases_json {
+	if [ "${1}" = "regenerate" ]
+	then
+		_process_product dxp
+		_process_product portal
+	else
+		_process_new_product dxp
+		_process_new_product portal
+
+	fi
 
 	_promote_product_versions dxp
 	_promote_product_versions portal
@@ -29,6 +36,47 @@ function _merge_json_snippets {
 
 		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 	fi
+}
+
+function _process_new_product {
+	local product_name="${1}"
+
+	local release_directory_url="https://releases.liferay.com/${product_name}"
+
+	lc_log INFO "Generating product version list from ${release_directory_url}."
+
+	local directory_html=$(lc_curl "${release_directory_url}/")
+
+	if [ "${?}" -ne 0 ]
+	then
+		lc_log ERROR "Unable to download the product version list."
+
+		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+	fi
+
+	local downloaded_releases_json="${_RELEASE_ROOT_DIR}/release-data/promotion/files/downloaded_releases.json"
+
+	lc_log INFO "Downloading https://releases.liferay.com/releases.json to ${downloaded_releases_json}."
+
+	lc_download https://releases.liferay.com/releases.json "${downloaded_releases_json}"
+
+	for product_version in  $(echo -en "${directory_html}" | \
+		grep -E -o "(20[0-9]+\.q[0-9]\.[0-9]+|7\.[0-9]+\.[0-9]+[a-z0-9\.-]+)/" | \
+		tr -d "/" | \
+		uniq)
+	do
+		if [[ $(echo "${product_version}" | grep "7.4") ]] && [[ $(echo "${product_version}" | cut -d 'u' -f 2) -gt 112 ]]
+		then
+			continue
+		fi
+
+		if grep "${product_version}" "${downloaded_releases_json}"
+		then
+			return
+		else
+			_process_product_version "${product_name}" "${product_version}"
+		fi
+	done
 }
 
 function _process_product {
