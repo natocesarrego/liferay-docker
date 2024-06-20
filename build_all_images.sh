@@ -687,4 +687,8 @@ function validate_bundles_yml {
 	fi
 }
 
+function _build_jdk {
+	echo "TODO"
+}
+
 main "${@}"
