@@ -15,7 +15,7 @@ function main {
 			local architecture=$(dpkg --print-architecture)
 			local zulu_version=$(echo "${JAVA_VERSION}" | tr -dc '0-9')
 
-			if [[ "${JAVA_VERSION}" = "zulu21" ]]
+			if [ "${JAVA_VERSION}" = "zulu21" ]
 			then
 				create_symlink "crac-${architecture}" "zulu-${zulu_version}"
 			else
