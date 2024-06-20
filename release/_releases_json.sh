@@ -1,8 +1,14 @@
 #!/bin/bash
 
-function regenerate_releases_json {
-	_process_product dxp
-	_process_product portal
+function generate_releases_json {
+	if [ "${1}" = "regenerate" ]
+	then
+		_process_product dxp
+		_process_product portal
+	else
+		_process_new_product dxp
+		_process_new_product portal
+	fi
 
 	_promote_product_versions dxp
 	_promote_product_versions portal
@@ -28,6 +34,28 @@ function _merge_json_snippets {
 		lc_log ERROR "Detected invalid JSON."
 
 		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+	fi
+}
+
+function _process_new_product {
+	local product_name="${1}"
+
+	local downloaded_releases_json="${_RELEASE_ROOT_DIR}/release-data/promotion/files/0000-00-00-downloaded_releases.json"
+
+	if [ ! -f "${downloaded_releases_json}" ]
+	then
+		lc_log INFO "Downloading https://releases.liferay.com/releases.json to ${downloaded_releases_json}."
+
+		lc_download https://releases.liferay.com/releases.json "${downloaded_releases_json}"
+	fi
+
+	if grep "${LIFERAY_RELEASE_VERSION}" "${downloaded_releases_json}"
+	then
+		lc_log INFO "The version ${LIFERAY_RELEASE_VERSION} is already in releases.json"
+
+		return
+	else
+		_process_product_version "${product_name}" "${LIFERAY_RELEASE_VERSION}"
 	fi
 }
 
