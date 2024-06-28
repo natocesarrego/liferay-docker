@@ -36,19 +36,47 @@ function init_gcs {
 }
 
 function update_latest_in_bundles {
-    local file_path="${BASE_DIR}/bundles.yml"
+	local product_version_key=${_PRODUCT_VERSION%-*}
 
-    if (yq eval ".quarterly | has(\"${_PRODUCT_VERSION}\")" "${file_path}" | grep -q "true")
-    then
-        lc_log INFO "The ${_PRODUCT_VERSION} product version was already published."
+	local file_path="${BASE_DIR}/bundles.yml"
 
-        return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
-    fi
+	if [[ "${_PRODUCT_VERSION}" == *q* ]]
+	then
+		if (yq eval ".quarterly | has(\"${_PRODUCT_VERSION}\")" "${file_path}" | grep -q "true")
+		then
+			lc_log INFO "The ${_PRODUCT_VERSION} product version was already published."
 
-    local latest_key=$(yq eval '.quarterly | keys | .[-1]' "${file_path}")
+			return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+		fi
 
-    yq -i --indent 4 eval "del(.quarterly.\"${latest_key}\".latest)" "${file_path}"
-    yq -i --indent 4 eval ".quarterly.\"${_PRODUCT_VERSION}\".latest = true" "${file_path}"
+		local latest_key=$(yq eval '.quarterly | keys | .[-1]' "${file_path}")
+
+		yq -i --indent 4 eval "del(.quarterly.\"${latest_key}\".latest)" "${file_path}"
+		yq -i --indent 4 eval ".quarterly.\"${_PRODUCT_VERSION}\".latest = true" "${file_path}"
+	else
+		if (yq eval ".\"${product_version_key}\" | has(\"${_PRODUCT_VERSION}\")" "${file_path}" | grep -q "true")
+		then
+			lc_log INFO "The ${_PRODUCT_VERSION} product version was already published."
+
+			return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+		fi
+		if [[ "${_PRODUCT_VERSION}" == *u* ]]
+		then
+			local nightly_bundle_url=$(yq eval ".\"${product_version_key}\".\"${product_version_key}.nightly\".bundle_url" "${file_path}")
+
+			yq -i --indent 4 eval "del(.\"${product_version_key}\".\"${product_version_key}.nightly\")" "${file_path}"
+			yq -i --indent 4 eval ".\"${product_version_key}\".\"${_PRODUCT_VERSION}\" = {}" "${file_path}"
+			yq -i --indent 4 eval ".\"${product_version_key}\".\"${product_version_key}.nightly\".bundle_url = \"${nightly_bundle_url}\"" "${file_path}"
+		else
+			local ga_bundle_url="releases-cdn.liferay.com/portal/${_PRODUCT_VERSION}/"$(curl -fsSL "https://releases-cdn.liferay.com/portal/${_PRODUCT_VERSION}/.lfrrelease-tomcat-bundle")
+
+			sed -i '0,/latest: true/s// /' "${file_path}"
+			sed -i "/7.4.13:/i ${product_version_key}:" "${file_path}"
+
+			yq -i --indent 4 eval ".\"${product_version_key}\".\"${_PRODUCT_VERSION}\".bundle_url = \"${ga_bundle_url}\"" "${file_path}"
+			yq -i --indent 4 eval ".\"${product_version_key}\".\"${_PRODUCT_VERSION}\".latest = true" "${file_path}"
+		fi
+	fi
 
 	sed -i 's/[[:space:]]{}//g' "${file_path}"
     truncate -s -1 "${file_path}"
