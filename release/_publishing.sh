@@ -35,6 +35,57 @@ function init_gcs {
 	gcloud auth activate-service-account --key-file "${LIFERAY_RELEASE_GCS_TOKEN}"
 }
 
+function update_latest_in_bundles {
+	local file_path="${BASE_DIR}/bundles.yml"
+
+	local product_version_key="$(echo "${_PRODUCT_VERSION}" | cut -d'-' -f 1)"
+
+		if (yq eval ".quarterly | has(\"${_PRODUCT_VERSION}\")" "${file_path}" | grep -q "true") ||
+		(yq eval ".\"${product_version_key}\" | has(\"${_PRODUCT_VERSION}\")" "${file_path}" | grep -q "true")
+		then
+			lc_log INFO "Release ${_PRODUCT_VERSION} was already published."
+
+			return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+		fi
+
+	case "${_PRODUCT_VERSION}" in
+		*q*)
+			local latest_key=$(yq eval '.quarterly | keys | .[-1]' "${file_path}")
+
+			yq -i --indent 4 eval "del(.quarterly.\"${latest_key}\".latest)" "${file_path}"
+			yq -i --indent 4 eval ".quarterly.\"${_PRODUCT_VERSION}\".latest = true" "${file_path}"
+			;;
+		7.3.*)
+			yq -i --indent 4 eval ".\"${product_version_key}\".\"${_PRODUCT_VERSION}\" = {}" "${file_path}"
+			;;
+		*u*)
+			local nightly_bundle_url=$(yq eval ".\"${product_version_key}\".\"${product_version_key}.nightly\".bundle_url" "${file_path}")
+
+			yq -i --indent 4 eval "del(.\"${product_version_key}\".\"${product_version_key}.nightly\")" "${file_path}"
+			yq -i --indent 4 eval ".\"${product_version_key}\".\"${_PRODUCT_VERSION}\" = {}" "${file_path}"
+			yq -i --indent 4 eval ".\"${product_version_key}\".\"${product_version_key}.nightly\".bundle_url = \"${nightly_bundle_url}\"" "${file_path}"
+			;;
+		*ga*)
+			local ga_bundle_url="releases-cdn.liferay.com/portal/${_PRODUCT_VERSION}/"$(curl -fsSL "https://releases-cdn.liferay.com/portal/${_PRODUCT_VERSION}/.lfrrelease-tomcat-bundle")
+
+			sed -i '0,/latest: true/s// /' "${file_path}"
+			sed -i "/7.4.13:/i ${product_version_key}:" "${file_path}"
+
+			yq -i --indent 4 eval ".\"${product_version_key}\".\"${_PRODUCT_VERSION}\".bundle_url = \"${ga_bundle_url}\"" "${file_path}"
+			yq -i --indent 4 eval ".\"${product_version_key}\".\"${_PRODUCT_VERSION}\".latest = true" "${file_path}"
+			;;
+	esac
+
+	sed -i 's/[[:space:]]{}//g' "${file_path}"
+    truncate -s -1 "${file_path}"
+
+    git add "${file_path}"
+
+    git commit -q -m "${_PRODUCT_VERSION}"
+ 
+    git push -q upstream master
+}
+
 function upload_bom_file {
 	local nexus_repository_name="${1}"
 
