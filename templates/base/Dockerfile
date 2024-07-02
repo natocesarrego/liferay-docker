@@ -16,10 +16,7 @@ RUN userdel ubuntu && \
 
 RUN CURL_VERSION=8.7.1 && \
 	\
-	curl https://curl.se/download/curl-${CURL_VERSION}.tar.gz --output curl-${CURL_VERSION}.tar.gz && \
-	tar -xzf curl-${CURL_VERSION}.tar.gz && \
-	rm -f curl-${CURL_VERSION}.tar.gz && \
-	cd curl-${CURL_VERSION} && \
+	curl https://curl.se/download/curl-${CURL_VERSION}.tar.gz | tar xz && cd curl-${CURL_VERSION} && \
 	\
 	apt-get remove curl --yes && rm -fr /usr/bin/curl* && \
 	\
