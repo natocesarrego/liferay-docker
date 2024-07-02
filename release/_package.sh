@@ -33,19 +33,23 @@ function generate_release_properties_file {
 
 	local bundle_file_name="liferay-${LIFERAY_RELEASE_PRODUCT_NAME}-tomcat-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.7z"
 
-	local product_version="DXP ${_PRODUCT_VERSION^^}"
 
-	product_version="${product_version/-/ }"
 
 	local target_platform_version="${_PRODUCT_VERSION}"
 
 	if [ "${LIFERAY_RELEASE_PRODUCT_NAME}" == "dxp" ]
 	then
+		local product_version="DXP ${_PRODUCT_VERSION^^}"
+
 		target_platform_version=$(echo ${target_platform_version} | sed -r 's/-u/.u/')
 	elif [ "${LIFERAY_RELEASE_PRODUCT_NAME}" == "portal" ]
 	then
+		local product_version="Portal ${_PRODUCT_VERSION^^}"
+
 		target_platform_version=$(echo ${target_platform_version} | sed -r 's/-ga[0-9]+//')
 	fi
+
+	product_version="${product_version/-/ }"
 
 	(
 		echo "app.server.tomcat.version=${tomcat_version}"
