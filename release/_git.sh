@@ -27,9 +27,9 @@ function cherry_pick_commits {
 
 			if [ $? -eq 0 ]
 			then
-				lc_log INFO "Cherry-pick of commit ${liferay_release_commit_sha} successful"
+				lc_log INFO "Cherry-pick of commit ${liferay_release_commit_sha} successful."
 			else
-				lc_log ERROR "Cherry-pick of commit ${liferay_release_commit_sha} failed"
+				lc_log ERROR "Cherry-pick of commit ${liferay_release_commit_sha} failed."
 
 				return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 			fi
@@ -208,7 +208,7 @@ function create_branch {
 
 	if [ $? == "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}" ]
 	then
-		lc_log ERROR "Unable to get the last commit from the ${original_branch_name} branch"
+		lc_log ERROR "Unable to get the last commit from the ${original_branch_name} branch."
 
 		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 	fi
@@ -224,12 +224,12 @@ function create_branch {
 
 	if [ $? -eq "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}" ]
 	then
-		lc_log ERROR "Unable to create the ${LIFERAY_RELEASE_GIT_REF} branch"
+		lc_log ERROR "Unable to create the ${LIFERAY_RELEASE_GIT_REF} branch."
 
 		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 	fi
 
-	lc_log INFO "${LIFERAY_RELEASE_GIT_REF} branch successful created"
+	lc_log INFO "${LIFERAY_RELEASE_GIT_REF} branch successful created."
 
 	if [ "${LIFERAY_RELEASE_SOFT}" == "true" ]
 	then
