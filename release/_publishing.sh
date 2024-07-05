@@ -157,6 +157,38 @@ function upload_release {
 	done
 }
 
+function upload_to_docker_hub {
+	_update_bundles_yml
+
+	lc_cd "${BASE_DIR}"
+
+	LIFERAY_DOCKER_IMAGE_FILTER="${_PRODUCT_VERSION}" ./build_all_images.sh --push
+}
+
+function _update_bundles_yml {
+	if (yq eval ".quarterly | has(\"${_PRODUCT_VERSION}\")" "${BASE_DIR}/bundles.yml" | grep -q "true")
+	then
+		lc_log INFO "The ${_PRODUCT_VERSION} product version was already published."
+
+		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+	fi
+
+	local latest_key=$(yq eval ".quarterly | keys | .[-1]" "${BASE_DIR}/bundles.yml")
+
+	yq --indent 4 --inplace eval "del(.quarterly.\"${latest_key}\".latest)" "${BASE_DIR}/bundles.yml"
+	yq --indent 4 --inplace eval ".quarterly.\"${_PRODUCT_VERSION}\".latest = true" "${BASE_DIR}/bundles.yml"
+
+	sed -i "s/[[:space:]]{}//g" "${BASE_DIR}/bundles.yml"
+
+	truncate -s -1 "${BASE_DIR}/bundles.yml"
+
+	git add "${BASE_DIR}/bundles.yml"
+
+	git commit -m "Add ${_PRODUCT_VERSION} to bundles.yml."
+
+	git push upstream master
+}
+
 function _upload_to_nexus {
 	local file_path="${1}"
 	local file_url="${2}"

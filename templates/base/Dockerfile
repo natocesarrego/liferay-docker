@@ -1,4 +1,4 @@
-FROM --platform=${TARGETPLATFORM} ubuntu:jammy AS ubuntu-jammy
+FROM --platform=${TARGETPLATFORM} ubuntu:noble AS ubuntu-noble
 
 COPY resources/etc/created-date /etc/created-date
 
@@ -7,11 +7,32 @@ RUN apt-get update && \
 	apt-get upgrade --yes && \
 	apt-get clean
 
-RUN adduser --disabled-password --home /home/liferay liferay --uid 1000 && \
-	addgroup liferay liferay && \
-	usermod -g 1000 liferay
+RUN userdel ubuntu && \
+	useradd --create-home --home-dir /home/liferay --shell /usr/sbin/nologin --uid 1000 --user-group liferay
 
-FROM ubuntu-jammy
+#
+# CVE-2024-2398 Start
+#
+
+RUN CURL_VERSION=8.7.1 && \
+	\
+	curl https://curl.se/download/curl-${CURL_VERSION}.tar.gz | tar xz && cd curl-${CURL_VERSION} && \
+	\
+	apt-get remove curl --yes && \
+	\
+	apt-get install build-essential libnghttp2-dev libssl-dev nghttp2 --yes && \
+	\
+	./configure --enable-static --prefix=/usr/local --with-nghttp2 --with-ssl && make && make install && ldconfig && \
+	\
+	apt-get remove build-essential libnghttp2-dev libssl-dev nghttp2 --yes && \
+	\
+	cd .. && rm -fr curl-${CURL_VERSION}
+
+#
+# CVE-2024-2398 End
+#
+
+FROM ubuntu-noble
 
 ARG LABEL_BUILD_DATE
 ARG LABEL_NAME
