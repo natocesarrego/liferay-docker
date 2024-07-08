@@ -184,7 +184,7 @@ function test_docker_image_bundle {
 
 	for file in $(ls -1 --ignore "node_modules" "package.json" "package-lock.json" "tests")
 	do
-		rm -rf "${file}"
+		rm -fr "${file}"
 	done
 
 	local playwright_test_result=$(npx playwright test)
