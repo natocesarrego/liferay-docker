@@ -182,7 +182,7 @@ function test_docker_image_bundle {
 
 	$(npm init playwright -- --quiet --yes)
 
-	for file in $(ls -1 --ignore "node_modules" "package.json" "package-lock.json" "tests")
+	for file in $(ls -1 --almost-all --ignore "node_modules" "package.json" "package-lock.json" "tests")
 	do
 		rm -fr "${file}"
 	done
@@ -198,7 +198,7 @@ function test_docker_image_bundle {
 		log_test_success
 	fi
 
-	for file in $(ls -1 --ignore "tests")
+	for file in $(ls -1 --almost-all --ignore "tests")
 	do
 		rm -fr "${file}"
 	done
