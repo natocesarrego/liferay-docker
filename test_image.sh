@@ -182,16 +182,9 @@ function test_docker_image_bundle {
 
 	$(npm init playwright -- --quiet --yes)
 
-	local needed_files=("node_modules" "package.json" "package-lock.json" "tests")
-
-	local generated_files=($(ls -1))
-
-	for generated_file in "${generated_files[@]}"
+	for file in $(ls -1 --ignore "node_modules" "package.json" "package-lock.json" "tests")
 	do
-		if [[ ! ${needed_files[@]} =~ "${generated_file}" ]]
-		then
-			rm -rf "${generated_file}"
-		fi
+		rm -rf "${file}"
 	done
 
 	local playwright_test_result=$(npx playwright test)
@@ -205,7 +198,10 @@ function test_docker_image_bundle {
 		log_test_success
 	fi
 
-	find . -mindepth 1 -maxdepth 1 ! -name "tests" -exec rm -rf {} +
+	for file in $(ls -1 --ignore "tests")
+	do
+		rm -fr "${file}"
+	done
 }
 
 function test_docker_image_files {
