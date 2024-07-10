@@ -76,11 +76,11 @@ function main {
 
 	check_supported_versions
 
-	lc_time_run promote_packages
+	# lc_time_run promote_packages
 
-	lc_time_run tag_release
+	# lc_time_run tag_release
 
-	promote_boms
+	# promote_boms
 
 	if [[ ! $(echo "${_PRODUCT_VERSION}" | grep "q") ]] &&
 	   [[ ! $(echo "${_PRODUCT_VERSION}" | grep "7.4") ]]
@@ -92,7 +92,7 @@ function main {
 		lc_time_run upload_product_info_json
 	fi
 
-	lc_time_run generate_releases_json
+	lc_time_run generate_releases_json "regenerate"
 
 	lc_time_run upload_releases_json
 
