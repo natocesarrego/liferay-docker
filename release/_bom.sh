@@ -180,7 +180,7 @@ function generate_pom_release_bom {
 
 	if [[ "${_PRODUCT_VERSION}" == "7.3."* ]]
 	then
-		jars_paths="${_BUNDLES_DIR}/osgi ${_BUNDLES_DIR}/tomcat/lib/ext ${_BUNDLES_DIR}/tomcat/webapps/ROOT/WEB-INF"
+		jars_paths="${jars_paths} ${_BUNDLES_DIR}/tomcat/lib/ext"
 	fi
 
 	for artifact_file in $(
