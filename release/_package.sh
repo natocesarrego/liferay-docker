@@ -41,10 +41,10 @@ function generate_release_properties_file {
 
 	if [ "${LIFERAY_RELEASE_PRODUCT_NAME}" == "dxp" ]
 	then
-		target_platform_version=$(echo ${target_platform_version} | sed -r 's/-u/.u/')
+		target_platform_version=$(echo "${target_platform_version}" | sed -r 's/-u/.u/')
 	elif [ "${LIFERAY_RELEASE_PRODUCT_NAME}" == "portal" ]
 	then
-		target_platform_version=$(echo ${target_platform_version} | sed -r 's/-ga[0-9]+//')
+		target_platform_version=$(echo "${target_platform_version}" | sed -r 's/-ga[0-9]+//')
 	fi
 
 	(
@@ -149,7 +149,7 @@ function package_release {
 		rm -fr "${_BUILD_DIR}/release/liferay-portal-dependencies-${_PRODUCT_VERSION}"
 	fi
 
-	7z a "${_BUILD_DIR}/release/liferay-${LIFERAY_RELEASE_PRODUCT_NAME}-tomcat-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.7z" liferay-${LIFERAY_RELEASE_PRODUCT_NAME}
+	7z a "${_BUILD_DIR}/release/liferay-${LIFERAY_RELEASE_PRODUCT_NAME}-tomcat-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.7z" liferay-"${LIFERAY_RELEASE_PRODUCT_NAME}"
 
 	echo "liferay-${LIFERAY_RELEASE_PRODUCT_NAME}-tomcat-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.7z" > "${_BUILD_DIR}"/release/.lfrrelease-tomcat-bundle
 
@@ -171,7 +171,7 @@ function package_release {
 
 	lc_cd "${_PROJECTS_DIR}"/liferay-portal-ee
 
-	cp -a sql liferay-${LIFERAY_RELEASE_PRODUCT_NAME}-sql
+	cp -a sql liferay-"${LIFERAY_RELEASE_PRODUCT_NAME}"-sql
 
 	zip -qr "${_BUILD_DIR}/release/liferay-${LIFERAY_RELEASE_PRODUCT_NAME}-sql-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.zip" "liferay-${LIFERAY_RELEASE_PRODUCT_NAME}-sql" -i "*.sql"
 
