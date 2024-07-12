@@ -33,7 +33,7 @@ function check_usage {
 	_BUILD_DIR="${_RELEASE_ROOT_DIR}"/build
 	_BUNDLES_DIR=/home/me/dev/projects/bundles
 	_PROJECTS_DIR=/home/me/dev/projects
-	_PROMOTION_DIR="${_BUILD_DIR}/release"
+	_PROMOTION_DIR="${_BUILD_DIR}"/release
 
 	LIFERAY_COMMON_LOG_DIR="${_BUILD_DIR}"
 }
