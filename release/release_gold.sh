@@ -96,6 +96,8 @@ function main {
 
 	lc_time_run upload_releases_json
 
+	lc_time_run testing_boms
+
 	#lc_time_run upload_to_docker_hub
 }
 
@@ -202,6 +204,54 @@ function tag_release {
 	then
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
+}
+
+function testing_boms {
+	local local_dir=$(pwd)
+
+	if [ ! -d "${local_dir}/temp_dir_testing_boms" ]
+	then
+		mkdir -p "${local_dir}/temp_dir_testing_boms"
+	fi
+
+	lc_cd "${local_dir}/temp_dir_testing_boms"
+
+	blade init -v "${LIFERAY_RELEASE_PRODUCT_NAME}-${_PRODUCT_VERSION}"
+
+	local modules=("api" "fragment" "mvc-portlet")
+
+	for module in "${modules[@]}"
+	do
+		if [ "${module}" == "fragment" ]
+		then
+			blade create -t "${module}" "test-${module}" --host-bundle-bsn "com.liferay.layout.page.template.test" --host-bundle-version "1.0.0"
+		else
+			blade create -t "${module}" "test-${module}"
+		fi
+
+		local test_result=$(blade gw build)
+
+		if [[ "${test_result}" == *"BUILD SUCCESSFUL"* ]]
+		then
+			lc_log INFO "The BOMs for the module ${module} were successfully tested."
+		else
+			lc_log ERROR "The BOMs for the module ${module} were generated incorrectly."
+
+			lc_cd "${local_dir}"
+
+			pgrep -f -l temp_dir_testing_boms | awk '{print $1}' | xargs -r kill -9
+
+			rm -fr "${local_dir}/temp_dir_testing_boms"
+
+			return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+		fi
+	done
+
+	lc_cd "${local_dir}"
+
+	pgrep -f -l temp_dir_testing_boms | awk '{print $1}' | xargs -r kill -9
+
+	rm -fr "${local_dir}/temp_dir_testing_boms"
 }
 
 main
