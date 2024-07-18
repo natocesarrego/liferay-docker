@@ -41,10 +41,11 @@ function generate_release_properties_file {
 
 	if [ "${LIFERAY_RELEASE_PRODUCT_NAME}" == "dxp" ]
 	then
+		product_version="DXP ${product_version}"
 		target_platform_version=$(echo "${target_platform_version}" | sed -r 's/-u/.u/')
 	elif [ "${LIFERAY_RELEASE_PRODUCT_NAME}" == "portal" ]
 	then
-		target_platform_version=$(echo "${target_platform_version}" | sed -r 's/-ga[0-9]+//')
+		product_version="Portal ${product_version}"
 	fi
 
 	(
