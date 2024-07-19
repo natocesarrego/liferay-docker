@@ -24,6 +24,31 @@ function check_usage {
 	check_utils git sed sort tr
 }
 
+function check_version_bump {
+	local has_version_bump=$(\
+		git log --pretty=oneline "${RELEASE_NOTES_LATEST_SHA}..${RELEASE_NOTES_CURRENT_SHA}" | \
+			grep "${1}" | \
+			grep --invert-match "Revert.*${1}" | \
+			while read -r commit_message
+			do
+				local commit=$(echo ${commit_message} | cut -d ' ' -f 1)
+
+				if (!(git log "${RELEASE_NOTES_LATEST_SHA}..${RELEASE_NOTES_CURRENT_SHA}" | grep "This reverts commit ${commit}" > /dev/null))
+				then
+					echo "true"
+				fi
+			done | \
+			cat | \
+			uniq)
+
+	if [ "${has_version_bump}" = "true" ]
+	then
+		return 0
+	fi
+
+	return 1
+}
+
 function generate_release_notes {
 	if [ ! -n "${RELEASE_NOTES_CHANGE_LOG}" ]
 	then
@@ -102,12 +127,12 @@ function get_new_version {
 		return
 	fi
 
-	if (git log --pretty=%s "${RELEASE_NOTES_LATEST_SHA}..${RELEASE_NOTES_CURRENT_SHA}" | grep "#majorchange" > /dev/null)
+	if (check_version_bump "#majorchange")
 	then
 		RELEASE_NOTES_VERSION_MAJOR=$((RELEASE_NOTES_VERSION_MAJOR+1))
 		RELEASE_NOTES_VERSION_MINOR=0
 		RELEASE_NOTES_VERSION_MICRO=0
-	elif (git log --pretty=%s "${RELEASE_NOTES_LATEST_SHA}..${RELEASE_NOTES_CURRENT_SHA}" | grep "#minorchange" > /dev/null)
+	elif (check_version_bump "#minorchange")
 	then
 		RELEASE_NOTES_VERSION_MINOR=$((RELEASE_NOTES_VERSION_MINOR+1))
 		RELEASE_NOTES_VERSION_MICRO=0
