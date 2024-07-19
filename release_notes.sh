@@ -53,7 +53,22 @@ function generate_release_notes {
 function get_change_log {
 	RELEASE_NOTES_CURRENT_SHA=$(git log -1 --pretty=%H)
 
-	RELEASE_NOTES_CHANGE_LOG=$(git log --grep "^DOCKER-" --pretty=%s "${RELEASE_NOTES_LATEST_SHA}..${RELEASE_NOTES_CURRENT_SHA}" | sed -e "s/\ .*/ /" | uniq | tr -d "\n" | tr -d "\r" | sed -e "s/ $//")
+	RELEASE_NOTES_CHANGE_LOG=$(\
+		git log --grep "^DOCKER-" --pretty=oneline "${RELEASE_NOTES_LATEST_SHA}..${RELEASE_NOTES_CURRENT_SHA}" | \
+			grep --invert-match "Revert.*" | \
+			while read -r commit_message
+			do
+				local commit=$(echo ${commit_message} | cut -d ' ' -f 1)
+
+				if (!(git log "${RELEASE_NOTES_LATEST_SHA}..${RELEASE_NOTES_CURRENT_SHA}" | grep "This reverts commit ${commit}" > /dev/null))
+				then
+					echo ${commit_message} | cut -d ' ' -f 2
+					echo -n " "
+				fi
+			done | \
+			cat | \
+			uniq | \
+			tr -d "\n")
 
 	if [ "${1}" == "fail-on-change" ] && [ -n "${RELEASE_NOTES_CHANGE_LOG}" ]
 	then
