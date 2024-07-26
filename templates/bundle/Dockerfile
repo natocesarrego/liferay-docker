@@ -1,4 +1,4 @@
-FROM --platform=${TARGETPLATFORM} liferay/jdk11:latest AS liferay-jdk11
+FROM --platform=${TARGETPLATFORM} liferay/jdk21:latest AS liferay-jdk21
 
 COPY resources/etc/created-date /etc/created-date
 
@@ -7,7 +7,7 @@ RUN apt-get update && \
 	apt-get upgrade --yes && \
 	apt-get clean
 
-FROM liferay-jdk11
+FROM liferay-jdk21
 
 ARG LABEL_BUILD_DATE
 ARG LABEL_LIFERAY_PATCHING_TOOL_VERSION
@@ -83,6 +83,8 @@ RUN ln -fs /opt/liferay/* /home/liferay && \
 	\
 	mkdir -p /usr/share/fonts/truetype/droid && \
 	curl --fail --location --output /usr/share/fonts/truetype/droid/DroidSansFallback.ttf --show-error --silent https://raw.githubusercontent.com/ArtifexSoftware/ghostpdl/master/Resource/CIDFSubst/DroidSansFallback.ttf
+
+RUN rm -r /opt/liferay/data/elasticsearch7
 
 USER liferay:liferay
 
