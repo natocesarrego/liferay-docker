@@ -121,7 +121,9 @@ function print_help {
 }
 
 function prepare_next_release_branch {
-	local latest_quarterly_product_version="$(yq ".quarterly | to_entries | .[] | select(.value.latest == true) | .key" "${BASE_DIR}/liferay-docker/bundles.yml")"
+	local product_group_version="$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 1,2)"
+
+	local latest_quarterly_product_version="$(get_latest_product_version "${product_group_version}")"
 
 	if [ "${_PRODUCT_VERSION}" != "${latest_quarterly_product_version}" ]
 	then
@@ -129,8 +131,6 @@ function prepare_next_release_branch {
 
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
-
-	local product_group_version="$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 1,2)"
 
 	local quarterly_release_branch="release-${product_group_version}"
 
@@ -181,6 +181,19 @@ function promote_packages {
 	fi
 
 	ssh root@lrdcom-vm-1 cp -a "/www/releases.liferay.com/${LIFERAY_RELEASE_PRODUCT_NAME}/release-candidates/${_ARTIFACT_RC_VERSION}" "/www/releases.liferay.com/${LIFERAY_RELEASE_PRODUCT_NAME}/${_PRODUCT_VERSION}"
+}
+
+function get_latest_product_version {
+	if [ -e "releases.json" ]
+	then
+		rm -fr releases.json
+	fi
+	
+	lc_download "https://releases.liferay.com/releases.json" releases.json >/dev/null
+
+ 	jq -r ".[] | select(.productGroupVersion == \"${1}\" and .promoted == \"true\") | .targetPlatformVersion" releases.json
+
+	rm -fr releases.json
 }
 
 function tag_release {
