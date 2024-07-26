@@ -121,7 +121,16 @@ function print_help {
 }
 
 function prepare_next_release_branch {
-	local latest_quarterly_product_version="$(yq ".quarterly | to_entries | .[] | select(.value.latest == true) | .key" "${BASE_DIR}/liferay-docker/bundles.yml")"
+	if [[ "${_PRODUCT_VERSION}" != *q* ]]
+	then
+		lc_log INFO Skipping the preparation of the next release branch.
+
+		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+	fi
+
+	local product_group_version="$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 1,2)"
+
+	local latest_quarterly_product_version="$(get_latest_product_version "${product_group_version}")"
 
 	if [ "${_PRODUCT_VERSION}" != "${latest_quarterly_product_version}" ]
 	then
@@ -130,23 +139,21 @@ function prepare_next_release_branch {
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
 
-	local product_group_version="$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 1,2)"
-
 	local quarterly_release_branch="release-${product_group_version}"
 
 	lc_cd "${BASE_DIR}/liferay-portal-ee"
 
-	git branch --delete "${quarterly_release_branch}"
+	git branch --delete "${quarterly_release_branch}" &> /dev/null
 
-	git fetch --no-tags upstream "${quarterly_release_branch}":"${quarterly_release_branch}"
+	git fetch --no-tags upstream "${quarterly_release_branch}":"${quarterly_release_branch}" &> /dev/null
 
-	git checkout "${quarterly_release_branch}"
+	git checkout "${quarterly_release_branch}" &> /dev/null
 
 	local next_project_version_suffix="$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 3)"
 
 	next_project_version_suffix=$((next_project_version_suffix + 1))
 
-	sed -i -e "s/${product_group_version^^}\.[0-9]+/${product_group_version^^}\.${next_project_version_suffix}/" "${BASE_DIR}/liferay-portal-ee/release.properties"
+	sed -e "s/${product_group_version^^}\.[0-9]*/${product_group_version^^}\.${next_project_version_suffix}/" -i "${BASE_DIR}/liferay-portal-ee/release.properties"
 
 	git add "${BASE_DIR}/liferay-portal-ee/release.properties"
 
@@ -181,6 +188,19 @@ function promote_packages {
 	fi
 
 	ssh root@lrdcom-vm-1 cp -a "/www/releases.liferay.com/${LIFERAY_RELEASE_PRODUCT_NAME}/release-candidates/${_ARTIFACT_RC_VERSION}" "/www/releases.liferay.com/${LIFERAY_RELEASE_PRODUCT_NAME}/${_PRODUCT_VERSION}"
+}
+
+function get_latest_product_version {
+	if [ -e "releases.json" ]
+	then
+		rm -fr releases.json
+	fi
+	
+	lc_download "https://releases.liferay.com/releases.json" releases.json >/dev/null
+
+	echo "$(jq -r ".[] | select(.productGroupVersion == \"${1}\" and .promoted == \"true\") | .targetPlatformVersion" releases.json)"
+
+	rm -fr releases.json
 }
 
 function tag_release {
