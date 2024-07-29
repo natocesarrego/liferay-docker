@@ -50,7 +50,7 @@ function check_usage {
 function invoke_github_api {
 	local curl_response=$(\
 		curl \
-			"https://api.github.com/repos/liferay/${1}" \
+			"https://api.github.com/repos/${LIFERAY_RELEASE_REPOSITORY_OWNER}/${1}" \
 			--data "${2}" \
 			--fail \
 			--header "Accept: application/vnd.github+json" \
@@ -111,6 +111,7 @@ function print_help {
 	echo "    LIFERAY_RELEASE_NEXUS_REPOSITORY_USER (optional): Nexus user with the right to upload BOM files"
 	echo "    LIFERAY_RELEASE_PRODUCT_NAME (optional): Set to \"portal\" for CE. The default is \"DXP\"."
 	echo "    LIFERAY_RELEASE_RC_BUILD_TIMESTAMP: Timestamp of the build to publish"
+	echo "    LIFERAY_RELEASE_REPOSITORY_OWNER (optional): Set to \"EnterpriseReleaseHU\" for tests. The default is \"liferay\"."
 	echo "    LIFERAY_RELEASE_VERSION: DXP version of the release to publish"
 	echo ""
 	echo "Example: LIFERAY_RELEASE_RC_BUILD_TIMESTAMP=1695892964 LIFERAY_RELEASE_VERSION=2023.q3.0 ${0}"
@@ -168,6 +169,11 @@ function tag_release {
 	if [ "${LIFERAY_RELEASE_PRODUCT_NAME}" == "portal" ]
 	then
 		repository=liferay-portal
+	fi
+
+	if [ -z "${LIFERAY_RELEASE_REPOSITORY_OWNER}" ]
+	then
+		LIFERAY_RELEASE_REPOSITORY_OWNER=liferay
 	fi
 
 	local tag_data=$(
@@ -265,4 +271,7 @@ function test_boms {
 	fi
 }
 
-main
+if [ "${1}" != "--source-only" ]
+then
+    main "${@}"
+fi
