@@ -48,21 +48,6 @@ function clean_up {
 	done
 }
 
-function print_help {
-	echo "Usage: LIFERAY_RELEASE_GIT_REF=<git sha> ${0}"
-	echo ""
-	echo "The script reads the following environment variables:"
-	echo ""
-	echo "    LIFERAY_RELEASE_GIT_REF: Git SHA to build from"
-	echo "    LIFERAY_RELEASE_NEXUS_REPOSITORY_PASSWORD (optional): Nexus user's password"
-	echo "    LIFERAY_RELEASE_NEXUS_REPOSITORY_USER (optional): Nexus user with the right to upload BOM files"
-	echo "    LIFERAY_RELEASE_UPLOAD (optional): Set this to \"true\" to upload artifacts"
-	echo ""
-	echo "Example: LIFERAY_RELEASE_GIT_REF=release-2023.q3 ${0}"
-
-	exit "${LIFERAY_COMMON_EXIT_CODE_HELP}"
-}
-
 function main {
 	check_usage
 
@@ -98,6 +83,21 @@ function main {
 	lc_time_run clean_up
 
 	lc_time_run upload_boms liferay-public-releases
+}
+
+function print_help {
+	echo "Usage: LIFERAY_RELEASE_GIT_REF=<git sha> ${0}"
+	echo ""
+	echo "The script reads the following environment variables:"
+	echo ""
+	echo "    LIFERAY_RELEASE_GIT_REF: Git SHA to build from"
+	echo "    LIFERAY_RELEASE_NEXUS_REPOSITORY_PASSWORD (optional): Nexus user's password"
+	echo "    LIFERAY_RELEASE_NEXUS_REPOSITORY_USER (optional): Nexus user with the right to upload BOM files"
+	echo "    LIFERAY_RELEASE_UPLOAD (optional): Set this to \"true\" to upload artifacts"
+	echo ""
+	echo "Example: LIFERAY_RELEASE_GIT_REF=release-2023.q3 ${0}"
+
+	exit "${LIFERAY_COMMON_EXIT_CODE_HELP}"
 }
 
 main
