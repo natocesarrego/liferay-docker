@@ -80,7 +80,7 @@ function main {
 
 	lc_time_run tag_release
 
-	promote_boms
+	promote_boms xanadu
 
 	if [[ ! $(echo "${_PRODUCT_VERSION}" | grep "q") ]] &&
 	   [[ ! $(echo "${_PRODUCT_VERSION}" | grep "7.4") ]]
@@ -185,9 +185,9 @@ function print_help {
 }
 
 function promote_boms {
-	lc_time_run prepare_poms_for_promotion xanadu
+	lc_time_run prepare_poms_for_promotion ${1}
 
-	lc_time_run prepare_api_jars_for_promotion xanadu
+	lc_time_run prepare_api_jars_for_promotion ${1}
 
 	lc_time_run upload_boms liferay-public-releases
 }
