@@ -8,7 +8,7 @@ source _product.sh
 source _publishing.sh
 
 function check_usage {
-	if [ -z "${LIFERAY_RELEASE_GIT_REF}" ]
+	if [ -z "${LIFERAY_RELEASE_VERSION}" ]
 	then
 		print_help
 	fi
@@ -19,6 +19,8 @@ function check_usage {
 	fi
 
 	_BUILD_TIMESTAMP=$(date +%s)
+
+	_PRODUCT_VERSION="${LIFERAY_RELEASE_VERSION}"
 
 	_RELEASE_TOOL_DIR=$(dirname "$(readlink /proc/$$/fd/255 2>/dev/null)")
 
@@ -57,10 +59,6 @@ function main {
 
 	lc_wait
 
-	lc_time_run set_product_version
-
-	lc_wait
-
 	lc_time_run compile_product
 
 	lc_time_run build_product
@@ -89,16 +87,16 @@ function main {
 }
 
 function print_help {
-	echo "Usage: LIFERAY_RELEASE_GIT_REF=<git sha> ${0}"
+	echo "Usage: LIFERAY_RELEASE_VERSION=<version> ${0}"
 	echo ""
 	echo "The script reads the following environment variables:"
 	echo ""
-	echo "    LIFERAY_RELEASE_GIT_REF: Git SHA to build from"
 	echo "    LIFERAY_RELEASE_NEXUS_REPOSITORY_PASSWORD (optional): Nexus user's password"
 	echo "    LIFERAY_RELEASE_NEXUS_REPOSITORY_USER (optional): Nexus user with the right to upload BOM files"
 	echo "    LIFERAY_RELEASE_UPLOAD (optional): Set this to \"true\" to upload artifacts"
+	echo "    LIFERAY_RELEASE_VERSION: DXP or Portal version of the release to publish"
 	echo ""
-	echo "Example: LIFERAY_RELEASE_GIT_REF=release-2023.q3 ${0}"
+	echo "Example: LIFERAY_RELEASE_VERSION=2023.q3.0 ${0}"
 
 	exit "${LIFERAY_COMMON_EXIT_CODE_HELP}"
 }
