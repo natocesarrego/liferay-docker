@@ -45,7 +45,7 @@ function clean_up {
 	sed -i "s#<version>${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}</version>#<version>${_PRODUCT_VERSION}</version>#" ./*.pom
 
 	for file in *
-	do 
+	do
 		echo "$file"
 		mv "$file" $(echo "${file}" | sed "s/-${_BUILD_TIMESTAMP}//")
 	done
@@ -61,8 +61,9 @@ function main {
 	lc_time_run set_product_version
 
 	lc_wait
-	
+
 	lc_time_run compile_product
+
 	lc_time_run build_product
 
 	lc_wait
