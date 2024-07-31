@@ -6,6 +6,7 @@ source _liferay_common.sh
 source _package.sh
 source _product.sh
 source _publishing.sh
+source release_gold.sh
 
 function check_usage {
 	if [ -z "${LIFERAY_RELEASE_VERSION}" ]
@@ -21,6 +22,8 @@ function check_usage {
 	_BUILD_TIMESTAMP=$(date +%s)
 
 	_PRODUCT_VERSION="${LIFERAY_RELEASE_VERSION}"
+
+	_ARTIFACT_RC_VERSION="${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}"
 
 	_RELEASE_TOOL_DIR=$(dirname "$(readlink /proc/$$/fd/255 2>/dev/null)")
 
@@ -41,15 +44,8 @@ function check_usage {
 	_BUNDLES_DIR="${_PROJECTS_DIR}"/bundles
 
 	LIFERAY_COMMON_LOG_DIR="${_BUILD_DIR}"
-}
-
-function clean_up {
-	sed -i "s#<version>${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}</version>#<version>${_PRODUCT_VERSION}</version>#" ./*.pom
-
-	for file in *
-	do
-		mv "$file" $(echo "${file}" | sed "s/-${_BUILD_TIMESTAMP}//")
-	done
+	LIFERAY_RELEASE_RC_BUILD_TIMESTAMP="${_BUILD_TIMESTAMP}"
+	LIFERAY_RELEASE_UPLOAD="true"
 }
 
 function main {
@@ -81,9 +77,7 @@ function main {
 
 	lc_time_run generate_checksum_files
 
-	lc_time_run clean_up
-
-	lc_time_run upload_boms liferay-public-releases
+	lc_time_run promote_boms
 }
 
 function print_help {

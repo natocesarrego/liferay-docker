@@ -17,7 +17,14 @@ function prepare_api_jars_for_promotion {
 	do
 		local jar_release_name="${jar_rc_name/-${LIFERAY_RELEASE_RC_BUILD_TIMESTAMP}/}"
 
-		_download_bom_file "${nexus_repository_url}/${nexus_repository_name}/content/com/liferay/portal/release.${LIFERAY_RELEASE_PRODUCT_NAME}.api/${_ARTIFACT_RC_VERSION}/${jar_rc_name}" "${_PROMOTION_DIR}/${jar_release_name}"
+		if [ -n "${nexus_repository_name}" ]
+		then
+			_download_bom_file "${nexus_repository_url}/${nexus_repository_name}/content/com/liferay/portal/release.${LIFERAY_RELEASE_PRODUCT_NAME}.api/${_ARTIFACT_RC_VERSION}/${jar_rc_name}" "${_PROMOTION_DIR}/${jar_release_name}"
+		else
+			mv "${_PROMOTION_DIR}/${jar_rc_name}" "${_PROMOTION_DIR}/${jar_release_name}"
+			mv "${_PROMOTION_DIR}/${jar_rc_name}.md5" "${_PROMOTION_DIR}/${jar_release_name}.md5"
+			mv "${_PROMOTION_DIR}/${jar_rc_name}.sha512" "${_PROMOTION_DIR}/${jar_release_name}.sha512"
+		fi
 	done
 }
 
@@ -36,7 +43,14 @@ function prepare_poms_for_promotion {
 
 	for pom_name in "release.${LIFERAY_RELEASE_PRODUCT_NAME}.api" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom.compile.only" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom.third.party"
 	do
-		_download_bom_file "${nexus_repository_url}/${nexus_repository_name}/content/com/liferay/portal/${pom_name}/${_ARTIFACT_RC_VERSION}/${pom_name}-${_ARTIFACT_RC_VERSION}.pom" "${_PROMOTION_DIR}/${pom_name}-${_PRODUCT_VERSION}.pom"
+		if [ -n "${nexus_repository_name}" ]
+		then
+			_download_bom_file "${nexus_repository_url}/${nexus_repository_name}/content/com/liferay/portal/${pom_name}/${_ARTIFACT_RC_VERSION}/${pom_name}-${_ARTIFACT_RC_VERSION}.pom" "${_PROMOTION_DIR}/${pom_name}-${_PRODUCT_VERSION}.pom"
+		else
+			mv "${_PROMOTION_DIR}/${pom_name}-${_ARTIFACT_RC_VERSION}.pom" "${_PROMOTION_DIR}/${pom_name}-${_PRODUCT_VERSION}.pom"
+			mv "${_PROMOTION_DIR}/${pom_name}-${_ARTIFACT_RC_VERSION}.pom.md5" "${_PROMOTION_DIR}/${pom_name}-${_PRODUCT_VERSION}.pom.md5"
+			mv "${_PROMOTION_DIR}/${pom_name}-${_ARTIFACT_RC_VERSION}.pom.sha512" "${_PROMOTION_DIR}/${pom_name}-${_PRODUCT_VERSION}.pom.sha512"
+		fi
 	done
 
 	sed -i "s#<version>${_ARTIFACT_RC_VERSION}</version>#<version>${_PRODUCT_VERSION}</version>#" ./*.pom
