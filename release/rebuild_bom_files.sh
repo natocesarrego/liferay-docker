@@ -31,9 +31,12 @@ function check_usage {
 	_RELEASE_ROOT_DIR="${PWD}"
 
 	_BUILD_DIR="${_RELEASE_ROOT_DIR}"/build
-	_BUNDLES_DIR=/home/me/dev/projects/bundles
-	_PROJECTS_DIR=/home/me/dev/projects
+
 	_PROMOTION_DIR="${_BUILD_DIR}"/release
+
+	_PROJECTS_DIR=../..
+
+	_BUNDLES_DIR="${_PROJECTS_DIR}"/bundles
 
 	LIFERAY_COMMON_LOG_DIR="${_BUILD_DIR}"
 }
