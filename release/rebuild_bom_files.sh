@@ -10,6 +10,7 @@ source _promotion.sh
 function check_usage {
 	if [ -z "${LIFERAY_RELEASE_NEXUS_REPOSITORY_PASSWORD}" ] ||
 	   [ -z "${LIFERAY_RELEASE_NEXUS_REPOSITORY_USER}" ] ||
+	   [ -z "${LIFERAY_RELEASE_PRODUCT_NAME}" ] ||
 	   [ -z "${LIFERAY_RELEASE_VERSION}" ]
 	then
 		print_help
@@ -92,7 +93,7 @@ function main {
 }
 
 function print_help {
-	echo "Usage: LIFERAY_RELEASE_NEXUS_REPOSITORY_PASSWORD=<password> LIFERAY_RELEASE_NEXUS_REPOSITORY_USER=<user> LIFERAY_RELEASE_VERSION=<version> ${0}"
+	echo "Usage: LIFERAY_RELEASE_NEXUS_REPOSITORY_PASSWORD=<password> LIFERAY_RELEASE_NEXUS_REPOSITORY_USER=<user> LIFERAY_RELEASE_PRODUCT_NAME=<product_name> LIFERAY_RELEASE_VERSION=<version> ${0}"
 	echo ""
 	echo "The script reads the following environment variables:"
 	echo ""
@@ -100,7 +101,7 @@ function print_help {
 	echo "    LIFERAY_RELEASE_NEXUS_REPOSITORY_USER: Nexus user with the right to upload BOM files"
 	echo "    LIFERAY_RELEASE_VERSION: Version name (DXP or Portal) of the published release"
 	echo ""
-	echo "Example: LIFERAY_RELEASE_NEXUS_REPOSITORY_PASSWORD=12345 LIFERAY_RELEASE_NEXUS_REPOSITORY_USER=joe.bloggs@liferay.com LIFERAY_RELEASE_VERSION=2023.q3.0 ${0}"
+	echo "Example: LIFERAY_RELEASE_NEXUS_REPOSITORY_PASSWORD=12345 LIFERAY_RELEASE_NEXUS_REPOSITORY_USER=joe.bloggs@liferay.com LIFERAY_RELEASE_PRODUCT_NAME=dxp LIFERAY_RELEASE_VERSION=2023.q3.0 ${0}"
 
 	exit "${LIFERAY_COMMON_EXIT_CODE_HELP}"
 }
