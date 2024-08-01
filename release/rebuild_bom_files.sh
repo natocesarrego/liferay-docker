@@ -5,8 +5,7 @@ source _git.sh
 source _liferay_common.sh
 source _package.sh
 source _product.sh
-source _publishing.sh
-source release_gold.sh
+source _promotion.sh
 
 function check_usage {
 	if [ -z "${LIFERAY_RELEASE_NEXUS_REPOSITORY_PASSWORD}" ] ||
