@@ -36,7 +36,7 @@ function check_usage {
 
 	_PROMOTION_DIR="${_BUILD_DIR}"/release
 
-	_PROJECTS_DIR=../..
+	_PROJECTS_DIR="${_RELEASE_ROOT_DIR}"/../../..
 
 	_BUNDLES_DIR="${_PROJECTS_DIR}"/bundles
 
@@ -45,12 +45,27 @@ function check_usage {
 	LIFERAY_RELEASE_UPLOAD="true"
 }
 
+function checkout_product_version {
+	lc_cd "${_PROJECTS_DIR}"/liferay-portal-ee
+
+	git branch --delete "${_PRODUCT_VERSION}" &> /dev/null
+
+	git fetch --no-tags upstream "${_PRODUCT_VERSION}":"${_PRODUCT_VERSION}" &> /dev/null
+
+	git checkout --quiet "${_PRODUCT_VERSION}" &> /dev/null
+
+	if [ "${?}" -ne 0 ]
+	then
+		lc_log ERROR "Unable to checkout to ${_PRODUCT_VERSION}."
+
+		exit "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+	fi
+}
+
 function main {
 	check_usage
 
-	lc_background_run update_portal_repository
-
-	lc_wait
+	checkout_product_version
 
 	lc_time_run compile_product
 
