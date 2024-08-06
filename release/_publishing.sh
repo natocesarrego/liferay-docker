@@ -42,18 +42,18 @@ function add_fixed_issues_to_project_version {
 function add_patcher_project_version {
 	local product_version_label="Quarterly Releases"
 
-	local project_version="${_PRODUCT_VERSION}"
+	local patcher_project_version="${_PRODUCT_VERSION}"
 
 	local root_patcher_project_version_name=""
 
-	if [[ "${project_version}" == 7.4.* ]]
-		then
-			product_version_label="DXP 7.4"
+	if [[ "${patcher_project_version}" == 7.4.* ]]
+	then
+		product_version_label="DXP 7.4"
 
-			root_patcher_project_version_name="7.4.13-ga1"
-		fi
+		root_patcher_project_version_name="7.4.13-ga1"
+	fi
 
-	if [[ "${project_version}" == 7.3.* ]]
+	if [[ "${patcher_project_version}" == 7.3.* ]]
 	then
 		product_version_label="DXP 7.3"
 
@@ -63,7 +63,7 @@ function add_patcher_project_version {
 	local add_by_name_response=$(\
 		curl \
 			"https://patcher.liferay.com/api/jsonws/osb-patcher-portlet.project_versions/addByName" \
-			--data-raw "combinedBranch=true&committish=${project_version}&fixedIssues=&name=${project_version}&productVersionLabel=${product_version_label}&repositoryName=liferay-portal-ee&rootPatcherProjectVersionName=${root_patcher_project_version_name}" \
+			--data-raw "combinedBranch=true&committish=${patcher_project_version}&fixedIssues=&name=${patcher_project_version}&productVersionLabel=${product_version_label}&repositoryName=liferay-portal-ee&rootPatcherProjectVersionName=${root_patcher_project_version_name}" \
 			--fail \
 			--max-time 10 \
 			--retry 3 \
@@ -72,11 +72,11 @@ function add_patcher_project_version {
 
 	if [ $? -eq 0 ]
 	then
-		lc_log INFO "Project version ${project_version} added to Patcher Portal. Populating its fixed issues list."
+		lc_log INFO "Project version ${patcher_project_version} added to Patcher Portal. Populating its fixed issues list."
 
-		add_fixed_issues_to_project_version $(echo "${add_by_name_response}" | jq -r '.data.patcherProjectVersionId') "${project_version}"
+		add_fixed_issues_to_project_version $(echo "${add_by_name_response}" | jq -r '.data.patcherProjectVersionId') "${patcher_project_version}"
 	else
-		lc_log ERROR "Unable to add project version ${project_version} to Patcher Portal."
+		lc_log ERROR "Unable to add project version ${patcher_project_version} to Patcher Portal."
 
 		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 	fi
