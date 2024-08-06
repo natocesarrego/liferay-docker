@@ -65,13 +65,13 @@ function checkout_product_version {
 function main {
 	check_usage
 
-	checkout_product_version
+	# checkout_product_version
 
-	lc_time_run compile_product
+	# lc_time_run compile_product
 
-	lc_time_run build_product
+	# lc_time_run build_product
 
-	lc_wait
+	# lc_wait
 
 	lc_time_run generate_api_jars
 

@@ -15,7 +15,7 @@ function prepare_api_jars_for_promotion {
 	local nexus_repository_name="${1}"
 	local nexus_repository_url="https://repository.liferay.com/nexus/service/local/repositories"
 
-	for jar_rc_name in "release.${LIFERAY_RELEASE_PRODUCT_NAME}.api-${_ARTIFACT_RC_VERSION}.jar" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.api-${_ARTIFACT_RC_VERSION}-sources.jar"
+	for jar_rc_name in "release.${LIFERAY_RELEASE_PRODUCT_NAME}.api-${_ARTIFACT_RC_VERSION}.jar" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.api-${_ARTIFACT_RC_VERSION}-sources.jar release."${LIFERAY_RELEASE_PRODUCT_NAME}.distro-${_ARTIFACT_RC_VERSION}".jar"
 	do
 		local jar_release_name="${jar_rc_name/-${LIFERAY_RELEASE_RC_BUILD_TIMESTAMP}/}"
 
@@ -23,8 +23,11 @@ function prepare_api_jars_for_promotion {
 		then
 			_download_bom_file "${nexus_repository_url}/${nexus_repository_name}/content/com/liferay/portal/release.${LIFERAY_RELEASE_PRODUCT_NAME}.api/${_ARTIFACT_RC_VERSION}/${jar_rc_name}" "${_PROMOTION_DIR}/${jar_release_name}"
 		else
+			echo "jar_rc_name=${jar_rc_name}"
+			echo "jar_release_name=${jar_release_name}"
+
 			mv "${_PROMOTION_DIR}/${jar_rc_name}" "${_PROMOTION_DIR}/${jar_release_name}"
-			mv "${_PROMOTION_DIR}/${jar_rc_name}.md5" "${_PROMOTION_DIR}/${jar_release_name}.md5"
+			mv "${_PROMOTION_DIR}/${jar_rc_name}.MD5" "${_PROMOTION_DIR}/${jar_release_name}.md5"
 			mv "${_PROMOTION_DIR}/${jar_rc_name}.sha512" "${_PROMOTION_DIR}/${jar_release_name}.sha512"
 		fi
 	done
@@ -43,14 +46,14 @@ function prepare_poms_for_promotion {
 	local nexus_repository_name="${1}"
 	local nexus_repository_url="https://repository.liferay.com/nexus/service/local/repositories"
 
-	for pom_name in "release.${LIFERAY_RELEASE_PRODUCT_NAME}.api" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom.compile.only" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom.third.party"
+	for pom_name in "release.${LIFERAY_RELEASE_PRODUCT_NAME}.api" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom.compile.only" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.bom.third.party" "release.${LIFERAY_RELEASE_PRODUCT_NAME}.distro"
 	do
 		if [ -n "${nexus_repository_name}" ]
 		then
 			_download_bom_file "${nexus_repository_url}/${nexus_repository_name}/content/com/liferay/portal/${pom_name}/${_ARTIFACT_RC_VERSION}/${pom_name}-${_ARTIFACT_RC_VERSION}.pom" "${_PROMOTION_DIR}/${pom_name}-${_PRODUCT_VERSION}.pom"
 		else
 			mv "${_PROMOTION_DIR}/${pom_name}-${_ARTIFACT_RC_VERSION}.pom" "${_PROMOTION_DIR}/${pom_name}-${_PRODUCT_VERSION}.pom"
-			mv "${_PROMOTION_DIR}/${pom_name}-${_ARTIFACT_RC_VERSION}.pom.md5" "${_PROMOTION_DIR}/${pom_name}-${_PRODUCT_VERSION}.pom.md5"
+			mv "${_PROMOTION_DIR}/${pom_name}-${_ARTIFACT_RC_VERSION}.pom.MD5" "${_PROMOTION_DIR}/${pom_name}-${_PRODUCT_VERSION}.pom.md5"
 			mv "${_PROMOTION_DIR}/${pom_name}-${_ARTIFACT_RC_VERSION}.pom.sha512" "${_PROMOTION_DIR}/${pom_name}-${_PRODUCT_VERSION}.pom.sha512"
 		fi
 	done
