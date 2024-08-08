@@ -79,7 +79,7 @@ function generate_api_jars {
 
 	for file in $(ls api-jar/META-INF --almost-all | grep --extended-regexp --invert-match '^(alloy-util.tld|alloy.tld|c.tld|liferay.tld)$')
 	do
-		if [[ "$file" == *.tld ]]
+		if [[ "${file}" == *.tld ]]
 		then
 			rm "api-jar/META-INF/${file}"
 		fi
@@ -88,9 +88,9 @@ function generate_api_jars {
 	for file in $(find "${_PROJECTS_DIR}" \
 		-name "liferay-*.tld" -o \
 		-name "ratings.tld" -type f | \
-		awk -F / '{print $NF, $0}' | \
+		awk -F "/" "{print $NF, $0}" | \
 		sort -k 1,1 -u | \
-		awk '{print $2}')
+		awk "{print $2}")
 	do
 		cp "${file}" api-jar/META-INF
 	done
@@ -107,9 +107,9 @@ function generate_api_jars {
 		-name "liferay-template.tld" -o \
 		-name "react.tld" -o \
 		-name "soy.tld" -type f | \
-		awk -F / '{print $NF, $0}' | \
+		awk -F "/" "{print $NF, $0}" | \
 		sort -k 1,1 -u | \
-		awk '{print $2}')
+		awk "{print $2}")
 	do
 		cp "${file}" api-jar/META-INF/resources
 	done
