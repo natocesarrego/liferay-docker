@@ -1,5 +1,28 @@
 #!/bin/bash
 
+function copy_tld {
+	local tlds="${1}"
+
+	for index in ${!tlds[@]}
+	do
+		if [ "${index}" -eq "${#tlds[@]}" ]
+		then
+			tlds+=("-name \"${tld}\"")
+		else
+			tlds+=("-name \"${tld}\" -o")
+		fi
+	done
+
+	for file in $(find "${_PROJECTS_DIR}" \
+		"${tlds}" -type f | \
+		awk -F "/" "{print $NF, $0}" | \
+		sort -k 1,1 -u | \
+		awk "{print $2}")
+	do
+		cp "${file}" "${2}"
+	done
+}
+
 function generate_api_jars {
 	mkdir -p "${_BUILD_DIR}/boms"
 
@@ -85,15 +108,7 @@ function generate_api_jars {
 		fi
 	done
 
-	for file in $(find "${_PROJECTS_DIR}" \
-		-name "liferay-*.tld" -o \
-		-name "ratings.tld" -type f | \
-		awk -F "/" "{print $NF, $0}" | \
-		sort -k 1,1 -u | \
-		awk "{print $2}")
-	do
-		cp "${file}" api-jar/META-INF
-	done
+	copy_tld "("liferay-*.tld" "ratings.tld")" "api-jar/META-INF"
 
 	mkdir -p api-jar/META-INF/resources/WEB-INF
 
