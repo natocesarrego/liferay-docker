@@ -422,21 +422,21 @@ function _copy_source_package {
 
 function _copy_tld {
 	local directory="${@: -1}"
-	local names=""
+	local file_names=""
 	local tlds=("${@:1:$#-1}")
 
 	for tld in "${tlds[@]}"
 	do
-		if [ -n "${names}" ]
+		if [ -n "${file_names}" ]
 		then
-			names+=" -o "
+			file_names+=" -o "
 		fi
 
-		names+="-name \"${tld}\""
+		file_names+="-name \"${tld}\""
 	done
 
 	for file in $(eval find "${_PROJECTS_DIR}" \
-		"${names}" -type f | \
+		"${file_names}" -type f | \
 		awk -F "/" '{print $NF, $0}' | \
 		sort -k 1,1 -u | \
 		awk '{print $2}')
