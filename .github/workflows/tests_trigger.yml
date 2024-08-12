@@ -1,0 +1,28 @@
+jobs:
+    liferay_docker_tests:
+        env:
+            LIFERAY_RELEASE_GITHUB_PAT: ${{ secrets.LIFERAY_RELEASE_GITHUB_PAT }}
+        if: (github.repository == 'lucasmiranda0/liferay-docker')
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+            - name: Running test_tag_release test.
+              run: |
+                cd release
+
+                output=$(./test_tag_release.sh)
+
+                echo "$output"
+
+                if [[ "$output" == *"FAILED"* ]]
+                then
+                    echo "Test failed. Exiting with status 1."
+
+                    exit 1
+                fi
+              shell: bash
+name: Liferay Docker tests
+on:
+    pull_request:
+        types: [opened, reopened]
