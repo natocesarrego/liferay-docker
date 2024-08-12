@@ -420,7 +420,7 @@ function _copy_source_package {
 	cp -a "${1}" "${new_dir_name}"
 }
 
-function _copy_tld() {
+function _copy_tld {
 	local directory="${@: -1}"
 	local names=""
 	local tlds=("${@:1:$#-1}")
