@@ -154,6 +154,7 @@ function print_help {
 	echo "    LIFERAY_RELEASE_PATCHER_PORTAL_PASSWORD: Password to the release team's Liferay Patcher user"
 	echo "    LIFERAY_RELEASE_PRODUCT_NAME (optional): Set to \"portal\" for CE. The default is \"DXP\"."
 	echo "    LIFERAY_RELEASE_RC_BUILD_TIMESTAMP: Timestamp of the build to publish"
+	echo "    LIFERAY_RELEASE_REPOSITORY_OWNER (optional): Set to \"EnterpriseReleaseHU\" for tests. The default is \"liferay\"."
 	echo "    LIFERAY_RELEASE_VERSION: DXP version of the release to publish"
 	echo ""
 	echo "Example: LIFERAY_RELEASE_RC_BUILD_TIMESTAMP=1695892964 LIFERAY_RELEASE_VERSION=2023.q3.0 ${0}"
@@ -204,6 +205,11 @@ function tag_release {
 		lc_log ERROR "Unable to get property \"git.hash.liferay-portal-ee.\""
 
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+	fi
+
+	if [ -z "${LIFERAY_RELEASE_REPOSITORY_OWNER}" ]
+	then
+		LIFERAY_RELEASE_REPOSITORY_OWNER=liferay
 	fi
 
 	local repository=liferay-portal-ee
