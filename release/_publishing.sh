@@ -1,7 +1,9 @@
 #!/bin/bash
 
 function add_fixed_issues_to_patcher_project_version {
-	IFS=',' read -r -a fixed_issues_array < "${_BUILD_DIR}/release/release-notes.txt"
+	lc_download "https://releases.liferay.com/dxp/${_PRODUCT_VERSION}/release-notes.txt" release-notes.txt
+
+	IFS=',' read -r -a fixed_issues_array < "release-notes.txt"
 
 	local fixed_issues_array_length="${#fixed_issues_array[@]}"
 
@@ -32,14 +34,25 @@ function add_fixed_issues_to_patcher_project_version {
 		else
 			lc_log ERROR "Unable to add fixed issues to Liferay Patcher project ${2}."
 
+			rm -f release-notes.txt
+
 			return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 		fi
 	done
 
 	lc_log INFO "Added fixed issues to Liferay Patcher project ${2}."
+
+	rm -f release-notes.txt
 }
 
 function add_patcher_project_version {
+	if [[ "${_PRODUCT_VERSION}" == *ga* ]]
+	then
+		lc_log INFO "Skipping the add patcher project version step for ${_PRODUCT_VERSION}."
+
+		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+	fi
+
 	local patcher_product_version_label="Quarterly Releases"
 	local patcher_project_version="${_PRODUCT_VERSION}"
 	local root_patcher_project_version_name=""
@@ -47,6 +60,7 @@ function add_patcher_project_version {
 	if [[ "${patcher_project_version}" == 7.3.* ]]
 	then
 		patcher_product_version_label="DXP 7.3"
+		patcher_project_version="fix-pack-dxp-$(echo "${_PRODUCT_VERSION}" | cut -d 'u' -f 2)-7310"
 		root_patcher_project_version_name="fix-pack-base-7310"
 	elif [[ "${patcher_project_version}" == 7.4.* ]]
 	then
@@ -64,7 +78,7 @@ function add_patcher_project_version {
 			--silent \
 			--user "${LIFERAY_RELEASE_PATCHER_PORTAL_EMAIL_ADDRESS}:${LIFERAY_RELEASE_PATCHER_PORTAL_PASSWORD}")
 
-	if [ "${?}" -eq 0 ]
+	if [ $(echo "${add_by_name_response}" | jq -r '.status') -eq 200 ]
 	then
 		lc_log INFO "Added Liferay Patcher project version ${patcher_project_version}."
 
