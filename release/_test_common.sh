@@ -30,6 +30,10 @@ function assert_equals {
 			if [ "${arguments[${index}]}" == "${arguments[${index} + 1]}" ]
 			then
 				assertion_result="true"
+			else
+				assertion_result="false"
+
+				break
 			fi
 		fi
 	done
