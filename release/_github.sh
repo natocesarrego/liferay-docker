@@ -36,17 +36,7 @@ function _invoke_github_api {
 
 	if ! [[ $(echo "${curl_response}" | awk '/^HTTP/{print $2}') =~ ^2 ]]
 	then
-		if [ "${3}" == "DELETE" ]
-		then
-			echo "Failed to delete tag ${LIFERAY_RELEASE_VERSION}."
-		fi
-
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
-	fi
-
-	if [ "${3}" == "DELETE" ]
-	then
-		echo "Tag ${LIFERAY_RELEASE_VERSION} deleted."
 	fi
 
 	return "${LIFERAY_COMMON_EXIT_CODE_OK}"
