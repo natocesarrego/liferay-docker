@@ -11,14 +11,12 @@ jobs:
               run: |
                 cd release
 
-                output=$(./run_tests_release.sh)
+                tests_result=$(./run_tests_release.sh)
 
-                echo "$output"
+                echo "$tests_result"
 
-                if [[ "$output" == *"FAILED"* ]]
+                if [[ "$tests_result" == *"FAILED"* ]]
                 then
-                    echo "Test failed. Exiting with status 1."
-
                     exit 1
                 fi
               shell: bash
