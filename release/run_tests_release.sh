@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function main {
-	find . -name "test_*.sh" -type f ! -name "test_bom.sh" -exec ./{} \;
+	find . -name "test_*.sh" ! -name "test_bom.sh" -type f -exec ./{} \;
 }
 
 main
