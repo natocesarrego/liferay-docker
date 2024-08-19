@@ -2,7 +2,19 @@
 
 source _liferay_common.sh
 
-function invoke_github_api {
+function invoke_github_api_delete {
+	_invoke_github_api "${1}" "${2}" "DELETE"
+
+	echo $?
+}
+
+function invoke_github_api_post {
+	_invoke_github_api "${1}" "${2}" "POST"
+
+	echo $?
+}
+
+function _invoke_github_api {
 	if [ -z "${LIFERAY_RELEASE_REPOSITORY_OWNER}" ]
 	then
 		LIFERAY_RELEASE_REPOSITORY_OWNER=liferay
@@ -38,16 +50,4 @@ function invoke_github_api {
 	fi
 
 	return "${LIFERAY_COMMON_EXIT_CODE_OK}"
-}
-
-function invoke_github_api_delete {
-	invoke_github_api "${1}" "${2}" "DELETE"
-
-	echo $?
-}
-
-function invoke_github_api_post {
-	invoke_github_api "${1}" "${2}" "POST"
-
-	echo $?
 }
