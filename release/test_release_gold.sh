@@ -12,6 +12,7 @@ function main {
 }
 
 function set_up {
+	export LIFERAY_COMMON_EXIT_CODE_OK=0
 	export LIFERAY_COMMON_EXIT_CODE_SKIPPED=4
 	export LIFERAY_RELEASE_REPOSITORY_OWNER="natocesarrego"
 	export LIFERAY_RELEASE_VERSION="test-tag"
@@ -20,6 +21,7 @@ function set_up {
 function tear_down {
 	invoke_github_api_delete "liferay-portal-ee/git/refs/tags/${LIFERAY_RELEASE_VERSION}"
 
+	unset LIFERAY_COMMON_EXIT_CODE_OK
 	unset LIFERAY_COMMON_EXIT_CODE_SKIPPED
 	unset LIFERAY_RELEASE_REPOSITORY_OWNER
 	unset LIFERAY_RELEASE_VERSION
