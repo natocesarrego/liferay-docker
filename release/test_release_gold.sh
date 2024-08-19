@@ -49,7 +49,7 @@ function test_release_gold {
 		END
 	)
 
-	assert_equals $(invoke_github_api_post "liferay-portal-ee/git/tags" "${tag_data}") 0 $(invoke_github_api_post "liferay-portal-ee/git/refs" "${ref_data}") 0
+	assert_equals $(invoke_github_api_post "liferay-portal-ee/git/tags" "${tag_data}") "${LIFERAY_COMMON_EXIT_CODE_OK}" $(invoke_github_api_post "liferay-portal-ee/git/refs" "${ref_data}") "${LIFERAY_COMMON_EXIT_CODE_OK}"
 }
 
 main
