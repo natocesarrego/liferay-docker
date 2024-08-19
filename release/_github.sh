@@ -34,7 +34,7 @@ function invoke_github_api {
 
 	if [ "${3}" == "DELETE" ]
 	then
-		echo "Deleted tag ${LIFERAY_RELEASE_VERSION}."
+		echo "Tag ${LIFERAY_RELEASE_VERSION} deleted."
 	fi
 
 	return "${LIFERAY_COMMON_EXIT_CODE_OK}"
