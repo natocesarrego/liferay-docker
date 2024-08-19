@@ -85,6 +85,8 @@ RUN ln -fs /opt/liferay/* /home/liferay && \
 	mkdir -p /usr/share/fonts/truetype/droid && \
 	curl --fail --location --output /usr/share/fonts/truetype/droid/DroidSansFallback.ttf --show-error --silent https://raw.githubusercontent.com/ArtifexSoftware/ghostpdl/master/Resource/CIDFSubst/DroidSansFallback.ttf
 
+RUN rm -fr /opt/liferay/data/elasticsearch7
+
 USER liferay:liferay
 
 WORKDIR /opt/liferay
