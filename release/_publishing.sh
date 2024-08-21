@@ -182,7 +182,7 @@ function upload_boms {
 
 	find "${upload_dir}" -regextype egrep -regex '.*/*.(jar|pom)' -print0 | while IFS= read -r -d '' file_path
 	do
-		upload_bom_file "${nexus_repository_name}" "${file_path}" || return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+		echo "${file_path}"
 	done
 }
 
