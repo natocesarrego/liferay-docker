@@ -4,7 +4,6 @@ source _github.sh
 source _liferay_common.sh
 source _product_info_json.sh
 source _promotion.sh
-source _publishing.sh
 source _releases_json.sh
 
 function check_supported_versions {
@@ -57,7 +56,7 @@ function main {
 
 	lc_time_run tag_release
 
-	promote_boms
+	promote_boms xanadu
 
 	if [[ ! $(echo "${_PRODUCT_VERSION}" | grep "q") ]] &&
 	   [[ ! $(echo "${_PRODUCT_VERSION}" | grep "7.4") ]]
@@ -160,25 +159,6 @@ function print_help {
 	echo "Example: LIFERAY_RELEASE_RC_BUILD_TIMESTAMP=1695892964 LIFERAY_RELEASE_VERSION=2023.q3.0 ${0}"
 
 	exit "${LIFERAY_COMMON_EXIT_CODE_HELP}"
-}
-
-function promote_boms {
-	lc_time_run prepare_poms_for_promotion xanadu
-
-	lc_time_run prepare_jars_for_promotion xanadu
-
-	lc_time_run upload_boms liferay-public-releases
-}
-
-function promote_packages {
-	if (ssh root@lrdcom-vm-1 ls -d "/www/releases.liferay.com/${LIFERAY_RELEASE_PRODUCT_NAME}/${_PRODUCT_VERSION}" | grep -q "${_PRODUCT_VERSION}" &>/dev/null)
-	then
-		lc_log ERROR "Release was already published."
-
-		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
-	fi
-
-	ssh root@lrdcom-vm-1 cp -a "/www/releases.liferay.com/${LIFERAY_RELEASE_PRODUCT_NAME}/release-candidates/${_ARTIFACT_RC_VERSION}" "/www/releases.liferay.com/${LIFERAY_RELEASE_PRODUCT_NAME}/${_PRODUCT_VERSION}"
 }
 
 function tag_release {
