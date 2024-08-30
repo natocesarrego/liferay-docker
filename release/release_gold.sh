@@ -37,6 +37,7 @@ function check_usage {
 
 	_RELEASE_ROOT_DIR="${PWD}"
 
+	_PROJECTS_DIR="${_RELEASE_ROOT_DIR}"/dev/projects
 	_PROMOTION_DIR="${_RELEASE_ROOT_DIR}/release-data/promotion/files"
 
 	rm -fr "${_PROMOTION_DIR}"
@@ -100,6 +101,8 @@ function main {
 	lc_time_run test_boms
 
 	lc_time_run prepare_next_release_branch
+
+	lc_time_run update_release_info_date
 
 	#lc_time_run upload_to_docker_hub
 }
@@ -325,6 +328,39 @@ function test_boms {
 	then
 		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 	fi
+}
+
+function update_release_info_date {
+	is_update_release_applicable
+
+	if [ "${?}" == "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}" ]
+	then
+		lc_log INFO "Skipping the release info update."
+
+		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+	fi
+
+	lc_cd "${_PROJECTS_DIR}"/liferay-portal-ee
+
+	local product_group_version="$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 1,2)"
+
+	local quarterly_release_branch_name="release-${product_group_version}"
+
+	git branch --delete "${quarterly_release_branch_name}" &> /dev/null
+
+	git fetch --no-tags upstream "${quarterly_release_branch_name}":"${quarterly_release_branch_name}" &> /dev/null
+
+	git checkout "${quarterly_release_branch_name}" &> /dev/null
+
+	local formatted_date=$(date -d @"${LIFERAY_RELEASE_RC_BUILD_TIMESTAMP}" +"%B %-d, %Y")
+
+	sed -i -e "s/release.info.date=.*/release.info.date=${formatted_date}/" release.properties
+
+	git add "${_PROJECTS_DIR}/liferay-portal-ee/release.properties"
+
+	git commit -m "Updating the release info date for ${_PRODUCT_VERSION}."
+
+	git push upstream "${quarterly_release_branch_name}"
 }
 
 main
