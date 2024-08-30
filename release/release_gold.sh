@@ -113,7 +113,7 @@ function prepare_next_release_branch {
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
 
-	lc_cd "${BASE_DIR}/liferay-portal-ee"
+	lc_cd "${_PROJECTS_DIR}/liferay-portal-ee"
 
 	local quarterly_release_branch_name="release-${product_group_version}"
 
@@ -127,9 +127,9 @@ function prepare_next_release_branch {
 
 	next_project_version_suffix=$((next_project_version_suffix + 1))
 
-	sed -e "s/${product_group_version^^}\.[0-9]*/${product_group_version^^}\.${next_project_version_suffix}/" -i "${BASE_DIR}/liferay-portal-ee/release.properties"
+	sed -e "s/${product_group_version^^}\.[0-9]*/${product_group_version^^}\.${next_project_version_suffix}/" -i "${_PROJECTS_DIR}/liferay-portal-ee/release.properties"
 
-	git add "${BASE_DIR}/liferay-portal-ee/release.properties"
+	git add "${_PROJECTS_DIR}/liferay-portal-ee/release.properties"
 
 	git commit -m "Prepare ${quarterly_release_branch_name}."
 
