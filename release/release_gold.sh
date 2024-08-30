@@ -48,6 +48,28 @@ function check_usage {
 	LIFERAY_COMMON_LOG_DIR="${_PROMOTION_DIR%/*}"
 }
 
+function is_update_release_applicable {
+	if [[ "${_PRODUCT_VERSION}" != *q* ]] ||
+	   [[ "$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 3)" -eq 0 ]]
+	then
+		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+	fi
+
+	if [[ "$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 1)" -lt 2024 ]]
+	then
+		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+	fi
+
+	if [[ "$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 1)" -eq 2024 ]] &&
+	   [[ "$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 2 | tr -d q)" -le 2 ]] &&
+	   [[ "$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 3)" -le 11 ]]
+	then
+		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+	fi
+
+	return "${LIFERAY_COMMON_EXIT_CODE_OK}"
+}
+
 function main {
 	check_usage
 
