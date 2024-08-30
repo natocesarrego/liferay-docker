@@ -37,6 +37,7 @@ function check_usage {
 
 	_RELEASE_ROOT_DIR="${PWD}"
 
+	_PROJECTS_DIR="${_RELEASE_ROOT_DIR}/dev/projects"
 	_PROMOTION_DIR="${_RELEASE_ROOT_DIR}/release-data/promotion/files"
 
 	rm -fr "${_PROMOTION_DIR}"
@@ -80,6 +81,8 @@ function main {
 	lc_time_run test_boms
 
 	lc_time_run prepare_next_release_branch
+
+	lc_time_run update_release_info_date
 
 	#lc_time_run upload_to_docker_hub
 }
@@ -314,6 +317,49 @@ function test_boms {
 	if [[ "${build_result}" != *"BUILD SUCCESSFUL"* ]]
 	then
 		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+	fi
+}
+
+function update_release_info_date {
+	if [[ "${_PRODUCT_VERSION}" != *q* ]] ||
+	   [[ "$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 3)" -eq 0 ]] ||
+	   [[ "$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 1)" -lt 2024 ]]
+	then
+		lc_log INFO "Skipping the release info update."
+
+		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+	fi
+
+	if [[ "$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 1)" -eq 2024 ]] &&
+	   [[ "$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 2 | tr -d q)" -le 2 ]] &&
+	   [[ "$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 3)" -le 11 ]]
+	then
+		lc_log INFO "Skipping the release info update."
+
+		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+	fi
+
+	if [[ ! " ${@} " =~ " --test " ]]
+	then
+		lc_cd "${_PROJECTS_DIR}/liferay-portal-ee"
+
+		local product_group_version="$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 1,2)"
+
+		local quarterly_release_branch_name="release-${product_group_version}"
+
+		git branch --delete "${quarterly_release_branch_name}" &> /dev/null
+
+		git fetch --no-tags upstream "${quarterly_release_branch_name}":"${quarterly_release_branch_name}" &> /dev/null
+
+		git checkout "${quarterly_release_branch_name}" &> /dev/null
+
+		sed -e "s/release.info.date=.*/release.info.date=$(date -d @"${LIFERAY_RELEASE_RC_BUILD_TIMESTAMP}" +"%B %-d, %Y")/" -i release.properties
+
+		git add "${_PROJECTS_DIR}/liferay-portal-ee/release.properties"
+
+		git commit -m "Updating the release info date for ${_PRODUCT_VERSION}."
+
+		git push upstream "${quarterly_release_branch_name}"
 	fi
 }
 
