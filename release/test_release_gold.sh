@@ -1,5 +1,6 @@
 #!/bin/bash
 
+source release_gold.sh --test
 source _github.sh
 source _test_common.sh
 
@@ -7,6 +8,7 @@ function main {
 	set_up
 
 	test_invoke_github_api_post
+	test_update_release_info_date
 
 	tear_down
 }
@@ -50,6 +52,26 @@ function test_invoke_github_api_post {
 	)
 
 	assert_equals $(invoke_github_api_post "liferay-portal-ee/git/tags" "${tag_data}") "${LIFERAY_COMMON_EXIT_CODE_OK}" $(invoke_github_api_post "liferay-portal-ee/git/refs" "${ref_data}") "${LIFERAY_COMMON_EXIT_CODE_OK}"
+}
+
+function test_update_release_info_date {
+	_PRODUCT_VERSION="2024.q2.11"
+
+	update_release_info_date --test
+
+	assert_equals "${?}" "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+
+	_PRODUCT_VERSION="2024.q2.12"
+
+	update_release_info_date --test
+
+	assert_equals "${?}" "${LIFERAY_COMMON_EXIT_CODE_OK}"
+
+	_PRODUCT_VERSION="2024.q3.0"
+
+	update_release_info_date --test
+
+	assert_equals "${?}" "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 }
 
 main
