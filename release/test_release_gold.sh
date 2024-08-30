@@ -1,5 +1,6 @@
 #!/bin/bash
 
+source release_gold.sh --test
 source _github.sh
 source _test_common.sh
 
@@ -7,6 +8,7 @@ function main {
 	set_up
 
 	test_invoke_github_api_post
+	test_is_update_release_applicable
 
 	tear_down
 }
@@ -16,6 +18,7 @@ function set_up {
 	export LIFERAY_COMMON_EXIT_CODE_SKIPPED=4
 	export LIFERAY_RELEASE_REPOSITORY_OWNER="natocesarrego"
 	export LIFERAY_RELEASE_VERSION="test-tag"
+	export _PRODUCT_VERSION="2024.q2.11"
 }
 
 function tear_down {
@@ -25,6 +28,7 @@ function tear_down {
 	unset LIFERAY_COMMON_EXIT_CODE_SKIPPED
 	unset LIFERAY_RELEASE_REPOSITORY_OWNER
 	unset LIFERAY_RELEASE_VERSION
+	unset _PRODUCT_VERSION
 }
 
 function test_invoke_github_api_post {
@@ -50,6 +54,24 @@ function test_invoke_github_api_post {
 	)
 
 	assert_equals $(invoke_github_api_post "liferay-portal-ee/git/tags" "${tag_data}") "${LIFERAY_COMMON_EXIT_CODE_OK}" $(invoke_github_api_post "liferay-portal-ee/git/refs" "${ref_data}") "${LIFERAY_COMMON_EXIT_CODE_OK}"
+}
+
+function test_is_update_release_applicable {
+	is_update_release_applicable
+
+	assert_equals "${?}" "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+
+	_PRODUCT_VERSION="2024.q2.12"
+
+	is_update_release_applicable
+
+	assert_equals "${?}" "${LIFERAY_COMMON_EXIT_CODE_OK}"
+
+	_PRODUCT_VERSION="2024.q3.0"
+
+	is_update_release_applicable
+
+	assert_equals "${?}" "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 }
 
 main
