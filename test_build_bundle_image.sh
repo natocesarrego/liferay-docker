@@ -20,15 +20,15 @@ function tear_down {
 }
 
 function test_set_parent_image {
-	_test_set_parent_image "2025.q1.0" "jdk21" "jdk21" "RUN rm -fr /opt/liferay/data/elasticsearch7"
-	_test_set_parent_image "2024.q3.0" "jdk21" "jdk21" "RUN rm -fr /opt/liferay/data/elasticsearch7"
 	_test_set_parent_image "2024.q2.0" "jdk11" "jdk11" ""
+	_test_set_parent_image "2024.q3.0" "jdk21" "jdk21" "RUN rm -fr /opt/liferay/data/elasticsearch7"
+	_test_set_parent_image "2025.q1.0" "jdk21" "jdk21" "RUN rm -fr /opt/liferay/data/elasticsearch7"
+	_test_set_parent_image "7.2.10.8" "jdk11-jdk8" "jdk11" ""
+	_test_set_parent_image "7.3.10-u36" "jdk11-jdk8" "jdk11" ""
 	_test_set_parent_image "7.4.13-u124" "jdk11" "jdk11" ""
 	_test_set_parent_image "7.4.13-u125" "jdk21" "jdk21" "RUN rm -fr /opt/liferay/data/elasticsearch7"
 	_test_set_parent_image "7.4.3.120-ga120" "jdk11" "jdk11" ""
 	_test_set_parent_image "7.4.3.125-ga125" "jdk21" "jdk21" "RUN rm -fr /opt/liferay/data/elasticsearch7"
-	_test_set_parent_image "7.3.10-u36" "jdk11-jdk8" "jdk11" ""
-	_test_set_parent_image "7.2.10.8" "jdk11-jdk8" "jdk11" ""
 }
 
 function _set_dockerfile {
