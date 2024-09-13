@@ -7,7 +7,7 @@ source _liferay_common.sh
 function main {
 	set_up
 
-	if [ $? -eq "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}" ]
+	if [ "${?}" -eq "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}" ]
 	then
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
@@ -62,7 +62,7 @@ function tear_down {
 }
 
 function test_generate_distro_jar {
-	assert_equals "$(find "${_RELEASE_ROOT_DIR}" -name "release.dxp.distro-${LIFERAY_RELEASE_VERSION}*.jar" | grep -c /)" 1 
+	assert_equals "$(find "${_RELEASE_ROOT_DIR}" -name "release.dxp.distro-${LIFERAY_RELEASE_VERSION}*.jar" | grep -c /)" 1
 }
 
 main
