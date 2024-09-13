@@ -188,14 +188,12 @@ function generate_distro_jar {
 
 	local osgi_version=$(echo "${_PRODUCT_VERSION}"| sed 's/-/\./g')
 
-	if [[ $(echo "${_PRODUCT_VERSION}" | grep "ga") ]]
-	then
-		osgi_version=$(echo "${osgi_version}" | cut -d '.' -f 1,2,3,5)
-	fi
-
 	if [[ $(echo "${_PRODUCT_VERSION}" | grep "q") ]]
 	then
 		osgi_version=$(echo "${_PRODUCT_VERSION}" | sed 's/q//g')
+	elif [[ $(echo "${_PRODUCT_VERSION}" | grep "ga") ]]
+	then
+		osgi_version=$(echo "${osgi_version}" | cut -d '.' -f 1,2,3,5)
 	fi
 
 	java -jar biz.aQute.bnd-6.4.0.jar remote distro -o release."${LIFERAY_RELEASE_PRODUCT_NAME}.distro-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}".jar release."${LIFERAY_RELEASE_PRODUCT_NAME}".distro "${osgi_version}"
