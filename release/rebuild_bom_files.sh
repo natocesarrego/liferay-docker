@@ -99,7 +99,7 @@ function print_help {
 	echo "    LIFERAY_RELEASE_NEXUS_REPOSITORY_USER (optional): Nexus user with the right to upload BOM files"
 	echo "    LIFERAY_RELEASE_PRODUCT_NAME: Set to \"portal\" for CE. The default is \"DXP\"."
 	echo "    LIFERAY_RELEASE_UPLOAD (optional): Set this to \"true\" to upload artifacts"
-	echo "    LIFERAY_RELEASE_VERSION: DXP version of the release to publish"
+	echo "    LIFERAY_RELEASE_VERSION: DXP or Portal version of the release to publish"
 	echo ""
 	echo "Example: LIFERAY_RELEASE_NEXUS_REPOSITORY_PASSWORD=12345 LIFERAY_RELEASE_NEXUS_REPOSITORY_USER=joe.bloggs@liferay.com LIFERAY_RELEASE_PRODUCT_NAME=dxp LIFERAY_RELEASE_VERSION=2023.q3.0 ${0}"
 
