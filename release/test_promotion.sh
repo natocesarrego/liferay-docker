@@ -36,7 +36,7 @@ function set_up {
 
 	export _BUILD_DIR="${_RELEASE_ROOT_DIR}/release-data/build"
 
-	export _BUNDLES_DIR="${_RELEASE_ROOT_DIR}/release-data/dev/projects/bundles"
+	export _BUNDLES_DIR="${_RELEASE_ROOT_DIR}/test-dependencies/liferay-dxp"
 
 	export _PRODUCT_VERSION="${LIFERAY_RELEASE_VERSION}"
 
