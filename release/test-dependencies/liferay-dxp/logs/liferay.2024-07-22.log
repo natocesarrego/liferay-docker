@@ -1,0 +1,21 @@
+2024-07-22 08:41:54.987 INFO  [main][PortalContextLoaderListener:114] JVM arguments: -Djava.util.logging.config.file=/opt/java/jenkins/workspace/build-release/release/release-data/dev/projects/bundles/tomcat/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Xmx8g -Djdk.tls.ephemeralDHKeySize=2048 -Djava.protocol.handler.pkgs=org.apache.catalina.webresources -Dorg.apache.catalina.security.SecurityListener.UMASK=0027 -Dfile.encoding=UTF-8 -Djava.locale.providers=JRE,COMPAT,CLDR -Djava.net.preferIPv4Stack=true -Duser.timezone=GMT -Xms2560m -Xmx2560m -XX:MaxNewSize=1536m -XX:MaxMetaspaceSize=768m -XX:MetaspaceSize=768m -XX:NewSize=1536m -XX:SurvivorRatio=7 -Dignore.endorsed.dirs= -Dcatalina.base=/opt/java/jenkins/workspace/build-release/release/release-data/dev/projects/bundles/tomcat -Dcatalina.home=/opt/java/jenkins/workspace/build-release/release/release-data/dev/projects/bundles/tomcat -Djava.io.tmpdir=/opt/java/jenkins/workspace/build-release/release/release-data/dev/projects/bundles/tomcat/temp
+2024-07-22 08:42:00.380 WARN  [SystemExecutorServiceUtil-1][DialectDetector:73] Liferay is configured to use Hypersonic as its database. Do NOT use Hypersonic in production. Hypersonic is an embedded database useful for development and demonstration purposes. The database settings can be changed in portal-ext.properties.
+2024-07-22 08:42:00.381 INFO  [SystemExecutorServiceUtil-1][DialectDetector:144] Using dialect com.liferay.portal.dao.orm.hibernate.HSQLDialect for HSQL Database Engine 2.7
+2024-07-22 08:42:00.451 INFO  [main][ModuleFrameworkImpl:1355] Starting initial bundles
+2024-07-22 08:42:01.692 INFO  [main][InterpolationConfigurationPlugin:109] Configured directory for secrets: /opt/java/jenkins/workspace/build-release/release/release-data/dev/projects/bundles/osgi/configs
+2024-07-22 08:42:02.087 INFO  [main][ModuleFrameworkImpl:1645] Started initial bundles
+2024-07-22 08:42:02.087 INFO  [main][ModuleFrameworkImpl:1690] Starting dynamic bundles
+2024-07-22 08:42:05.590 WARN  [Start Level: Equinox Container: 445cc282-d12b-4c8b-8b5e-c98480140c25][SidecarManager:72] Liferay automatically starts a child process of Elasticsearch named sidecar for convenient development and demonstration purposes. Do NOT use sidecar in production. Refer to the documentation for details on the limitations of sidecar and instructions on configuring a remote Elasticsearch connection in the Control Panel.
+2024-07-22 08:42:06.643 INFO  [main][ModuleFrameworkImpl:1713] Started dynamic bundles
+2024-07-22 08:42:06.643 INFO  [main][ModuleFrameworkImpl:1720] Starting web bundles
+2024-07-22 08:42:08.440 INFO  [main][ModuleFrameworkImpl:1774] Started web bundles
+2024-07-22 08:42:08.440 INFO  [main][ModuleFrameworkImpl:283] Navigate to Control Panel > System > Gogo Shell and enter "lb" to see all bundles
+2024-07-22 08:42:09.861 INFO  [main][StartupHelperUtil:97] There are no patches installed
+2024-07-22 08:42:09.977 INFO  [main][LoggingTimer:74] Starting com.liferay.portal.events.StartupHelperUtil#initResourceActions
+2024-07-22 08:42:09.996 INFO  [main][LoggingTimer:35] Completed com.liferay.portal.events.StartupHelperUtil#initResourceActions in 19 ms
+2024-07-22 08:42:10.034 INFO  [main][LicenseManager:-1] Failed to find directory /opt/java/jenkins/workspace/build-release/release/release-data/dev/projects/bundles/data/license
+2024-07-22 08:42:10.034 INFO  [main][LicenseManager:-1] No binary licenses found
+2024-07-22 08:42:10.446 INFO  [main][AutoDeployDir:152] Auto deploy scanner started for /opt/java/jenkins/workspace/build-release/release/release-data/dev/projects/bundles/deploy
+2024-07-22 08:42:15.781 INFO  [SystemExecutorServiceUtil-4][Sidecar:103] Sidecar Elasticsearch liferay started at 127.0.0.1:9201
+2024-07-22 08:42:23.447 INFO  [com.liferay.portal.kernel.deploy.auto.AutoDeployScanner][AutoDeployDir:212] Processing biz.aQute.remote.agent-6.4.0.jar
+2024-07-22 08:42:28.675 INFO  [fileinstall-directory-watcher][BundleStartStopLogger:68] STARTED biz.aQute.remote.agent_6.4.0.202211291949 [1453]
