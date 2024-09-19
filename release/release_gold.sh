@@ -49,6 +49,14 @@ function check_usage {
 	LIFERAY_COMMON_LOG_DIR="${_PROMOTION_DIR%/*}"
 }
 
+function commit_to_branch {
+	git add "${1}"
+
+	git commit -m "${2}"
+
+	git push upstream "${3}"
+}
+
 function main {
 	if [[ " ${@} " =~ " --test " ]]
 	then
@@ -92,6 +100,16 @@ function main {
 	lc_time_run add_patcher_project_version
 }
 
+function prepare_branch_to_commit {
+	lc_cd "${_PROJECTS_DIR}/liferay-portal-ee"
+
+	git branch --delete "${1}" &> /dev/null
+
+	git fetch --no-tags upstream "${1}":"${1}" &> /dev/null
+
+	git checkout "${1}" &> /dev/null
+}
+
 function prepare_next_release_branch {
 	if [[ "${_PRODUCT_VERSION}" != *q* ]]
 	then
@@ -120,15 +138,9 @@ function prepare_next_release_branch {
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
 
-	lc_cd "${_PROJECTS_DIR}/liferay-portal-ee"
-
 	local quarterly_release_branch_name="release-${product_group_version}"
 
-	git branch --delete "${quarterly_release_branch_name}" &> /dev/null
-
-	git fetch --no-tags upstream "${quarterly_release_branch_name}":"${quarterly_release_branch_name}" &> /dev/null
-
-	git checkout "${quarterly_release_branch_name}" &> /dev/null
+	prepare_branch_to_commit "${quarterly_release_branch_name}"
 
 	local next_project_version_suffix="$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 3)"
 
@@ -136,11 +148,7 @@ function prepare_next_release_branch {
 
 	sed -e "s/${product_group_version^^}\.[0-9]*/${product_group_version^^}\.${next_project_version_suffix}/" -i "${_PROJECTS_DIR}/liferay-portal-ee/release.properties"
 
-	git add "${_PROJECTS_DIR}/liferay-portal-ee/release.properties"
-
-	git commit -m "Prepare ${quarterly_release_branch_name}."
-
-	git push upstream "${quarterly_release_branch_name}"
+	commit_to_branch "${_PROJECTS_DIR}/liferay-portal-ee/release.properties" "Prepare ${quarterly_release_branch_name}." "${quarterly_release_branch_name}"
 
 	if [ "${?}" -ne 0 ]
 	then
@@ -346,25 +354,15 @@ function update_release_info_date {
 
 	if [[ ! " ${@} " =~ " --test " ]]
 	then
-		lc_cd "${_PROJECTS_DIR}/liferay-portal-ee"
-
 		local product_group_version="$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 1,2)"
 
 		local quarterly_release_branch_name="release-${product_group_version}"
 
-		git branch --delete "${quarterly_release_branch_name}" &> /dev/null
-
-		git fetch --no-tags upstream "${quarterly_release_branch_name}":"${quarterly_release_branch_name}" &> /dev/null
-
-		git checkout "${quarterly_release_branch_name}" &> /dev/null
+		prepare_branch_to_commit "${quarterly_release_branch_name}"
 
 		sed -e "s/release.info.date=.*/release.info.date=$(date -d @"${LIFERAY_RELEASE_RC_BUILD_TIMESTAMP}" +"%B %-d, %Y")/" -i release.properties
 
-		git add "${_PROJECTS_DIR}/liferay-portal-ee/release.properties"
-
-		git commit -m "Updating the release info date for ${_PRODUCT_VERSION}."
-
-		git push upstream "${quarterly_release_branch_name}"
+		commit_to_branch "${_PROJECTS_DIR}/liferay-portal-ee/release.properties" "Updating the release info date for ${_PRODUCT_VERSION}." "${quarterly_release_branch_name}"
 	fi
 }
 
