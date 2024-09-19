@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source _github.sh
+source _git.sh
 source _liferay_common.sh
 source _product_info_json.sh
 source _promotion.sh
@@ -90,6 +91,10 @@ function main {
 	lc_time_run upload_releases_json
 
 	lc_time_run test_boms
+
+	lc_background_run clone_repository liferay-portal-ee
+
+	lc_wait
 
 	lc_time_run prepare_next_release_branch
 
