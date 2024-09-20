@@ -108,6 +108,8 @@ function main {
 function prepare_branch_to_commit {
 	lc_cd "${_PROJECTS_DIR}/liferay-portal-ee"
 
+	git restore .
+
 	git checkout master
 
 	git branch --delete "${1}" &> /dev/null
