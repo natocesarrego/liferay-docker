@@ -15,14 +15,16 @@ function main {
 }
 
 function set_up {
-	export _RELEASE_ROOT_DIR="${PWD}"
-
-	export _PROJECTS_DIR="${_RELEASE_ROOT_DIR}"/../..
-
 	export LIFERAY_RELEASE_PRODUCT_NAME="dxp"
 	export LIFERAY_RELEASE_VERSION="2024.q2.6"
 
+	export _PRODUCT_VERSION="${LIFERAY_RELEASE_VERSION}"
+
+	export _RELEASE_ROOT_DIR="${PWD}"
+
 	export _BUILD_DIR="${_RELEASE_ROOT_DIR}/release-data/build"
+
+	export _PROJECTS_DIR="${_RELEASE_ROOT_DIR}"/../..
 
 	lc_cd "${_RELEASE_ROOT_DIR}/test-dependencies"
 
@@ -31,8 +33,6 @@ function set_up {
 	unzip -q liferay-dxp-tomcat-2024.q2.6-1721635298.zip
 
 	export _BUNDLES_DIR="${_RELEASE_ROOT_DIR}/test-dependencies/liferay-dxp"
-
-	export _PRODUCT_VERSION="${LIFERAY_RELEASE_VERSION}"
 
 	lc_cd "${_RELEASE_ROOT_DIR}"
 
