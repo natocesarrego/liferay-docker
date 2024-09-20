@@ -88,8 +88,14 @@ function lc_clone_repository {
 
 function lc_curl {
 	local url=${1}
+	local output="-"
 
-	if (! curl "${url}" --fail --max-time "${LIFERAY_COMMON_DOWNLOAD_MAX_TIME}" --output - --retry 10 --retry-delay 5 --show-error --silent)
+	if [ -n "${2}" ]
+	then
+		output=${2}
+	fi
+
+	if (! curl "${url}" --fail --max-time "${LIFERAY_COMMON_DOWNLOAD_MAX_TIME}" --output "${output}" --retry 10 --retry-delay 5 --show-error --silent)
 	then
 		lc_log ERROR "Unable to curl ${url}."
 
