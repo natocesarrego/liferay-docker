@@ -28,7 +28,9 @@ function set_up {
 
 	lc_cd "${_RELEASE_ROOT_DIR}/test-dependencies"
 
-	wget https://releases-cdn.liferay.com/dxp/2024.q2.6/liferay-dxp-tomcat-2024.q2.6-1721635298.zip &> /dev/null
+	lc_download \
+		https://releases-cdn.liferay.com/dxp/2024.q2.6/liferay-dxp-tomcat-2024.q2.6-1721635298.zip \
+		liferay-dxp-tomcat-2024.q2.6-1721635298.zip 1> /dev/null
 
 	unzip -q liferay-dxp-tomcat-2024.q2.6-1721635298.zip
 
