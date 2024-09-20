@@ -56,6 +56,11 @@ function commit_to_branch {
 	git commit -m "${2}"
 
 	git push upstream "${3}"
+
+	if [ "${?}" -ne 0 ]
+	then
+		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+	fi
 }
 
 function main {
@@ -117,6 +122,11 @@ function prepare_branch_to_commit {
 	git fetch --no-tags upstream "${1}":"${1}" &> /dev/null
 
 	git checkout "${1}" &> /dev/null
+
+	if [ $(git rev-parse --abbrev-ref HEAD 2>/dev/null) != "${1}" ]
+	then
+		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+	fi
 }
 
 function prepare_next_release_branch {
@@ -151,21 +161,28 @@ function prepare_next_release_branch {
 
 	prepare_branch_to_commit "${quarterly_release_branch_name}"
 
-	local next_project_version_suffix="$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 3)"
-
-	next_project_version_suffix=$((next_project_version_suffix + 1))
-
-	sed -e "s/${product_group_version^^}\.[0-9]*/${product_group_version^^}\.${next_project_version_suffix}/" -i "${_PROJECTS_DIR}/liferay-portal-ee/release.properties"
-
-	commit_to_branch "${_PROJECTS_DIR}/liferay-portal-ee/release.properties" "Prepare ${quarterly_release_branch_name}." "${quarterly_release_branch_name}"
-
-	if [ "${?}" -ne 0 ]
+	if [ "${?}" -eq "${LIFERAY_COMMON_EXIT_CODE_BAD}" ]
 	then
 		lc_log ERROR "Unable to prepare the next release branch."
 
 		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 	else
-		lc_log INFO "The next release branch was prepared successfully."
+		local next_project_version_suffix="$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 3)"
+
+		next_project_version_suffix=$((next_project_version_suffix + 1))
+
+		sed -e "s/${product_group_version^^}\.[0-9]*/${product_group_version^^}\.${next_project_version_suffix}/" -i "${_PROJECTS_DIR}/liferay-portal-ee/release.properties"
+
+		commit_to_branch "${_PROJECTS_DIR}/liferay-portal-ee/release.properties" "Prepare ${quarterly_release_branch_name}." "${quarterly_release_branch_name}"
+
+		if [ "${?}" -eq "${LIFERAY_COMMON_EXIT_CODE_BAD}" ]
+		then
+			lc_log ERROR "Unable to commit to the release branch."
+
+			return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+		else
+			lc_log INFO "The next release branch was prepared successfully."
+		fi
 	fi
 }
 
