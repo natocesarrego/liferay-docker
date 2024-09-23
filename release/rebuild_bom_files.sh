@@ -20,9 +20,7 @@ function check_usage {
 
 	_ARTIFACT_RC_VERSION="${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}"
 
-	_RELEASE_TOOL_DIR=$(dirname "$(readlink /proc/$$/fd/255 2>/dev/null)")
-
-	lc_cd "${_RELEASE_TOOL_DIR}"
+	lc_cd $(dirname "$(readlink /proc/$$/fd/255 2>/dev/null)")
 
 	mkdir -p release-data
 
