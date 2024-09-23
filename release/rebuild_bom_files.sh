@@ -20,9 +20,7 @@ function check_usage {
 
 	_ARTIFACT_RC_VERSION="${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}"
 
-	_RELEASE_TOOL_DIR=$(dirname "$(readlink /proc/$$/fd/255 2>/dev/null)")
-
-	lc_cd "${_RELEASE_TOOL_DIR}"
+	lc_cd $(dirname "$(readlink /proc/$$/fd/255 2>/dev/null)")
 
 	mkdir -p release-data
 
@@ -65,29 +63,29 @@ function checkout_product_version {
 function main {
 	check_usage
 
-	lc_time_run checkout_product_version
+	# lc_time_run checkout_product_version
 
-	lc_time_run compile_product
+	# lc_time_run compile_product
 
-	lc_time_run build_product
+	# lc_time_run build_product
 
-	lc_time_run generate_api_jars
+	# lc_time_run generate_api_jars
 
-	lc_time_run generate_api_source_jar
+	# lc_time_run generate_api_source_jar
 
-	lc_time_run generate_distro_jar
+	# lc_time_run generate_distro_jar
 
-	lc_time_run generate_poms
+	# lc_time_run generate_poms
 
-	rm -fr "${_BUILD_DIR}/release"
+	# rm -fr "${_BUILD_DIR}/release"
 
-	mkdir -p "${_BUILD_DIR}/release"
+	# mkdir -p "${_BUILD_DIR}/release"
 
-	lc_time_run package_boms
+	# lc_time_run package_boms
 
-	lc_time_run generate_checksum_files
+	# lc_time_run generate_checksum_files
 
-	lc_time_run promote_boms
+	# lc_time_run promote_boms
 }
 
 function print_help {
