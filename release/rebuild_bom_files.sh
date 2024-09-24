@@ -63,6 +63,8 @@ function checkout_product_version {
 function main {
 	check_usage
 
+	lc_time_run clone_repository liferay-portal-ee
+
 	lc_time_run checkout_product_version
 
 	lc_time_run compile_product
