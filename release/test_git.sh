@@ -36,6 +36,8 @@ function set_up {
 
 	lc_cd "${_PROJECTS_DIR}"/liferay-portal-ee
 
+	git restore .
+
 	git checkout master &> /dev/null
 
 	git fetch upstream --no-tags &> /dev/null
