@@ -171,9 +171,14 @@ function prepare_next_release_branch {
 
 		next_project_version_suffix=$((next_project_version_suffix + 1))
 
-		sed -e "s/${product_group_version^^}\.[0-9]*/${product_group_version^^}\.${next_project_version_suffix}/" -i "${_PROJECTS_DIR}/liferay-portal-ee/release.properties"
+		sed \
+			-e "s/${product_group_version^^}\.[0-9]*/${product_group_version^^}\.${next_project_version_suffix}/" \
+			-i "${_PROJECTS_DIR}/liferay-portal-ee/release.properties"
 
-		commit_to_branch "${_PROJECTS_DIR}/liferay-portal-ee/release.properties" "Prepare ${quarterly_release_branch_name}." "${quarterly_release_branch_name}"
+		commit_to_branch \
+			"${_PROJECTS_DIR}/liferay-portal-ee/release.properties" \
+			"Prepare ${quarterly_release_branch_name}." \
+			"${quarterly_release_branch_name}"
 
 		if [ "${?}" -eq "${LIFERAY_COMMON_EXIT_CODE_BAD}" ]
 		then
@@ -390,9 +395,14 @@ function update_release_info_date {
 			return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 		fi
 
-		sed -e "s/release.info.date=.*/release.info.date=$(date -d @"${LIFERAY_RELEASE_RC_BUILD_TIMESTAMP}" +"%B %-d, %Y")/" -i release.properties
+		sed \
+			-e "s/release.info.date=.*/release.info.date=$(date -d @"${LIFERAY_RELEASE_RC_BUILD_TIMESTAMP}" +"%B %-d, %Y")/" \
+			-i release.properties
 
-		commit_to_branch "${_PROJECTS_DIR}/liferay-portal-ee/release.properties" "Updating the release info date for ${_PRODUCT_VERSION}." "${quarterly_release_branch_name}"
+		commit_to_branch \
+			"${_PROJECTS_DIR}/liferay-portal-ee/release.properties" \
+			"Updating the release info date for ${_PRODUCT_VERSION}." \
+			"${quarterly_release_branch_name}"
 
 		if [ "${?}" -eq "${LIFERAY_COMMON_EXIT_CODE_BAD}" ]
 		then
