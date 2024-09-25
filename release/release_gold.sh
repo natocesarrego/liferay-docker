@@ -117,13 +117,13 @@ function prepare_branch_to_commit {
 
 	git checkout master
 
-	git branch --delete "${1}" &>/dev/null
+	git branch --delete "${1}" &> /dev/null
 
-	git fetch --no-tags upstream "${1}":"${1}" &>/dev/null
+	git fetch --no-tags upstream "${1}":"${1}" &> /dev/null
 
-	git checkout "${1}" &>/dev/null
+	git checkout "${1}" &> /dev/null
 
-	if [ $(git rev-parse --abbrev-ref HEAD 2>/dev/null) != "${1}" ]
+	if [ "$(git rev-parse --abbrev-ref HEAD 2> /dev/null)" != "${1}" ]
 	then
 		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 	fi
