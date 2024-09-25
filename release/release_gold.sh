@@ -390,7 +390,7 @@ function update_release_info_date {
 
 		if [ "${?}" -eq "${LIFERAY_COMMON_EXIT_CODE_BAD}" ]
 		then
-			lc_log ERROR "Unable to prepare the next release branch."
+			lc_log ERROR "Unable to update the release date."
 
 			return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 		fi
@@ -410,7 +410,7 @@ function update_release_info_date {
 
 			return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 		else
-			lc_log INFO "The next release branch was prepared successfully."
+			lc_log INFO "The release date was updated successfully."
 		fi
 	fi
 }
