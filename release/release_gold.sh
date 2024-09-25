@@ -218,6 +218,11 @@ function test_boms {
 
 	lc_cd "temp_dir_test_boms"
 
+	if [ -f "${HOME}/.liferay/workspace/releases.json" ]
+	then
+		rm -f "${HOME}/.liferay/workspace/releases.json"
+	fi
+
 	if [[ "${_PRODUCT_VERSION}" == *q* ]]
 	then
 		blade init -v "${LIFERAY_RELEASE_PRODUCT_NAME}-${_PRODUCT_VERSION}"
@@ -231,11 +236,6 @@ function test_boms {
 	export LIFERAY_RELEASES_MIRRORS="https://releases.liferay.com"
 
 	sed -i "s/version: \"10.1.0\"/version: \"10.1.2\"/" "temp_dir_test_boms/settings.gradle"
-
-	if [ -f "${HOME}/.liferay/workspace/releases.json" ]
-	then
-		rm -f "${HOME}/.liferay/workspace/releases.json"
-	fi
 
 	for module in api mvc-portlet
 	do
