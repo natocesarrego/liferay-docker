@@ -396,7 +396,7 @@ function update_release_info_date {
 		fi
 
 		sed \
-			-e "s/release.info.date=.*/release.info.date=$(date -d @"${LIFERAY_RELEASE_RC_BUILD_TIMESTAMP}" +"%B %-d, %Y")/" \
+			-e "s/release.info.date=.*/release.info.date=$(date -d "next monday" +"%B %-d, %Y")/" \
 			-i release.properties
 
 		commit_to_branch \
