@@ -380,25 +380,25 @@ function update_release_info_date {
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
 
+	local product_group_version="$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 1,2)"
+
+	local quarterly_release_branch_name="release-${product_group_version}"
+
+	prepare_branch_to_commit "${quarterly_release_branch_name}"
+
+	if [ "${?}" -eq "${LIFERAY_COMMON_EXIT_CODE_BAD}" ]
+	then
+		lc_log ERROR "Unable to update the release date."
+
+		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+	fi
+
+	sed \
+		-e "s/release.info.date=.*/release.info.date=$(date -d "next monday" +"%B %-d, %Y")/" \
+		-i release.properties
+
 	if [[ ! " ${@} " =~ " --test " ]]
 	then
-		local product_group_version="$(echo "${_PRODUCT_VERSION}" | cut -d '.' -f 1,2)"
-
-		local quarterly_release_branch_name="release-${product_group_version}"
-
-		prepare_branch_to_commit "${quarterly_release_branch_name}"
-
-		if [ "${?}" -eq "${LIFERAY_COMMON_EXIT_CODE_BAD}" ]
-		then
-			lc_log ERROR "Unable to update the release date."
-
-			return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
-		fi
-
-		sed \
-			-e "s/release.info.date=.*/release.info.date=$(date -d "next monday" +"%B %-d, %Y")/" \
-			-i release.properties
-
 		commit_to_branch \
 			"${_PROJECTS_DIR}/liferay-portal-ee/release.properties" \
 			"Updating the release info date for ${_PRODUCT_VERSION}." \
