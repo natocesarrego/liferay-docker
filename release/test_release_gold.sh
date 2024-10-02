@@ -18,6 +18,7 @@ function set_up {
 	export LIFERAY_COMMON_EXIT_CODE_SKIPPED=4
 	export LIFERAY_RELEASE_REPOSITORY_OWNER="natocesarrego"
 	export LIFERAY_RELEASE_VERSION="test-tag"
+	export _PROJECTS_DIR="${PWD}"/../..
 }
 
 function tear_down {
@@ -27,6 +28,7 @@ function tear_down {
 	unset LIFERAY_COMMON_EXIT_CODE_SKIPPED
 	unset LIFERAY_RELEASE_REPOSITORY_OWNER
 	unset LIFERAY_RELEASE_VERSION
+	unset _PROJECTS_DIR
 }
 
 function test_invoke_github_api_post {

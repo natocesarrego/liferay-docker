@@ -115,7 +115,7 @@ function prepare_branch_to_commit {
 
 	git restore .
 
-	git checkout master
+	git checkout master &> /dev/null
 
 	git branch --delete "${1}" &> /dev/null
 
