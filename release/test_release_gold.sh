@@ -60,7 +60,7 @@ function test_invoke_github_api_post {
 		END
 	)
 
-	assert_equals $(invoke_github_api_post "liferay-portal-ee/git/tags" "${tag_data}") "${LIFERAY_COMMON_EXIT_CODE_OK}" $(invoke_github_api_post "liferay-portal-ee/git/refs" "${ref_data}") "${LIFERAY_COMMON_EXIT_CODE_OK}"
+	assert_equals "$(invoke_github_api_post "liferay-portal-ee/git/tags" "${tag_data}")" "${LIFERAY_COMMON_EXIT_CODE_OK}" "$(invoke_github_api_post "liferay-portal-ee/git/refs" "${ref_data}")" "${LIFERAY_COMMON_EXIT_CODE_OK}"
 }
 
 function test_not_update_release_info_date {
