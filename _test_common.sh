@@ -3,9 +3,9 @@
 function assert_equals {
 	local arguments=()
 
-	for argument in ${@}
+	for argument in "${@}"
 	do
-		arguments+=(${argument})
+		arguments+=("${argument}")
 	done
 
 	local assertion_result="false"
