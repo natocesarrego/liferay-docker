@@ -101,6 +101,8 @@ function main {
 
 	lc_wait
 
+	lc_time_run clean_repository
+
 	lc_time_run prepare_next_release_branch
 
 	lc_time_run update_release_info_date
