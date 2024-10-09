@@ -179,9 +179,13 @@ function prepare_next_release_branch {
 
 		next_project_version_suffix=$((next_project_version_suffix + 1))
 
-		sed \
-			-e "s/${product_group_version^^}\.[0-9]*/${product_group_version^^}\.${next_project_version_suffix}/" \
-			-i "${_PROJECTS_DIR}/liferay-portal-ee/release.properties"
+		sed -i \
+			-e "s/release.info.version.display.name\[master-private\]=.*/release.info.version.display.name[master-private]=${product_group_version^^}.${next_project_version_suffix}/" \
+			"${_PROJECTS_DIR}/liferay-portal-ee/release.properties"
+
+		sed -i \
+			-e "s/release.info.version.display.name\[release-private\]=.*/release.info.version.display.name[release-private]=${product_group_version^^}.${next_project_version_suffix}/" \
+			"${_PROJECTS_DIR}/liferay-portal-ee/release.properties"
 
 		commit_to_branch \
 			"${_PROJECTS_DIR}/liferay-portal-ee/release.properties" \
