@@ -125,7 +125,7 @@ function prepare_branch_to_commit {
 
 	git checkout master &> /dev/null
 
-	git branch --delete "${1}" &> /dev/null
+	git branch -D "${1}" &> /dev/null
 
 	git fetch --no-tags upstream "${1}":"${1}" &> /dev/null
 
