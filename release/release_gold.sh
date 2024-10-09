@@ -55,7 +55,13 @@ function commit_to_branch {
 
 	git commit -m "${2}"
 
-	git push upstream "${3}"
+	git push -f origin "${3}"
+
+	gh pr create \
+		--base "${3}" \
+		--body "Created by the Release team automation." \
+		--repo lucasmiranda0/liferay-portal-ee \
+		--title "${4}"
 
 	if [ "${?}" -ne 0 ]
 	then
@@ -179,8 +185,9 @@ function prepare_next_release_branch {
 
 		commit_to_branch \
 			"${_PROJECTS_DIR}/liferay-portal-ee/release.properties" \
-			"Prepare ${quarterly_release_branch_name}." \
-			"${quarterly_release_branch_name}"
+			"Prepare ${quarterly_release_branch_name}" \
+			"${quarterly_release_branch_name}" \
+			"Prep next"
 
 		if [ "${?}" -eq "${LIFERAY_COMMON_EXIT_CODE_BAD}" ]
 		then
@@ -403,8 +410,9 @@ function update_release_info_date {
 	then
 		commit_to_branch \
 			"${_PROJECTS_DIR}/liferay-portal-ee/release.properties" \
-			"Updating the release info date for ${_PRODUCT_VERSION}." \
-			"${quarterly_release_branch_name}"
+			"Updating the release info date for ${_PRODUCT_VERSION}" \
+			"${quarterly_release_branch_name}" \
+			"Prep next"
 
 		if [ "${?}" -eq "${LIFERAY_COMMON_EXIT_CODE_BAD}" ]
 		then
