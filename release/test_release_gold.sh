@@ -7,6 +7,11 @@ source release_gold.sh --test
 function main {
 	set_up
 
+	if [ "${?}" -ne 0 ]
+	then
+		return
+	fi
+
 	test_not_update_release_info_date
 	test_update_release_info_date
 
@@ -19,7 +24,10 @@ function set_up {
 	if [ ! -d "${_PROJECTS_DIR}/liferay-portal-ee" ]
 	then
 		echo -e "The directory ${_PROJECTS_DIR}/liferay-portal-ee does not exist.\n"
+
+		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
+
 }
 
 function tear_down {
@@ -31,8 +39,8 @@ function tear_down {
 }
 
 function test_not_update_release_info_date {
-	_test_not_update_release_info_date "2024.q2.11" "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
-	_test_not_update_release_info_date "2024.q3.0" "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+	_test_not_update_release_info_date "2023.q2.11" "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+	_test_not_update_release_info_date "2023.q3.0" "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	_test_not_update_release_info_date "7.3.10-u36" "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	_test_not_update_release_info_date "7.4.13-u101" "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	_test_not_update_release_info_date "7.4.3.125-ga125" "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
