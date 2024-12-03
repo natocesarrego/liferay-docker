@@ -27,7 +27,6 @@ function set_up {
 
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
-
 }
 
 function tear_down {
