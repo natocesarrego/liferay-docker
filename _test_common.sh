@@ -20,7 +20,10 @@ function assert_equals {
 		if [ -f "${arguments[${index}]}" ] &&
 		   [ -f "${arguments[${index} + 1]}" ]
 		then
-			diff "${arguments[${index}]}" "${arguments[${index} + 1]}"
+			diff \
+				--side-by-side \
+				--suppress-common-lines \
+				"${arguments[${index}]}" "${arguments[${index} + 1]}" > "${assertion_error_file}"
 
 			if [ "${?}" -ne 0 ] && [ "${_TEST_RESULT}" == "true" ]
 			then
