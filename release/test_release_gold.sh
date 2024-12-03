@@ -45,6 +45,14 @@ function test_not_update_release_info_date {
 	_test_not_update_release_info_date "7.4.3.125-ga125" "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 }
 
+function test_prepare_next_release_branch {
+	# quarterly releases
+}
+
+function test_not_prepare_next_release_branch {
+	# NOT quarterly releases
+}
+
 function test_update_release_info_date {
 	_PRODUCT_VERSION="2024.q2.12"
 
