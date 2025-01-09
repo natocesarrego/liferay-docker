@@ -45,7 +45,7 @@ function tear_down {
 
 	git restore .
 
-	lc_cd "${_PROJECTS_DIR}/liferay-portal-ee" 2>/dev/null
+	lc_cd "${_PROJECTS_DIR}/liferay-portal-ee" 2> /dev/null
 
 	git restore .
 
