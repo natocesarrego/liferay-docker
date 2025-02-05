@@ -2,8 +2,22 @@ FROM --platform=${TARGETPLATFORM} liferay/jdk21:latest AS liferay-jdk21
 
 COPY resources/etc/created-date /etc/created-date
 
+# Ghostscript
+
+COPY --from=liferay/bundle-builder /usr/local/bin/gs /usr/bin/gs
+COPY --from=liferay/bundle-builder /usr/local/share/ghostscript /usr/share/ghostscript
+COPY --from=liferay/bundle-builder /usr/local/lib/libgs*  /usr/lib/
+
 RUN apt-get update && \
-	DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install --no-install-recommends --yes bc ffmpeg file fonts-dejavu ghostscript google-perftools imagemagick gifsicle libtcnative-1 && \
+	DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install --no-install-recommends --yes libcups2 && \
+	apt-get upgrade --yes && \
+	apt-get clean
+
+RUN ln -s /usr/bin/gs /usr/bin/ghostscript
+
+
+RUN apt-get update && \
+	DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install --no-install-recommends --yes bc ffmpeg file fonts-dejavu google-perftools imagemagick gifsicle libtcnative-1 && \
 	apt-get upgrade --yes && \
 	apt-get clean
 

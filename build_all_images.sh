@@ -83,6 +83,12 @@ function build_bundle_image {
 	fi
 
 	echo ""
+	echo "Building Docker Bundle Builder image."
+	echo ""
+
+	LIFERAY_DOCKER_FIX_PACK_URL=${fix_pack_url} LIFERAY_DOCKER_IMAGE_PLATFORMS="${LIFERAY_DOCKER_IMAGE_PLATFORMS}" LIFERAY_DOCKER_LATEST=${latest} LIFERAY_DOCKER_RELEASE_FILE_URL=${bundle_url} LIFERAY_DOCKER_RELEASE_VERSION=${version} LIFERAY_DOCKER_REPOSITORY="${LIFERAY_DOCKER_REPOSITORY}" LIFERAY_DOCKER_TEST_HOTFIX_URL=${test_hotfix_url} LIFERAY_DOCKER_TEST_INSTALLED_PATCHES=${test_installed_patch} time ./build_bundle_builder_image.sh "${BUILD_ALL_IMAGES_PUSH}" 2>&1 | tee "${LIFERAY_DOCKER_LOGS_DIR}/${build_id}-builder.log"
+
+	echo ""
 	echo "Building Docker image ${build_id} based on ${bundle_url}."
 	echo ""
 
