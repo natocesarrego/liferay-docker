@@ -54,6 +54,33 @@ function build_batch_image {
 	fi
 }
 
+function build_bundler_builder_image {
+	log_in_to_docker_hub
+
+	if [[ $(get_latest_docker_hub_version "bundle-builder") == $(./release_notes.sh get-version) ]] && [[ "${LIFERAY_DOCKER_DEVELOPER_MODE}" != "true" ]]
+	then
+		echo ""
+		echo "Docker image Bundle Builder is up to date."
+
+		return
+	fi
+
+	echo ""
+	echo "Building Docker Bundle Builder image."
+	echo ""
+
+	LIFERAY_DOCKER_IMAGE_PLATFORMS="${LIFERAY_DOCKER_IMAGE_PLATFORMS}" LIFERAY_DOCKER_REPOSITORY="${LIFERAY_DOCKER_REPOSITORY}" time ./build_bundle_builder_image.sh "${BUILD_ALL_IMAGES_PUSH}" 2>&1 | tee "${LIFERAY_DOCKER_LOGS_DIR}/bundle-builder.log"
+
+	if [ "${PIPESTATUS[0]}" -gt 0 ]
+	then
+		echo "FAILED: Bundle Builder" >> "${LIFERAY_DOCKER_LOGS_DIR}/results"
+
+		exit 1
+	else
+		echo "SUCCESS: Bundler Builder" >> "${LIFERAY_DOCKER_LOGS_DIR}/results"
+	fi
+}
+
 function build_bundle_image {
 	local query=${1}
 	local version=${2}
@@ -592,6 +619,8 @@ function main {
 	build_squid_image
 	#build_zabbix_server_image
 	#build_zabbix_web_image
+
+	#build_bundler_builder_image
 
 	build_bundle_images
 
