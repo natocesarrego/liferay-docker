@@ -54,6 +54,31 @@ function build_batch_image {
 	fi
 }
 
+function build_bundle_builder_image {
+	if [[ $(get_latest_docker_hub_version "bundle-builder") == $(./release_notes.sh get-version) ]] && [[ "${LIFERAY_DOCKER_DEVELOPER_MODE}" != "true" ]]
+	then
+		echo ""
+		echo "Docker image Bundle Builder is up to date."
+
+		return
+	fi
+
+	echo ""
+	echo "Building Docker Bundle Builder image."
+	echo ""
+
+	LIFERAY_DOCKER_IMAGE_PLATFORMS="${LIFERAY_DOCKER_IMAGE_PLATFORMS}" LIFERAY_DOCKER_REPOSITORY="${LIFERAY_DOCKER_REPOSITORY}" time ./build_bundle_builder_image.sh "${BUILD_ALL_IMAGES_PUSH}" 2>&1 | tee "${LIFERAY_DOCKER_LOGS_DIR}/bundle-builder.log"
+
+	if [ "${PIPESTATUS[0]}" -gt 0 ]
+	then
+		echo "FAILED: Bundle Builder" >> "${LIFERAY_DOCKER_LOGS_DIR}/results"
+
+		exit 1
+	else
+		echo "SUCCESS: Bundler Builder" >> "${LIFERAY_DOCKER_LOGS_DIR}/results"
+	fi
+}
+
 function build_bundle_image {
 	local query=${1}
 	local version=${2}
@@ -577,6 +602,8 @@ function main {
 	mkdir -p "${LIFERAY_DOCKER_LOGS_DIR}"
 
 	build_base_image
+
+	#build_bundle_builder_image
 
 	build_jdk_image "JDK 11" "jdk11" "11"
 	build_jdk_image "JDK 11 JDK 8" "jdk11-jdk8" "8"
