@@ -2,16 +2,6 @@
 
 source ./_common.sh
 
-function add_lts_suffix {
-	if [[ "${LIFERAY_DOCKER_RELEASE_VERSION}" == *q1* ]]
-	then
-		if [[ "$(echo "${LIFERAY_DOCKER_RELEASE_VERSION}" | cut -d '.' -f 1)" -ge 2025 ]]
-		then
-			LIFERAY_DOCKER_RELEASE_VERSION="${LIFERAY_DOCKER_RELEASE_VERSION}-LTS"
-		fi
-	fi
-}
-
 function build_docker_image {
 	if [[ ${LIFERAY_DOCKER_RELEASE_FILE_URL%} == */snapshot-* ]]
 	then
@@ -223,8 +213,6 @@ function main {
 	prepare_tomcat
 
 	download_trial_dxp_license
-
-	add_lts_suffix
 
 	build_docker_image
 

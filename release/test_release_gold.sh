@@ -7,46 +7,54 @@ source release_gold.sh --test
 function main {
 	set_up
 
-	if [ "${?}" -ne 0 ]
+	test_not_reference_new_releases
+	test_reference_new_releases
+
+	if [ -d "${_PROJECTS_DIR}/liferay-portal-ee" ]
 	then
-		return
+		test_check_usage
+		test_not_prepare_next_release_branch
+		test_not_update_release_info_date
+
+		export LIFERAY_RELEASE_PREPARE_NEXT_RELEASE_BRANCH="false"
+
+		test_not_prepare_next_release_branch
+		test_not_update_release_info_date
+
+		LIFERAY_RELEASE_PREPARE_NEXT_RELEASE_BRANCH="true"
+
+		test_not_prepare_next_release_branch
+		test_not_update_release_info_date
+		test_prepare_next_release_branch
+		test_update_release_info_date
+	else
+		echo -e "The directory ${_PROJECTS_DIR}/liferay-portal-ee does not exist.\n"
 	fi
-
-	test_check_usage
-	test_not_prepare_next_release_branch
-	test_not_update_release_info_date
-
-	export LIFERAY_RELEASE_PREPARE_NEXT_RELEASE_BRANCH="false"
-
-	test_not_prepare_next_release_branch
-	test_not_update_release_info_date
-
-	LIFERAY_RELEASE_PREPARE_NEXT_RELEASE_BRANCH="true"
-
-	test_not_prepare_next_release_branch
-	test_not_update_release_info_date
-	test_prepare_next_release_branch
-	test_update_release_info_date
 
 	tear_down
 }
 
 function set_up {
+	export LIFERAY_RELEASE_PRODUCT_NAME="dxp"
+	export LIFERAY_RELEASE_RC_BUILD_TIMESTAMP="1695892964"
 	export _PROJECTS_DIR="${PWD}"/../..
 
-	if [ ! -d "${_PROJECTS_DIR}/liferay-portal-ee" ]
-	then
-		echo -e "The directory ${_PROJECTS_DIR}/liferay-portal-ee does not exist.\n"
-
-		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
-	fi
+	cp test-dependencies/actual/releases.json .
 }
 
 function tear_down {
-	lc_cd "${_PROJECTS_DIR}/liferay-portal-ee"
+	lc_cd "${_PROJECTS_DIR}/liferay-docker"
 
 	git restore .
 
+	rm -f release/releases.json
+
+	lc_cd "${_PROJECTS_DIR}/liferay-portal-ee" 2> /dev/null
+
+	git restore .
+
+	unset LIFERAY_RELEASE_PRODUCT_NAME
+	unset LIFERAY_RELEASE_RC_BUILD_TIMESTAMP
 	unset _PROJECTS_DIR
 }
 
@@ -66,6 +74,12 @@ function test_not_prepare_next_release_branch {
 	_test_not_prepare_next_release_branch "7.4.3.125-ga125" "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 }
 
+function test_not_reference_new_releases {
+	_test_not_reference_new_releases "7.3.10-u36" "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+	_test_not_reference_new_releases "7.4.13-u101" "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+	_test_not_reference_new_releases "7.4.3.125-ga125" "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+}
+
 function test_not_update_release_info_date {
 	if [ ! $(echo "${LIFERAY_RELEASE_PREPARE_NEXT_RELEASE_BRANCH}" | grep -i "true") ]
 	then
@@ -80,15 +94,40 @@ function test_not_update_release_info_date {
 }
 
 function test_prepare_next_release_branch {
-	_PRODUCT_VERSION="2024.q1.12"
+	_test_prepare_next_release_branch "2024.q1.12" "2024.Q1.13"
+	_test_prepare_next_release_branch "2025.q1.0" "2025.Q1.1 LTS"
+}
+
+function _test_prepare_next_release_branch {
+	_PRODUCT_VERSION="${1}"
+
+	echo -e "Running _test_prepare_next_release_branch for ${_PRODUCT_VERSION}\n"
+
+	local current_dir="${PWD}"
 
 	prepare_next_release_branch --test 1> /dev/null
 
 	assert_equals \
 		"$(lc_get_property "${_PROJECTS_DIR}"/liferay-portal-ee/release.properties "release.info.version.display.name[master-private]")" \
-		"2024.Q1.13" \
+		"${2}" \
 		"$(lc_get_property "${_PROJECTS_DIR}"/liferay-portal-ee/release.properties "release.info.version.display.name[release-private]")" \
-		"2024.Q1.13"
+		"${2}"
+
+	lc_cd "${current_dir}"
+}
+
+function test_reference_new_releases {
+	lc_cd "test-dependencies/actual"
+
+	_PRODUCT_VERSION="2024.q3.13"
+
+	reference_new_releases --test 1> /dev/null
+
+	lc_cd "${_PROJECTS_DIR}/liferay-docker/release"
+
+	assert_equals \
+		test-dependencies/actual/build.properties \
+		test-dependencies/expected/build.properties
 }
 
 function test_update_release_info_date {
@@ -109,6 +148,16 @@ function _test_not_prepare_next_release_branch {
 		"and LIFERAY_RELEASE_PREPARE_NEXT_RELEASE_BRANCH=${LIFERAY_RELEASE_PREPARE_NEXT_RELEASE_BRANCH}\n"
 
 	prepare_next_release_branch --test 1> /dev/null
+
+	assert_equals "${?}" "${2}"
+}
+
+function _test_not_reference_new_releases {
+	_PRODUCT_VERSION="${1}"
+
+	echo -e "Running _test_not_reference_new_releases for ${_PRODUCT_VERSION}\n"
+
+	reference_new_releases --test 1> /dev/null
 
 	assert_equals "${?}" "${2}"
 }
