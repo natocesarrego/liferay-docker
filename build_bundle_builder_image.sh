@@ -3,7 +3,6 @@
 source ./_common.sh
 
 function build_docker_image {
-	#Later this might need a revisit as we don't want to rebuild the image too often.
 	local image_version=$(./release_notes.sh get-version)
 
 	DOCKER_IMAGE_TAGS=()

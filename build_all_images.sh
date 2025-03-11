@@ -54,9 +54,7 @@ function build_batch_image {
 	fi
 }
 
-function build_bundler_builder_image {
-	log_in_to_docker_hub
-
+function build_bundle_builder_image {
 	if [[ $(get_latest_docker_hub_version "bundle-builder") == $(./release_notes.sh get-version) ]] && [[ "${LIFERAY_DOCKER_DEVELOPER_MODE}" != "true" ]]
 	then
 		echo ""
@@ -611,6 +609,7 @@ function main {
 	build_jdk_image "JDK 21" "jdk21" "21"
 
 	build_batch_image
+	#build_bundle_builder_image
 	build_caddy_image
 	build_jar_runner_image
 	build_job_runner_image
@@ -619,8 +618,6 @@ function main {
 	build_squid_image
 	#build_zabbix_server_image
 	#build_zabbix_web_image
-
-	#build_bundler_builder_image
 
 	build_bundle_images
 
