@@ -132,11 +132,15 @@ function compare_jars {
 			# Remove 0 byte files
 			#
 			grep -v 00000000 | \
-			grep -v "pom.properties" | \
-			grep -v "source-classes-mapping.txt" | \
 			grep -v "_jsp.class" | \
 			grep -v "_jsp.java" | \
+			grep -v "__liferay__/index.js" | \
+			grep -v "index.js.map" | \
+			grep -v "pom.properties" | \
 			grep -v "previous-compilation-data.bin" | \
+			grep -v "source-classes-mapping.txt" | \
+			grep -v "META-INF/resources/aui/aui_deprecated.css" | \
+			grep -v "META-INF/resources/language.json" | \
 			#
 			# TODO Include portal-impl.jar when the util-*jars changed
 			#
