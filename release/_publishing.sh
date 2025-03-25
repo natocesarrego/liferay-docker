@@ -199,49 +199,22 @@ function upload_boms {
 }
 
 function upload_hotfix {
-	if [ "${LIFERAY_RELEASE_UPLOAD}" != "true" ]
-	then
+	if [ "${LIFERAY_RELEASE_UPLOAD}" != "true" ]; then
 		lc_log INFO "Set the environment variable LIFERAY_RELEASE_UPLOAD to \"true\" to enable."
-
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
 
-	if (has_ssh_connection "lrdcom-vm-1")
-	then
-		lc_log INFO "Connecting to lrdcom-vm-1."
+	_GCS_HOTFIX_BUCKET_DIR="gs://files_liferay_com/private/ee/portal/hotfix/${_PRODUCT_VERSION}/"
+	_GCS_HOTFIX_CONSOLE_URL="https://console.cloud.google.com/storage/browser/\
+files_liferay_com/private/ee/portal/hotfix/${_PRODUCT_VERSION}/${_HOTFIX_FILE_NAME}"
 
-		ssh root@lrdcom-vm-1 mkdir -p "/www/releases.liferay.com/dxp/hotfix/${_PRODUCT_VERSION}/"
-
-		#
-		# shellcheck disable=SC2029
-		#
-
-		if (ssh root@lrdcom-vm-1 ls "/www/releases.liferay.com/dxp/hotfix/${_PRODUCT_VERSION}/" | grep -q "${_HOTFIX_FILE_NAME}")
-		then
-			lc_log INFO "Skipping the upload of ${_HOTFIX_FILE_NAME} because it already exists."
-
-			echo "# Uploaded" > ../output.md
-			echo " - https://releases.liferay.com/dxp/hotfix/${_PRODUCT_VERSION}/${_HOTFIX_FILE_NAME}" >> ../output.md
-
-			return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
-		fi
-
-		scp "${_BUILD_DIR}/${_HOTFIX_FILE_NAME}" root@lrdcom-vm-1:"/www/releases.liferay.com/dxp/hotfix/${_PRODUCT_VERSION}/"
-	else
-		lc_log INFO "Skipping lrdcom-vm-1."
+	if gsutil ls "${_GCS_HOTFIX_BUCKET_DIR}" | grep -q "${_HOTFIX_FILE_NAME}"; then
+		lc_log INFO "Skipping the upload of ${_HOTFIX_FILE_NAME} to GCP because it already exists."
+		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
 
-	if (gsutil ls "gs://liferay-releases-hotfix/${_PRODUCT_VERSION}" | grep "${_HOTFIX_FILE_NAME}")
-	then
-		lc_log ERROR "Skipping the upload of ${_HOTFIX_FILE_NAME} to GCP because it already exists."
-
-		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
-	fi
-
-	gsutil cp "${_BUILD_DIR}/${_HOTFIX_FILE_NAME}" "gs://liferay-releases-hotfix/${_PRODUCT_VERSION}"
-
-	echo "# Uploaded" > ../output.md
-	echo " - https://releases.liferay.com/dxp/hotfix/${_PRODUCT_VERSION}/${_HOTFIX_FILE_NAME}" >> ../output.md
+	gsutil cp "${_BUILD_DIR}/${_HOTFIX_FILE_NAME}" "${_GCS_HOTFIX_BUCKET_DIR}"
+	lc_log INFO "Hotfix successfully uploaded: ${_GCS_HOTFIX_CONSOLE_URL}"
 }
 
 function upload_release {
