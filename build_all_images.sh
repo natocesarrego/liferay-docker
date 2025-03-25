@@ -603,14 +603,13 @@ function main {
 
 	build_base_image
 
-	#build_bundle_builder_image
-
 	build_jdk_image "JDK 11" "jdk11" "11"
 	build_jdk_image "JDK 11 JDK 8" "jdk11-jdk8" "8"
 	build_jdk_image "JDK 21 JDK 11 JDK 8" "jdk21-jdk11-jdk8" "21"
 	build_jdk_image "JDK 21" "jdk21" "21"
 
 	build_batch_image
+	#build_bundle_builder_image
 	build_caddy_image
 	build_jar_runner_image
 	build_job_runner_image
