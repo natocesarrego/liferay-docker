@@ -145,8 +145,20 @@ function check_usage {
 		print_help
 	fi
 
-	if [[ -n "${LIFERAY_DOCKER_ELASTICSEARCH_NETWORK_ADDRESSES}" ]] &&
-	! [[ "${LIFERAY_DOCKER_ELASTICSEARCH_NETWORK_ADDRESSES}" =~ \[(\"(http|https):\/\/[-\d\w]+\:[\d]+\")+(\,)*(\s)*(\"(http|https):\/\/[-\d\w]+\:[\d]+\")*\] ]]
+	if [[ -n "${LIFERAY_DOCKER_ELASTICSEARCH_NETWORK_ADDRESSES}" ]] && \
+	   ! ( echo "${LIFERAY_DOCKER_ELASTICSEARCH_NETWORK_ADDRESSES}" | grep -qP "\[?(\"?(http|https):\/\/[.\w-]+:[0-9]+\"?)+(,\s*\"(http|https):\/\/[.\w-]+:[0-9]+\")*\]?" )
+	then
+		print_help
+	fi
+
+	if [[ -n "${LIFERAY_DOCKER_OPENSEARCH_NETWORK_ADDRESSES}" ]] && \
+	   ! ( echo "${LIFERAY_DOCKER_OPENSEARCH_NETWORK_ADDRESSES}" | grep -qP "\[?(\"?(http|https):\/\/[.\w-]+:[0-9]+\"?)+(,\s*\"(http|https):\/\/[.\w-]+:[0-9]+\")*\]?" )
+	then
+		print_help
+	fi
+
+	if [[ -n "${LIFERAY_DOCKER_OPENSEARCH_NETWORK_ADDRESSES}" ]] &&
+	 [[ "${LIFERAY_DOCKER_OPENSEARCH_NETWORK_ADDRESSES}" =~ \[(\"(http|https):\/\/[.-\d\w]+\:[\d]+\")+(\,)*(\s)*(\"(http|https):\/\/[.-\d\w]+\:[\d]+\")*\] ]]
 	then
 		print_help
 	fi
@@ -250,7 +262,7 @@ function prepare_slim_image {
 		echo "active=B\"true\""
 		echo "connectionId=\"REMOTE\""
 		echo "password=\"${LIFERAY_DOCKER_OPENSEARCH_PASSWORD}\""
-		echo "networkHostAddresses=\"${LIFERAY_DOCKER_SEARCH_NETWORK_ADDRESSES}\""
+		echo "networkHostAddresses=\"${LIFERAY_DOCKER_OPENSEARCH_NETWORK_ADDRESSES}\""
 	) > "${TEMP_DIR}/liferay/osgi/configs/com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration-REMOTE.config"
 
 	(
@@ -270,7 +282,6 @@ function prepare_slim_image {
 	) > "${TEMP_DIR}/liferay/osgi/configs/com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration.config"
 
 	echo "remoteClusterConnectionId=\"REMOTE\"" > "${TEMP_DIR}/liferay/osgi/configs/com.liferay.portal.search.opensearch2.configuration.OpenSearchConfiguration.config"
-
 }
 
 function prepare_temp_directory {
@@ -358,13 +369,14 @@ function print_help {
 	echo "The script reads the following environment variables:"
 	echo ""
 	echo "    LIFERAY_DOCKER_DEVELOPER_MODE (optional): If set to \"true\", all local images will be deleted before building a new one"
-	echo "    LIFERAY_DOCKER_SEARCH_NETWORK_ADDRESSES (optional): Search remote server network addresses"
+	echo "    LIFERAY_DOCKER_ELASTICSEARCH_NETWORK_ADDRESSES (optional): Elasticsearch remote server network addresses"
 	echo "    LIFERAY_DOCKER_FIX_PACK_URL (optional): URL to a fix pack"
 	echo "    LIFERAY_DOCKER_HUB_TOKEN (optional): Docker Hub token to log in automatically"
 	echo "    LIFERAY_DOCKER_HUB_USERNAME (optional): Docker Hub username to log in automatically"
 	echo "    LIFERAY_DOCKER_IMAGE_PLATFORMS (optional): Comma separated Docker image platforms to build when the \"push\" parameter is set"
 	echo "    LIFERAY_DOCKER_LICENSE_API_HEADER (required for DXP): API header used to generate the trial license"
 	echo "    LIFERAY_DOCKER_LICENSE_API_URL (required for DXP): API URL to generate the trial license"
+	echo "    LIFERAY_DOCKER_OPENSEARCH_NETWORK_ADDRESSES (optional): OpenSearch remote server network addresses"
 	echo "    LIFERAY_DOCKER_OPENSEARCH_PASSWORD (optional): OpenSearch remote server password"
 	echo "    LIFERAY_DOCKER_RELEASE_FILE_URL (required): URL to a Liferay bundle"
 	echo "    LIFERAY_DOCKER_REPOSITORY (optional): Docker repository"
@@ -372,7 +384,7 @@ function print_help {
 	echo ""
 	echo "Example: LIFERAY_DOCKER_RELEASE_FILE_URL=files.liferay.com/private/ee/portal/7.2.10/liferay-dxp-tomcat-7.2.10-ga1-20190531140450482.7z ${0} push"
 	echo ""
-	echo "Example: LIFERAY_DOCKER_ELASTICSEARCH_NETWORK_ADDRESSES='[\"http://es-node1:9200\",\"http://es-node2:9201\"]' LIFERAY_DOCKER_RELEASE_FILE_URL=files.liferay.com/private/ee/portal/7.2.10/liferay-dxp-tomcat-7.2.10-ga1-20190531140450482.7z LIFERAY_DOCKER_SLIM=true ${0} push"
+	echo "Example: LIFERAY_DOCKER_ELASTICSEARCH_NETWORK_ADDRESSES='["http://es-node1:9200","http://es-node2:9201"]' LIFERAY_DOCKER_OPENSEARCH_NETWORK_ADDRESSES=http://es-node1:9203 LIFERAY_DOCKER_OPENSEARCH_PASSWORD=OpenSearchPassword LIFERAY_DOCKER_RELEASE_FILE_URL=files.liferay.com/private/ee/portal/7.2.10/liferay-dxp-tomcat-7.2.10-ga1-20190531140450482.7z LIFERAY_DOCKER_SLIM=true ${0} push"
 	echo ""
 
 	exit 1
