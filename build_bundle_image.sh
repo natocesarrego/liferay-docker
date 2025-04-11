@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source ./_common.sh
+source ./_liferay_common.sh
 
 function build_docker_image {
 	if [ "${LIFERAY_DOCKER_SLIM}" == "true" ]
@@ -237,14 +238,39 @@ function main {
 }
 
 function prepare_slim_image {
+	local release_product_name=$(echo "${LIFERAY_DOCKER_RELEASE_FILE_URL}" | cut -d '/' -f 2)
+	local release_version=$(echo "${LIFERAY_DOCKER_RELEASE_FILE_URL}" | cut -d '/' -f 3)
+
+	LIFERAY_COMMON_DOWNLOAD_SKIP_CACHE="true" lc_download "https://releases-gcp.liferay.com/opensearch/${release_product_name}/${release_version}/com.liferay.portal.search.opensearch2.api.jar" "${TEMP_DIR}/liferay/deploy/com.liferay.portal.search.opensearch2.api.jar"
+	LIFERAY_COMMON_DOWNLOAD_SKIP_CACHE="true" lc_download "https://releases-gcp.liferay.com/opensearch/${release_product_name}/${release_version}/com.liferay.portal.search.opensearch2.impl.jar" "${TEMP_DIR}/liferay/deploy/com.liferay.portal.search.opensearch2.impl.jar"
+
 	rm -fr "${TEMP_DIR}/liferay/elasticsearch-sidecar"
 
-	touch "${TEMP_DIR}/liferay/osgi/configs/com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration.config"
+	(
+		echo "active=B\"true\""
+		echo "connectionId=\"REMOTE\""
+		echo "password=\"${LIFERAY_DOCKER_OPENSEARCH_PASSWORD}\""
+		echo "networkHostAddresses=\"${LIFERAY_DOCKER_SEARCH_NETWORK_ADDRESSES}\""
+	) > "${TEMP_DIR}/liferay/osgi/configs/com.liferay.portal.search.opensearch2.configuration.OpenSearchConnectionConfiguration-REMOTE.config"
 
+	(
+		echo "blacklistBundleSymbolicNames=[\\"
+		echo "	\"com.liferay.portal.search.elasticsearch.cross.cluster.replication.impl\",\\"
+		echo "	\"com.liferay.portal.search.elasticsearch.monitoring.web\",\\"
+		echo "	\"com.liferay.portal.search.elasticsearch7.api\",\\"
+		echo "	\"com.liferay.portal.search.elasticsearch7.impl\",\\"
+		echo "	\"com.liferay.portal.search.learning.to.rank.api\",\\"
+		echo "	\"com.liferay.portal.search.learning.to.rank.impl\"\\"
+		echo "]"
+	) > "${TEMP_DIR}/liferay/osgi/configs/com.liferay.portal.bundle.blacklist.internal.configuration.BundleBlacklistConfiguration.config"
+	
 	(
 		echo "networkHostAddresses=\"${LIFERAY_DOCKER_ELASTICSEARCH_NETWORK_ADDRESSES}\""
 		echo "productionModeEnabled=B\"true\""
 	) > "${TEMP_DIR}/liferay/osgi/configs/com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration.config"
+
+	echo "remoteClusterConnectionId=\"REMOTE\"" > "${TEMP_DIR}/liferay/osgi/configs/com.liferay.portal.search.opensearch2.configuration.OpenSearchConfiguration.config"
+
 }
 
 function prepare_temp_directory {
@@ -332,13 +358,14 @@ function print_help {
 	echo "The script reads the following environment variables:"
 	echo ""
 	echo "    LIFERAY_DOCKER_DEVELOPER_MODE (optional): If set to \"true\", all local images will be deleted before building a new one"
-	echo "    LIFERAY_DOCKER_ELASTICSEARCH_NETWORK_ADDRESSES (optional): Elasticsearch remote server network addresses"
+	echo "    LIFERAY_DOCKER_SEARCH_NETWORK_ADDRESSES (optional): Search remote server network addresses"
 	echo "    LIFERAY_DOCKER_FIX_PACK_URL (optional): URL to a fix pack"
 	echo "    LIFERAY_DOCKER_HUB_TOKEN (optional): Docker Hub token to log in automatically"
 	echo "    LIFERAY_DOCKER_HUB_USERNAME (optional): Docker Hub username to log in automatically"
 	echo "    LIFERAY_DOCKER_IMAGE_PLATFORMS (optional): Comma separated Docker image platforms to build when the \"push\" parameter is set"
 	echo "    LIFERAY_DOCKER_LICENSE_API_HEADER (required for DXP): API header used to generate the trial license"
 	echo "    LIFERAY_DOCKER_LICENSE_API_URL (required for DXP): API URL to generate the trial license"
+	echo "    LIFERAY_DOCKER_OPENSEARCH_PASSWORD (optional): OpenSearch remote server password"
 	echo "    LIFERAY_DOCKER_RELEASE_FILE_URL (required): URL to a Liferay bundle"
 	echo "    LIFERAY_DOCKER_REPOSITORY (optional): Docker repository"
 	echo "    LIFERAY_DOCKER_SLIM (optional): If set to \"true\", the image will be the slim variant"
