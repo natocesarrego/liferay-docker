@@ -144,8 +144,8 @@ function check_usage {
 		print_help
 	fi
 
-	if [[ -n "${LIFERAY_DOCKER_ELASTICSEARCH_NETWORK_ADDRESSES}" ]] &&
-	! [[ "${LIFERAY_DOCKER_ELASTICSEARCH_NETWORK_ADDRESSES}" =~ \[(\"(http|https):\/\/[-\d\w]+\:[\d]+\")+(\,)*(\s)*(\"(http|https):\/\/[-\d\w]+\:[\d]+\")*\] ]]
+	if [ -n "${LIFERAY_DOCKER_ELASTICSEARCH_NETWORK_ADDRESSES}" ] &&
+	   [[ ! "${LIFERAY_DOCKER_ELASTICSEARCH_NETWORK_ADDRESSES}" =~ \[(\"(http|https):\/\/[-\d\w]+\:[\d]+\")+(\,)*(\s)*(\"(http|https):\/\/[-\d\w]+\:[\d]+\")*\] ]]
 	then
 		print_help
 	fi
