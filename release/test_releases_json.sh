@@ -100,18 +100,13 @@ function test_promote_product_versions {
 }
 
 function test_tag_recommended_product_versions {
-	for release_type in "dxp" "quartely"
-	do
-		assert_equals \
-			"$(jq "[.[] | select(.productVersion == \"DXP $(_get_latest_product_version "${release_type}" | tr '[:lower:]-' '[:upper:] ')\" and .tags == [\"recommended\"])] | length == 1" releases.json)" \
-			"true"
-	done
-
 	assert_equals \
+		"$(jq "[.[] | select(.productVersion == \"DXP $(_get_latest_product_version "dxp" | tr '[:lower:]-' '[:upper:] ')\" and .tags == [\"recommended\"])] | length == 1" releases.json)" \
+		"true" \
+		"$(jq "[.[] | select(.productVersion == \"DXP $(_get_latest_product_version "quartely" | tr '[:lower:]-' '[:upper:] ')\" and .tags == [\"recommended\"])] | length == 1" releases.json)" \
+		"true" \
 		"$(jq '[.[] | select(.product == "portal" and .tags == ["recommended"])] | length == 1' releases.json)" \
-		"true"
-
-	assert_equals \
+		"true" \
 		"$(jq '[.[] | select(.tags == ["recommended"])] | length == 3' releases.json)" \
 		"true"
 }
