@@ -158,7 +158,7 @@ function check_usage {
 	fi
 
 	if [[ -n "${LIFERAY_DOCKER_OPENSEARCH_NETWORK_ADDRESSES}" ]] &&
-	 [[ "${LIFERAY_DOCKER_OPENSEARCH_NETWORK_ADDRESSES}" =~ \[(\"(http|https):\/\/[.-\d\w]+\:[\d]+\")+(\,)*(\s)*(\"(http|https):\/\/[.-\d\w]+\:[\d]+\")*\] ]]
+	   [[ "${LIFERAY_DOCKER_OPENSEARCH_NETWORK_ADDRESSES}" =~ \[(\"(http|https):\/\/[.-\d\w]+\:[\d]+\")+(\,)*(\s)*(\"(http|https):\/\/[.-\d\w]+\:[\d]+\")*\] ]]
 	then
 		print_help
 	fi
