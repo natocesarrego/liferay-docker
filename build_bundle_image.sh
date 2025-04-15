@@ -250,13 +250,18 @@ function main {
 }
 
 function prepare_slim_image {
+	rm -fr "${TEMP_DIR}/liferay/elasticsearch-sidecar"
+
+	(
+		echo "networkHostAddresses=\"${LIFERAY_DOCKER_ELASTICSEARCH_NETWORK_ADDRESSES}\""
+		echo "productionModeEnabled=B\"true\""
+	) > "${TEMP_DIR}/liferay/osgi/configs/com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration.config"
+
 	local product_name=$(echo "${LIFERAY_DOCKER_RELEASE_FILE_URL}" | cut -d '/' -f 2)
 	local product_version=$(echo "${LIFERAY_DOCKER_RELEASE_FILE_URL}" | cut -d '/' -f 3)
 
 	LIFERAY_COMMON_DOWNLOAD_SKIP_CACHE="true" lc_download "https://releases-gcp.liferay.com/opensearch2/${product_name}/${product_version}/com.liferay.portal.search.opensearch2.api.jar" "${TEMP_DIR}/liferay/deploy/com.liferay.portal.search.opensearch2.api.jar"
 	LIFERAY_COMMON_DOWNLOAD_SKIP_CACHE="true" lc_download "https://releases-gcp.liferay.com/opensearch2/${product_name}/${product_version}/com.liferay.portal.search.opensearch2.impl.jar" "${TEMP_DIR}/liferay/deploy/com.liferay.portal.search.opensearch2.impl.jar"
-
-	rm -fr "${TEMP_DIR}/liferay/elasticsearch-sidecar"
 
 	(
 		echo "active=B\"true\""
@@ -275,11 +280,6 @@ function prepare_slim_image {
 		echo "	\"com.liferay.portal.search.learning.to.rank.impl\"\\"
 		echo "]"
 	) > "${TEMP_DIR}/liferay/osgi/configs/com.liferay.portal.bundle.blacklist.internal.configuration.BundleBlacklistConfiguration.config"
-	
-	(
-		echo "networkHostAddresses=\"${LIFERAY_DOCKER_ELASTICSEARCH_NETWORK_ADDRESSES}\""
-		echo "productionModeEnabled=B\"true\""
-	) > "${TEMP_DIR}/liferay/osgi/configs/com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration.config"
 
 	echo "remoteClusterConnectionId=\"REMOTE\"" > "${TEMP_DIR}/liferay/osgi/configs/com.liferay.portal.search.opensearch2.configuration.OpenSearchConfiguration.config"
 }
