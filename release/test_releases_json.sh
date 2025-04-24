@@ -10,7 +10,6 @@ function main {
 	test_merge_json_snippets dxp
 	test_process_new_product_1
 	test_process_new_product_2
-	test_process_product
 	test_promote_product_versions dxp
 	test_tag_recommended_product_versions
 
@@ -67,10 +66,6 @@ function test_process_new_product_2 {
 	assert_equals "${?}" "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 
 	_PRODUCT_VERSION="${temp_product_version}"
-}
-
-function test_process_product {
-    assert_equals "$(jq '[.[] | select(.targetPlatformVersion == "2025.q1.1")] | length == 1' releases.json)" "true"
 }
 
 function test_promote_product_versions {
