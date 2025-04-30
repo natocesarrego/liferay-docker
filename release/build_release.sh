@@ -150,6 +150,8 @@ function main {
 		lc_time_run upload_boms xanadu
 
 		lc_time_run upload_release
+
+		lc_time_run send_to_ci_test
 	else
 		lc_time_run prepare_release_dir
 
@@ -204,8 +206,6 @@ function main {
 
 		cat "${_BUILD_DIR}/output.md"
 	fi
-
-	lc_time_run send_to_ci_test
 }
 
 function print_help {
