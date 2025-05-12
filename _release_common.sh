@@ -1,11 +1,11 @@
 #!/bin/bash
 
-function get_latest_quartely_version {
+function get_latest_quarterly_version {
 	local version_1=$(echo "${1}" | sed -e "s/-lts//")
 	local version_2=$(echo "${2}" | sed -e "s/-lts//")
 
-	IFS='.' read -r version_1_year version_1_quarter version_1_sufix <<< "${version_1}"
-	IFS='.' read -r version_2_year version_2_quarter version_2_sufix <<< "${version_2}"
+	IFS='.' read -r version_1_year version_1_quarter version_1_suffix <<< "${version_1}"
+	IFS='.' read -r version_2_year version_2_quarter version_2_suffix <<< "${version_2}"
 
 	version_1_quarter=$(echo "${version_1_quarter}" | sed -e "s/q//")
 	version_2_quarter=$(echo "${version_2_quarter}" | sed -e "s/q//")
@@ -34,12 +34,12 @@ function get_latest_quartely_version {
 		return
 	fi
 
-	if [ "${version_1_sufix}" -gt "${version_2_sufix}" ]
+	if [ "${version_1_suffix}" -gt "${version_2_suffix}" ]
 	then
 		echo "${1}"
 
 		return
-	elif [ "${version_1_sufix}" -lt "${version_2_sufix}" ]
+	elif [ "${version_1_suffix}" -lt "${version_2_suffix}" ]
 	then
 		echo "${2}"
 
