@@ -13,6 +13,3 @@ quarterly:
     2024.q2.0:
     2025.q1.11-lts:
         latest: true
-snapshot:
-    snapshot-master:
-        bundle_url: releases.liferay.com/portal/snapshot-master/latest/liferay-portal-tomcat-master.7z
