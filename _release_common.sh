@@ -66,5 +66,12 @@ function is_quarterly_release {
 }
 
 function set_actual_product_version {
-	ACTUAL_PRODUCT_VERSION="${1}"
+	if [ -n "${PRODUCT_VERSION}" ]
+	then
+		ACTUAL_PRODUCT_VERSION="${PRODUCT_VERSION}"
+	else
+		ACTUAL_PRODUCT_VERSION="${1}"
+	fi
 }
+
+set_actual_product_version "${@}"

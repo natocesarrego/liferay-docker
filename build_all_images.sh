@@ -2,7 +2,7 @@
 
 source ./_common.sh
 source ./_liferay_common.sh
-source ./_release_common.sh
+source ./_release_common.sh "${LIFERAY_DOCKER_IMAGE_FILTER}"
 
 function build_base_image {
 	log_in_to_docker_hub
@@ -514,6 +514,8 @@ function get_latest_docker_hub_zulu_version {
 function get_main_key {
 	local main_keys=${1}
 	local version=${2}
+
+	set_actual_product_version "${1}"
 
 	if [ "$(is_quarterly_release "${version}")" == "true" ]
 	then
