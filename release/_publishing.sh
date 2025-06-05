@@ -341,6 +341,8 @@ function upload_to_docker_hub {
 		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 	fi
 
+	delete_temp_branch "liferay-docker"
+
 	lc_cd "${_BASE_DIR}"
 }
 
@@ -399,7 +401,7 @@ function _update_bundles_yml {
 		commit_to_branch_and_send_pull_request \
 			"${_PROJECTS_DIR}/liferay-docker/bundles.yml" \
 			"Add ${_PRODUCT_VERSION} to bundles.yml." \
-			"update-bundles-yml-branch" \
+			"${_TEMP_BRANCH}" \
 			"master" \
 			"brianchandotcom/liferay-docker" \
 			"Add ${_PRODUCT_VERSION} to bundles.yml."
