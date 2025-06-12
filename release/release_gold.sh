@@ -198,7 +198,6 @@ function prepare_next_release_branch {
 				"${_PROJECTS_DIR}/liferay-portal-ee/release.properties" \
 				"Prepare ${product_group_version}.${next_release_patch_version}" \
 				"${quarterly_release_branch}" \
-				"${quarterly_release_branch}" \
 				"brianchandotcom/liferay-portal-ee" \
 				"Prep next"
 
@@ -381,7 +380,6 @@ function reference_new_releases {
 		commit_to_branch_and_send_pull_request \
 			"${_PROJECTS_DIR}/liferay-jenkins-ee/commands/build.properties" \
 			"${issue_key} Add release references for ${_PRODUCT_VERSION}" \
-			"${_TEMP_BRANCH}" \
 			"master" \
 			"pyoo47/liferay-jenkins-ee" \
 			"${issue_key} Add release references for ${_PRODUCT_VERSION}."
@@ -590,7 +588,6 @@ function update_release_info_date {
 		commit_to_branch_and_send_pull_request \
 			"${_PROJECTS_DIR}/liferay-portal-ee/release.properties" \
 			"Update the release info date for ${_PRODUCT_VERSION}" \
-			"${quarterly_release_branch}" \
 			"${quarterly_release_branch}" \
 			"brianchandotcom/liferay-portal-ee" \
 			"Prep next"

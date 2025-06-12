@@ -62,16 +62,14 @@ function commit_to_branch_and_send_pull_request {
 
 	git commit --message "${2}"
 
-	local repository_name=$(echo "${5}" | cut -d '/' -f 2)
-
-	git push --force "git@github.com:liferay-release/${repository_name}.git" "${3}"
+	local repository_name=$(echo "${4}" | cut -d '/' -f 2)
 
 	gh pr create \
-		--base "${4}" \
+		--base "${3}" \
 		--body "Created by Release Team." \
-		--head "liferay-release:${3}" \
-		--repo "${5}" \
-		--title "${6}"
+		--head "liferay-release:${_TEMP_BRANCH}" \
+		--repo "${4}" \
+		--title "${5}"
 
 	if [ "${?}" -ne 0 ]
 	then
@@ -124,38 +122,57 @@ function prepare_branch_to_commit {
 	git restore .
 	git checkout master
 
-	local branch_name="${3}"
-	local project_name="${2}"
-	local target_branch=""
+	local base_branch="master"
 
-	if [ -z "${branch_name}" ]
+	if [ -n "${3}" ]
 	then
-		git fetch --no-tags "git@github.com:liferay-release/${project_name}.git" master
-
-		git reset --hard FETCH_HEAD
-
-		target_branch="temp-branch-$(date "+%Y%m%d%H%M%S")"
-
-		git checkout -b "${target_branch}"
-
-		git push --force "git@github.com:liferay-release/${project_name}.git" "${target_branch}"
-	else
-		if ( git show-ref --verify --quiet "refs/heads/${branch_name}" )
-		then
-			git branch --delete --force "${branch_name}"
-		fi
-
-		git fetch --no-tags "git@github.com:liferay-release/${project_name}.git" "${branch_name}:${branch_name}"
-
-		target_branch="${branch_name}"
+		base_branch="${3}"
 	fi
 
-	git checkout "${target_branch}"
+	local repository_name="${2}"
 
-	if [ "$(git rev-parse --abbrev-ref HEAD)" != "${target_branch}" ]
+	git fetch --no-tags "git@github.com:liferay-release/${repository_name}.git" "${base_branch}"
+
+	git reset --hard FETCH_HEAD
+
+	_TEMP_BRANCH="temp-branch-$(date "+%Y%m%d%H%M%S")"
+
+	git checkout -b "${_TEMP_BRANCH}" "${base_branch}"
+
+	# local branch_name="${3}"
+	# local repository_name="${2}"
+	# local target_branch=""
+
+	# if [ -z "${branch_name}" ]
+	# then
+	# 	git fetch --no-tags "git@github.com:liferay-release/${repository_name}.git" "${3}"
+
+	# 	git reset --hard FETCH_HEAD
+
+	# 	target_branch="temp-branch-$(date "+%Y%m%d%H%M%S")"
+
+	# 	git checkout -b "${target_branch}"
+
+	# 	git push --force "git@github.com:liferay-release/${repository_name}.git" "${target_branch}"
+	# else
+	# 	if ( git show-ref --verify --quiet "refs/heads/${branch_name}" )
+	# 	then
+	# 		git branch --delete --force "${branch_name}"
+	# 	fi
+
+	# 	git fetch --no-tags "git@github.com:liferay-release/${repository_name}.git" "${branch_name}:${branch_name}"
+
+	# 	target_branch="${branch_name}"
+	# fi
+
+	# git checkout "${target_branch}"
+
+	if [ "$(git rev-parse --abbrev-ref HEAD)" != "${_TEMP_BRANCH}" ]
 	then
 		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 	fi
+
+	git push --force "git@github.com:liferay-release/${repository_name}.git" "${_TEMP_BRANCH}"
 }
 
 function set_git_sha {
