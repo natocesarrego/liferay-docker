@@ -182,7 +182,7 @@ function prepare_branch_in_dxp {
 
 	git checkout master
 
-	git branch -D 7.4.13
+	git branch --delete 7.4.13
 
 	git checkout -b 7.4.13 upstream/7.4.13
 

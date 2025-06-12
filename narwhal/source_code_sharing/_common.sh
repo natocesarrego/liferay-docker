@@ -103,7 +103,7 @@ function push_to_origin {
 	then
 		git checkout master
 
-		git branch -D "${2}"
+		git branch --delete "${2}"
 	fi
 }
 
