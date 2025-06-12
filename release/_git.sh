@@ -118,25 +118,44 @@ function generate_release_notes {
 		paste -sd, > "${_BUILD_DIR}/release/release-notes.txt"
 }
 
-function prepare_branch_to_commit_from_master {
+function prepare_branch_to_commit {
 	lc_cd "${1}"
 
+	git restore .
 	git checkout master
 
-	git fetch "git@github.com:liferay-release/${2}.git" master
+	local branch_name="${3}"
+	local project_name="${2}"
+	local target_branch=""
 
-	git reset --hard FETCH_HEAD
-
-	_TEMP_BRANCH="temp-branch-$(date "+%Y%m%d%H%M%S")"
-
-	git checkout -b "${_TEMP_BRANCH}"
-
-	if [ "$(git rev-parse --abbrev-ref HEAD)" != "${_TEMP_BRANCH}" ]
+	if [ -z "${branch_name}" ]
 	then
-		return 1
+		git fetch --no-tags "git@github.com:liferay-release/${project_name}.git" master
+
+		git reset --hard FETCH_HEAD
+
+		target_branch="temp-branch-$(date "+%Y%m%d%H%M%S")"
+
+		git checkout -b "${target_branch}"
+
+		git push --force "git@github.com:liferay-release/${project_name}.git" "${target_branch}"
+	else
+		if ( git show-ref --verify --quiet "refs/heads/${branch_name}" )
+		then
+			git branch --delete --force "${branch_name}"
+		fi
+
+		git fetch --no-tags "git@github.com:liferay-release/${project_name}.git" "${branch_name}:${branch_name}"
+
+		target_branch="${branch_name}"
 	fi
 
-	git push "git@github.com:liferay-release/${2}.git" "${_TEMP_BRANCH}" --force
+	git checkout "${target_branch}"
+
+	if [ "$(git rev-parse --abbrev-ref HEAD)" != "${target_branch}" ]
+	then
+		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+	fi
 }
 
 function set_git_sha {
