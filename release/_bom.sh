@@ -35,6 +35,7 @@ function generate_api_jars {
 			(! echo "${artifact}" | grep -q "com.liferay.portletmvc4spring:com.liferay.portletmvc4spring.test:") &&
 			(! echo "${artifact}" | grep -q "com.liferay:biz.aQute.bnd.annotation:") &&
 			(! echo "${artifact}" | grep -q "io.swagger") &&
+			(! echo "${artifact}" | grep -q "jakarta") &&
 			(! echo "${artifact}" | grep -q "javax") &&
 			(! echo "${artifact}" | grep -q "org.jsoup") &&
 			(! echo "${artifact}" | grep -q "org.osgi")
@@ -111,6 +112,8 @@ function generate_api_jars {
 		do
 			_manage_bom_jar "${module_jar}"
 		done
+
+		_manage_bom_jar "${_BUNDLES_DIR}/tomcat/lib/servlet-api.jar"
 	fi
 
 	for file in $(ls api-jar/META-INF --almost-all | grep --extended-regexp --invert-match '^(alloy-util.tld|alloy.tld|c.tld|liferay.tld)$')
