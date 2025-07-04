@@ -146,6 +146,12 @@ function set_git_sha {
 }
 
 function update_portal_repository {
+	git remote -v
+
+	git remote add brianchandotcom git@github.com:brianchandotcom/liferay-portal-ee.git
+
+	git remote -v
+
 	trap 'return ${LIFERAY_COMMON_EXIT_CODE_BAD}' ERR
 
 	lc_cd "${_PROJECTS_DIR}"/liferay-portal-ee
