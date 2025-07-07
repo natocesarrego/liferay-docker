@@ -274,7 +274,7 @@ function decrement_module_versions {
 
 		micro_version=$((micro_version - 1))
 
-		sed --in-place --expression "s/Bundle-Version: ${bundle_version}/Bundle-Version: ${major_minor_version}.${micro_version}/" "${bnd_bnd_file}"
+		sed --expression "s/Bundle-Version: ${bundle_version}/Bundle-Version: ${major_minor_version}.${micro_version}/" --in-place "${bnd_bnd_file}"
 	done
 }
 
@@ -535,7 +535,7 @@ function stop_tomcat {
 function update_release_info_date {
 	lc_cd "${_PROJECTS_DIR}/liferay-portal-ee"
 
-	sed --in-place --expression "s/release.info.date=.*/release.info.date=$(date +"%B %d, %Y")/" release.properties
+	sed --expression "s/release.info.date=.*/release.info.date=$(date +"%B %d, %Y")/" --in-place release.properties
 }
 
 function warm_up_tomcat {

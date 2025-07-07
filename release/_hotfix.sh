@@ -113,8 +113,8 @@ function compare_jars {
 		local packaged_file="${3}"
 		local property="${4}"
 
-		local value1=$(unzip -p "${jar1}" "${packaged_file}" | sed --null-data --regexp-extended 's@\r?\n @@g' | grep --word-regexp "${property}")
-		local value2=$(unzip -p "${jar2}" "${packaged_file}" | sed --null-data --regexp-extended 's@\r?\n @@g' | grep --word-regexp "${property}")
+		local value1=$(unzip -p "${jar1}" "${packaged_file}" | sed --regexp-extended --null-data 's@\r?\n @@g' | grep --word-regexp "${property}")
+		local value2=$(unzip -p "${jar2}" "${packaged_file}" | sed --regexp-extended --null-data 's@\r?\n @@g' | grep --word-regexp "${property}")
 
 		if [ "${value1}" == "${value2}" ]
 		then
@@ -263,7 +263,7 @@ function copy_release_info_date {
 
 	lc_cd "${_PROJECTS_DIR}/liferay-portal-ee"
 
-	sed --in-place --expression "s/release.info.date=.*/release.info.date=$(date -d "${build_date}" +"%B %d, %Y")/" release.properties
+	sed --expression "s/release.info.date=.*/release.info.date=$(date -d "${build_date}" +"%B %d, %Y")/" --in-place release.properties
 }
 
 function create_documentation {
