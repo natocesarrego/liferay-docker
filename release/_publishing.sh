@@ -157,6 +157,8 @@ function init_gcs {
 	fi
 
 	gcloud auth activate-service-account --key-file "${LIFERAY_RELEASE_GCS_TOKEN}"
+
+	gcloud auth application-default print-access-token
 }
 
 function upload_bom_file {
