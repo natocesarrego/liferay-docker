@@ -46,9 +46,9 @@ function checkout_product_version {
 
 	git restore .
 
-	local product_version_tag=$(echo "${_PRODUCT_VERSION}" | sed -r 's/-lts//g')
+	local product_version_tag=$(echo "${_PRODUCT_VERSION}" | sed --regexp-extended "s/-lts//g")
 
-	git tag -d "${product_version_tag}"
+	git tag --delete "${product_version_tag}"
 
 	git fetch --no-tags upstream "${product_version_tag}":"${product_version_tag}"
 
