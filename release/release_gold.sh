@@ -82,34 +82,60 @@ function main {
 		return
 	fi
 
-	check_usage
+	# check_usage
 
-	check_supported_versions
+	# check_supported_versions
 
 	init_gcs
 
-	lc_time_run promote_packages
+	curl \
+		--header "Authorization: Bearer $(gcloud auth print-identity-token)" \
+		--request GET \
+		"https://us-west2-is-sales-uat-20240208.cloudfunctions.net/liferay-version-api/liferay-versions"
 
-	lc_time_run tag_release
+	local data=$(
+		cat <<- END
+		{
+			"liferayVersion": "$(get_product_group_version "2026.q1")"
+		}
+		END
+	)
 
-	promote_boms xanadu
+	curl \
+		--data "${data}" \
+		--header "Authorization: Bearer $(gcloud auth print-identity-token)" \
+		--header "Content-Type: application/json" \
+		--request POST \
+		--silent \
+		"https://us-west2-is-sales-uat-20240208.cloudfunctions.net/liferay-version-api/liferay-versions"
 
-	if (! is_quarterly_release && ! is_7_4_release)
-	then
-		lc_log INFO "Do not update product_info.json for quarterly and 7.4 releases."
+	curl \
+		--header "Authorization: Bearer $(gcloud auth print-identity-token)" \
+		--request GET \
+		"https://us-west2-is-sales-uat-20240208.cloudfunctions.net/liferay-version-api/liferay-versions"
 
-		lc_time_run generate_product_info_json
+	# lc_time_run promote_packages
 
-		lc_time_run upload_product_info_json
-	fi
+	# lc_time_run tag_release
 
-	lc_time_run generate_releases_json
+	# promote_boms xanadu
 
-	lc_time_run test_boms
+	# if (! is_quarterly_release && ! is_7_4_release)
+	# then
+	# 	lc_log INFO "Do not update product_info.json for quarterly and 7.4 releases."
 
-	lc_time_run reference_new_releases
+	# 	lc_time_run generate_product_info_json
 
-	lc_time_run add_patcher_project_version
+	# 	lc_time_run upload_product_info_json
+	# fi
+
+	# lc_time_run generate_releases_json
+
+	# lc_time_run test_boms
+
+	# lc_time_run reference_new_releases
+
+	# lc_time_run add_patcher_project_version
 
 	#if [ -d "${_RELEASE_ROOT_DIR}/dev/projects" ]
 	#then
