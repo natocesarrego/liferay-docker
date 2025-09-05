@@ -479,12 +479,12 @@ function _update_bundles_yml {
 			"${_BASE_DIR}/bundles.yml" \
 			"Add ${_PRODUCT_VERSION} to bundles.yml." \
 			"master" \
-			"brianchandotcom/liferay-docker" \
+			"natocesarrego/liferay-docker" \
 			"Add ${_PRODUCT_VERSION} to bundles.yml."
 
 		if [ "${?}" -eq "${LIFERAY_COMMON_EXIT_CODE_BAD}" ]
 		then
-			lc_log ERROR "Unable to send pull request to brianchandotcom/liferay-docker."
+			lc_log ERROR "Unable to send pull request to natocesarrego/liferay-docker."
 
 			return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 		else
