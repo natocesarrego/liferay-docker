@@ -34,6 +34,11 @@ function check_usage_scan_docker_images {
 }
 
 function main {
+	if [[ "${BASH_SOURCE[0]}" != "${0}" ]]
+	then
+		return
+	fi
+
 	check_usage_scan_docker_images
 
 	lc_time_run scan_docker_images
@@ -142,7 +147,4 @@ function scan_release_candidate_docker_image {
 	scan_docker_images
 }
 
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]
-then
-	main
-fi
+main
