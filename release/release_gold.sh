@@ -78,7 +78,7 @@ function get_tag_name {
 }
 
 function main {
-	if [[ " ${@} " =~ " --test " ]]
+	if [[ "${BASH_SOURCE[0]}" != "${0}" ]]
 	then
 		return
 	fi
