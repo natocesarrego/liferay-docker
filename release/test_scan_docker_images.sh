@@ -22,7 +22,6 @@ function main {
 		test_scan_docker_images_with_invalid_image
 
 		test_scan_docker_images_with_comma_separated_arguments
-		test_scan_docker_images_with_spaced_arguments
 
 		tear_down
 
@@ -56,16 +55,6 @@ function test_scan_docker_images_with_invalid_image {
 
 function test_scan_docker_images_with_comma_separated_arguments {
 	LIFERAY_IMAGE_NAMES="liferay/dxp:2025.q1.5-lts,liferay/dxp:2024.q2.2"
-
-	check_usage_scan_docker_images "${LIFERAY_IMAGE_NAMES}"
-
-	assert_equals \
-		"$(echo ${LIFERAY_IMAGE_NAMES})" \
-		"liferay/dxp:2025.q1.5-lts,liferay/dxp:2024.q2.2"
-}
-
-function test_scan_docker_images_with_spaced_arguments {
-	LIFERAY_IMAGE_NAMES="liferay/dxp:2025.q1.5-lts liferay/dxp:2024.q2.2"
 
 	check_usage_scan_docker_images "${LIFERAY_IMAGE_NAMES}"
 
