@@ -605,9 +605,9 @@ function main {
 	then
 		BUILD_ALL_IMAGES_PUSH="push"
 
-		./release_notes.sh commit
+		# ./release_notes.sh commit
 
-		git push
+		# git push
 	fi
 
 	if [ "${BUILD_ALL_IMAGES_PUSH}" == "push" ] && [ -z "${LIFERAY_DOCKER_IMAGE_PLATFORMS}" ]
