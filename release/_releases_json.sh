@@ -4,24 +4,24 @@ source ../_github.sh
 source ../_release_common.sh
 
 function generate_releases_json {
-	if [ "${1}" = "regenerate" ]
-	then
-		_process_products
-	else
-		_process_new_product
+	# if [ "${1}" = "regenerate" ]
+	# then
+	# 	_process_products
+	# else
+	# 	_process_new_product
 
-		if [ "${?}" -eq "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}" ]
-		then
-			return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
-		fi
-	fi
+	# 	if [ "${?}" -eq "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}" ]
+	# 	then
+	# 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+	# 	fi
+	# fi
 
-	_add_database_schema_versions
-	_add_major_versions
-	_promote_product_versions
-	_tag_recommended_product_versions
+	# _add_database_schema_versions
+	# _add_major_versions
+	# _promote_product_versions
+	# _tag_recommended_product_versions
 
-	_merge_json_snippets
+	# _merge_json_snippets
 
 	_upload_releases_json
 }
@@ -349,22 +349,26 @@ function _upload_releases_json {
 	then
 		lc_log INFO "Backing up to /www/releases.liferay.com/releases.json.BACKUP."
 
-		ssh root@lrdcom-vm-1 cp --force "/www/releases.liferay.com/releases.json" "/www/releases.liferay.com/releases.json.BACKUP"
+		ssh root@lrdcom-vm-1 rm --force "/www/releases.liferay.com/releases.json"
 
-		lc_log INFO "Uploading ${_PROMOTION_DIR}/releases.json to /www/releases.liferay.com/releases.json."
+		ssh root@lrdcom-vm-1 cp --force "/www/releases.liferay.com/releases.json.BACKUP" "/www/releases.liferay.com/releases.json"
 
-		scp "${_PROMOTION_DIR}/releases.json" "root@lrdcom-vm-1:/www/releases.liferay.com/releases.json.upload"
+		# lc_log INFO "Uploading ${_PROMOTION_DIR}/releases.json to /www/releases.liferay.com/releases.json."
 
-		ssh root@lrdcom-vm-1 mv --force "/www/releases.liferay.com/releases.json.upload" "/www/releases.liferay.com/releases.json"
+		# scp "${_PROMOTION_DIR}/releases.json" "root@lrdcom-vm-1:/www/releases.liferay.com/releases.json.upload"
+
+		# ssh root@lrdcom-vm-1 mv --force "/www/releases.liferay.com/releases.json.upload" "/www/releases.liferay.com/releases.json"
 	fi
 
 	lc_log INFO "Backing up to gs://liferay-releases/releases.json.BACKUP."
 
-	gsutil cp "gs://liferay-releases/releases.json" "gs://liferay-releases/releases.json.BACKUP"
+	gsutil rm "gs://liferay-releases/releases.json"
+	
+	gsutil cp "gs://liferay-releases/releases.json.BACKUP" "gs://liferay-releases/releases.json"
 
-	lc_log INFO "Uploading ${_PROMOTION_DIR}/releases.json to gs://liferay-releases/releases.json."
+	# lc_log INFO "Uploading ${_PROMOTION_DIR}/releases.json to gs://liferay-releases/releases.json."
 
-	gsutil cp "${_PROMOTION_DIR}/releases.json" "gs://liferay-releases/releases.json.upload"
+	# gsutil cp "${_PROMOTION_DIR}/releases.json" "gs://liferay-releases/releases.json.upload"
 
-	gsutil mv "gs://liferay-releases/releases.json.upload" "gs://liferay-releases/releases.json"
+	# gsutil mv "gs://liferay-releases/releases.json.upload" "gs://liferay-releases/releases.json"
 }
