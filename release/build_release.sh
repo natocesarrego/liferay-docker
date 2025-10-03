@@ -147,6 +147,13 @@ function main {
 
 		lc_time_run set_up_profile
 
+		tail "${_PROJECTS_DIR}"/liferay-portal-ee/.gradle/gradle.properties
+
+		echo "systemProp.org.gradle.internal.http.connectionTimeout=300000 " >> "${_PROJECTS_DIR}"/liferay-portal-ee/.gradle/gradle.properties
+		echo "systemProp.org.gradle.internal.http.socketTimeout=300000 " >> "${_PROJECTS_DIR}"/liferay-portal-ee/.gradle/gradle.properties
+
+		tail "${_PROJECTS_DIR}"/liferay-portal-ee/.gradle/gradle.properties
+
 		lc_time_run add_licensing
 
 		lc_time_run compile_product
