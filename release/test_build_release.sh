@@ -16,7 +16,9 @@ function main {
 function set_up {
 	common_set_up
 
-	LIFERAY_RELEASE_GIT_REF=2025.q1.1 ./build_release.sh --integration-test > /dev/null
+	echo -e "\n###\n"
+
+	LIFERAY_RELEASE_GIT_REF=2025.q1.1 ./build_release.sh --integration-test
 
 	export LIFERAY_RELEASE_GIT_REF="release-test"
 	export RUN_SCANCODE_PIPELINE="false"
