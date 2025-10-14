@@ -143,71 +143,71 @@ function main {
 	if [ "$(get_release_output)" == "nightly" ] ||
 	   [ "$(get_release_output)" == "release-candidate" ]
 	then
-		lc_time_run set_artifact_versions "${_PRODUCT_VERSION}" "${_BUILD_TIMESTAMP}"
+		# lc_time_run set_artifact_versions "${_PRODUCT_VERSION}" "${_BUILD_TIMESTAMP}"
 
-		lc_time_run update_release_info_date
+		# lc_time_run update_release_info_date
 
-		lc_time_run set_up_profile
+		# lc_time_run set_up_profile
 
-		lc_time_run add_licensing
+		# lc_time_run add_licensing
 
-		lc_time_run compile_product
+		# lc_time_run compile_product
 
-		lc_time_run obfuscate_licensing
+		# lc_time_run obfuscate_licensing
 
-		lc_time_run build_product
+		# lc_time_run build_product
 
-		lc_time_run deploy_opensearch
+		# lc_time_run deploy_opensearch
 
-		lc_time_run upload_opensearch
+		# lc_time_run upload_opensearch
 
-		lc_background_run build_sql
-		lc_background_run copy_copyright
-		lc_background_run deploy_elasticsearch_sidecar
-		lc_background_run clean_up_ignored_dxp_modules
-		lc_background_run clean_up_ignored_dxp_plugins
+		# lc_background_run build_sql
+		# lc_background_run copy_copyright
+		# lc_background_run deploy_elasticsearch_sidecar
+		# lc_background_run clean_up_ignored_dxp_modules
+		# lc_background_run clean_up_ignored_dxp_plugins
 
-		lc_wait
+		# lc_wait
 
-		if [ "$(get_release_output)" == "release-candidate" ]
-		then
-			lc_time_run add_ckeditor_license
+		# if [ "$(get_release_output)" == "release-candidate" ]
+		# then
+		# 	lc_time_run add_ckeditor_license
 
-			lc_time_run install_patching_tool
+		# 	lc_time_run install_patching_tool
 
-			lc_time_run generate_api_jars
+		# 	lc_time_run generate_api_jars
 
-			lc_time_run generate_api_source_jar
+		# 	lc_time_run generate_api_source_jar
 
-			lc_time_run generate_distro_jar
+		# 	lc_time_run generate_distro_jar
 
-			generate_poms
-		fi
+		# 	generate_poms
+		# fi
 
-		lc_time_run warm_up_tomcat
+		# lc_time_run warm_up_tomcat
 
-		lc_time_run package_release
+		# lc_time_run package_release
 
-		if [ "$(get_release_output)" == "release-candidate" ]
-		then
-			lc_time_run package_boms
+		# if [ "$(get_release_output)" == "release-candidate" ]
+		# then
+		# 	lc_time_run package_boms
 
-			lc_time_run generate_checksum_files
+		# 	lc_time_run generate_checksum_files
 
-			lc_time_run generate_release_properties_file
+		# 	lc_time_run generate_release_properties_file
 
-			lc_time_run generate_release_notes
+		# 	lc_time_run generate_release_notes
 
-			lc_time_run upload_boms xanadu
-		fi
+		# 	lc_time_run upload_boms xanadu
+		# fi
 
-		lc_time_run upload_release
+		# lc_time_run upload_release
 
-		lc_time_run trigger_ci_test_suite
+		# lc_time_run trigger_ci_test_suite
 
 		lc_time_run upload_to_docker_hub
 
-		lc_time_run scan_release_candidate_docker_image
+		# lc_time_run scan_release_candidate_docker_image
 	elif [ "$(get_release_output)" == "hotfix" ]
 	then
 		lc_time_run prepare_release_dir

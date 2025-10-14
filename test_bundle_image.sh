@@ -209,6 +209,24 @@ function stop_container {
 }
 
 function test_docker_image_files {
+	# Debug
+	# echo "Checking node content: ls -l ${test_dir}/mnt"
+
+	# ls -l "${test_dir}/mnt"
+
+	echo "Checking container content: ls -l /mnt"
+
+	docker exec -i "${CONTAINER_HOSTNAME}" ls -l /mnt
+
+	echo "Checking node content: cat /mnt/pd/liferay-docker/portal-ext.properties"
+
+	cat /mnt/pd/liferay-docker/portal-ext.properties
+
+	echo "Checking container content: cat /opt/liferay/portal-ext.properties"
+
+	docker exec -i "${CONTAINER_HOSTNAME}" cat /opt/liferay/portal-ext.properties
+	# Debug
+
 	test_page "http://${CONTAINER_HOSTNAME}:${CONTAINER_HTTP_PORT}/test_docker_image_files.jsp" "TEST"
 }
 
