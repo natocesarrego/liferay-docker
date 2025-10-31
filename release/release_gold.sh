@@ -87,19 +87,19 @@ function main {
 
 	lc_time_run set_jdk_version_and_parameters
 
-	lc_time_run promote_packages
+	# lc_time_run promote_packages
 
-	lc_time_run tag_release
+	# lc_time_run tag_release
 
-	promote_boms xanadu
+	# promote_boms xanadu
 
-	lc_time_run generate_releases_json
+	# lc_time_run generate_releases_json
 
-	lc_time_run reference_new_releases
+	# lc_time_run reference_new_releases
 
-	lc_time_run test_boms
+	# lc_time_run test_boms
 
-	lc_time_run update_salesforce_product_version
+	# lc_time_run update_salesforce_product_version
 
 	if [ -d "${_RELEASE_ROOT_DIR}/dev/projects" ]
 	then
@@ -112,9 +112,9 @@ function main {
 
 	lc_time_run prepare_next_release_branch
 
-	lc_time_run add_patcher_project_version
+	# lc_time_run add_patcher_project_version
 
-	lc_time_run upload_to_docker_hub
+	# lc_time_run upload_to_docker_hub
 }
 
 function prepare_next_release_branch {
@@ -129,17 +129,17 @@ function prepare_next_release_branch {
 
 	local product_group_version="$(get_product_group_version)"
 
-	local latest_quarterly_product_version="$(\
-		jq --raw-output ".[] | \
-			select(.productGroupVersion == \"${product_group_version}\" and .promoted == \"true\") | \
-			.targetPlatformVersion" ${_PROMOTION_DIR}/*releases.json)"
+	# local latest_quarterly_product_version="$(\
+	# 	jq --raw-output ".[] | \
+	# 		select(.productGroupVersion == \"${product_group_version}\" and .promoted == \"true\") | \
+	# 		.targetPlatformVersion" ${_PROMOTION_DIR}/*releases.json)"
 
-	if [ "$(get_product_version_without_lts_suffix)" != "${latest_quarterly_product_version}" ]
-	then
-		lc_log INFO "The ${_PRODUCT_VERSION} is not the latest quarterly release. Skipping the preparation of the next release branch."
+	# if [ "$(get_product_version_without_lts_suffix)" != "${latest_quarterly_product_version}" ]
+	# then
+	# 	lc_log INFO "The ${_PRODUCT_VERSION} is not the latest quarterly release. Skipping the preparation of the next release branch."
 
-		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
-	fi
+	# 	return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+	# fi
 
 	if [ -z "${LIFERAY_RELEASE_TEST_MODE}" ]
 	then

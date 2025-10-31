@@ -66,16 +66,17 @@ function commit_to_branch_and_send_pull_request {
 
 	git push --force "git@github.com:liferay-release/${repository_name}.git" "${_TEMP_BRANCH}"
 
-	gh pr create \
-		--base "${3}" \
-		--body "This pull request was automatically created by the Release team." \
-		--head "liferay-release:${_TEMP_BRANCH}" \
-		--repo "${4}" \
-		--title "${5}"
+	local pull_request_creation_exit_code=$( \
+		gh pr create \
+			--base "${3}" \
+			--body "This pull request was automatically created by the Release team." \
+			--head "liferay-release:${_TEMP_BRANCH}" \
+			--repo "${4}" \
+			--title "${5}")
 
 	lc_cd "${_BASE_DIR}"
 
-	if [ "${?}" -ne 0 ]
+	if [ "${pull_request_creation_exit_code}" -ne 0 ]
 	then
 		return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 	fi
