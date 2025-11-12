@@ -1,49 +1,47 @@
 #!/bin/bash
 
 function clone_latest_commit {
-	local temp_dir=${1}
-
 	git clone \
 		--branch=master \
 		--depth 1 \
 		--single-branch \
-		https://github.com/liferay/liferay-portal.git ${temp_dir}
+		https://github.com/liferay/liferay-portal.git "${TEMP_DIR}"
 }
 
 function extract_template {
-	local temp_dir=${1}
-	local template=${2}
-	local destiny=${3}
+	local template_origin="${TEMP_DIR}/modules/integrations/vercel/templates/${TEMPLATE}"
 
-	local template_origin="${temp_dir}/modules/integrations/vercel/templates/${template}"
+	echo -e "extracting ${template_origin} to ${DESTINATION}"
 
-	echo -e "extracting ${template_origin} to ${destiny}"
-
-	if [[ ! -d ${destiny} ]]
+	if [ ! -d "${DESTINATION}" ]
 	then
-		mkdir -p ${destiny}
+		mkdir --parents "${DESTINATION}"
 	fi
 
-	mv -v ${template_origin} ${destiny}
+	mv --verbose "${template_origin}" "${DESTINATION}"
 }
 
 function main {
-	local template=${1}
-	local destiny=${2:-"$(pwd)"}
+	TEMPLATE="${1}"
 
-	local temp_dir=$(mktemp -d)
+	DESTINATION=$(pwd)
 
-	clone_latest_commit ${temp_dir}
+	if [ -n "${2}" ]
+	then
+		DESTINATION="${2}"
+	fi
 
-	extract_template ${temp_dir} ${template} ${destiny}
+	TEMP_DIR=$(mktemp -d)
 
-	make_destiny_a_git_repo "${destiny}/${template}"
+	clone_latest_commit
+
+	extract_template
+
+	make_destination_a_git_repo
 }
 
-function make_destiny_a_git_repo {
-	local destiny=${1}
-
-	cd ${destiny} && git init && git add . && git commit -m "chore: clone template"
+function make_destination_a_git_repo {
+	cd "${DESTINATION}/${TEMPLATE}"	 && git init && git add . && git commit --message "chore: clone TEMPLATE"
 }
 
 main "${@}"
