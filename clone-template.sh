@@ -9,10 +9,6 @@ function clone_latest_commit {
 	git clone --single-branch --branch=${LIFERAY_BRANCH} --depth 1 ${LIFERAY_REPO} ${temp_dir}
 }
 
-function create_temp_dir {
-	echo $(mktemp -d)
-}
-
 function extract_template {
 	local temp_dir=${1}
 	local template=${2}
@@ -31,9 +27,10 @@ function extract_template {
 }
 
 function main {
-	local temp_dir=$(create_temp_dir)
 	local template=${1}
 	local destiny=${2:-"$(pwd)"}
+
+	local temp_dir=$(mktemp -d)
 
 	clone_latest_commit ${temp_dir}
 
