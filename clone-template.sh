@@ -41,7 +41,7 @@ function _extract_template {
 }
 
 function _make_destination_a_git_repo {
-	cd "${DESTINATION}/${TEMPLATE}"	 && git init && git add . && git commit --message "chore: clone TEMPLATE"
+	cd "${DESTINATION}/${TEMPLATE}" && git init && git add . && git commit --message "chore: clone TEMPLATE"
 }
 
 main "${@}"
