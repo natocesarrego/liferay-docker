@@ -30,7 +30,7 @@ function _clone_latest_commit {
 function _extract_template {
 	local template_origin="${TEMP_DIR}/modules/integrations/vercel/templates/${TEMPLATE}"
 
-	echo -e "extracting ${template_origin} to ${DESTINATION}"
+	echo -e "Moving ${template_origin} to ${DESTINATION}"
 
 	if [ ! -d "${DESTINATION}" ]
 	then
