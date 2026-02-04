@@ -165,6 +165,8 @@ function init_gcs {
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
 
+	gcloud auth revoke
+
 	gcloud auth activate-service-account --key-file "${LIFERAY_RELEASE_GCS_TOKEN}"
 }
 
@@ -213,6 +215,21 @@ function remove_old_release_candidate_tags {
 			--request DELETE \
 			--silent
 	done
+}
+
+function clear_gcs_auth {
+	if [ "$(get_environment_type)" == "local" ]
+	then
+		gcloud auth revoke
+
+		lc_log INFO "GCS authentication cleared."
+
+		return "${LIFERAY_COMMON_EXIT_CODE_OK}"
+	fi
+	
+	lc_log INFO "Skipping GCS authentication cleanup."
+
+	return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 }
 
 function upload_bom_file {
