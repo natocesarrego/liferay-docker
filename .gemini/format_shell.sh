@@ -1,0 +1,1 @@
+echo "Read the formatting rules from .gemini/shell_formatting_rules.md and apply them to .gemini/test.sh."
