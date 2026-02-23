@@ -275,7 +275,7 @@ function print_help {
 	echo ""
 	echo "The script reads the following environment variables:"
 	echo ""
-	echo "    LIFERAY_RELEASE_GCS_TOKEN (required for local execution only): Path to the *.json file containing the token to authenticate with Google Cloud Storage"
+	echo "    LIFERAY_RELEASE_GCS_TOKEN (optional): *.json file containing the token to authenticate with Google Cloud Storage"
 	echo "    LIFERAY_RELEASE_GENERAL_AVAILABILITY_DATE (optional): General availability date"
 	echo "    LIFERAY_RELEASE_GIT_REF: Git SHA to build from"
 	echo "    LIFERAY_RELEASE_HOTFIX_BUILD_ID (optional): Build ID on Patcher"
