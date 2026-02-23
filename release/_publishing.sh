@@ -114,6 +114,21 @@ function check_url {
 	fi
 }
 
+function clear_gcs_auth {
+	if [ "$(get_environment_type)" == "local" ]
+	then
+		gcloud auth revoke
+
+		lc_log INFO "GCS authentication cleared."
+
+		return "${LIFERAY_COMMON_EXIT_CODE_OK}"
+	fi
+
+	lc_log INFO "Skipping GCS authentication cleanup."
+
+	return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
+}
+
 function get_patcher_product_version_label {
 	if is_7_3_release
 	then
@@ -215,21 +230,6 @@ function remove_old_release_candidate_tags {
 			--request DELETE \
 			--silent
 	done
-}
-
-function clear_gcs_auth {
-	if [ "$(get_environment_type)" == "local" ]
-	then
-		gcloud auth revoke
-
-		lc_log INFO "GCS authentication cleared."
-
-		return "${LIFERAY_COMMON_EXIT_CODE_OK}"
-	fi
-	
-	lc_log INFO "Skipping GCS authentication cleanup."
-
-	return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 }
 
 function upload_bom_file {
