@@ -324,6 +324,8 @@ function set_general_availability_date {
 	then
 		LIFERAY_RELEASE_GENERAL_AVAILABILITY_DATE=$(date +%Y-%m-%d)
 	fi
+
+	lc_log INFO "General availability date: ${LIFERAY_RELEASE_GENERAL_AVAILABILITY_DATE}"
 }
 
 main "${@}"
