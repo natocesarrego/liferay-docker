@@ -242,7 +242,7 @@ function update_release_tool_repository {
 
 	git reset --hard && git clean -dfx
 
-	local release_tool_sha=$(lc_get_property "${_PROJECTS_DIR}"/liferay-portal-ee/release.properties "release.tool.sha")
+	local release_tool_sha=c1da0d0ca4ce3e6974b8467fe0f1feb4eed6502b
 
 	if [ ! -n "${release_tool_sha}" ]
 	then
