@@ -45,11 +45,11 @@ function main {
 		local command_start_time=${SECONDS}
 		local exit_code=""
 
-		local command_ref="${command_name}[0]"
+		local command="${command_name}[0]"
 		local dir_ref="${command_name}[1]"
 
 		echo "================================================================================"
-		echo "Executing command [$((${i} + 1))/${#commands_list[@]}]: [${!dir_ref}] ${!command_ref}"
+		echo "Executing command [$((${i} + 1))/${#commands_list[@]}]: [${!dir_ref}] ${!command}"
 		echo "================================================================================"
 
 		(
@@ -58,7 +58,7 @@ function main {
 				cd "${!dir_ref}"
 			fi
 
-			eval "${!command_ref}"
+			eval "${!command}"
 		)
 
 		exit_code=${?}
@@ -87,7 +87,7 @@ function main {
 	do
 		local command_name="${commands_list[${i}]}"
 
-		local command_ref="${command_name}[0]"
+		local command="${command_name}[0]"
 		local dir_ref="${command_name}[1]"
 
 		if [[ "${results[${i}]}" == "SUCCESS" ]]
@@ -98,7 +98,7 @@ function main {
 		fi
 
 		printf "[${icon}] %-7s (%s) - %s\n" "${results[${i}]}" "${durations[${i}]}" "${!dir_ref}"
-		printf "    Command: %s\n\n" "${!command_ref}"
+		printf "    Command: %s\n\n" "${!command}"
 	done
 
 	echo "================================================================================"
