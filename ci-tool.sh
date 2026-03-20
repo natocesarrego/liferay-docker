@@ -53,7 +53,7 @@ function main {
 		echo "================================================================================"
 
 		(
-			if [[ "${!command_dir}" != "./" ]]
+			if [ "${!command_dir}" != "./" ]
 			then
 				cd "${!command_dir}"
 			fi
@@ -65,7 +65,7 @@ function main {
 
 		durations[${i}]=$(_format_duration $((${SECONDS} - ${command_start_time})))
 
-		if [[ ${exit_code} -eq 0 ]]
+		if [ "${exit_code}" -eq 0 ]
 		then
 			results[${i}]="SUCCESS"
 		else
@@ -90,7 +90,7 @@ function main {
 		local command="${command_name}[0]"
 		local command_dir="${command_name}[1]"
 
-		if [[ "${results[${i}]}" == "SUCCESS" ]]
+		if [ "${results[${i}]}" == "SUCCESS" ]
 		then
 			local icon="✓"
 		else
@@ -105,7 +105,7 @@ function main {
 
 	echo ""
 
-	if [[ ${failed_commands} -eq 0 ]]
+	if [ "${failed_commands}" -eq 0 ]
 	then
 		echo "All commands executed successfully."
 
@@ -118,7 +118,7 @@ function main {
 }
 
 function _format_duration {
-	if [[ $((${1} / 60)) -gt 0 ]]
+	if [ "$((${1} / 60))" -gt 0 ]
 	then
 		echo "$((${1} / 60))m $((${1} % 60))s"
 	else
