@@ -1,10 +1,10 @@
 #!/bin/bash
 
 function main {
-	echo "Running local tests..."
+	echo "Running local tests."
 	echo ""
 
-	echo "Note: This script was generated on branch LRCI-7139 (ba04023) which is 29 commits ahead of upstream/master."
+	echo "This script was generated on branch LRCI-7139 (ba04023) which is 29 commits ahead of upstream/master."
 	echo ""
 
 	durations=()
