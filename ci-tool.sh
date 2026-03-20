@@ -46,16 +46,16 @@ function main {
 		local exit_code=""
 
 		local command="${command_name}[0]"
-		local dir_ref="${command_name}[1]"
+		local command_dir="${command_name}[1]"
 
 		echo "================================================================================"
-		echo "Executing command [$((${i} + 1))/${#commands_list[@]}]: [${!dir_ref}] ${!command}"
+		echo "Executing command [$((${i} + 1))/${#commands_list[@]}]: [${!command_dir}] ${!command}"
 		echo "================================================================================"
 
 		(
-			if [[ "${!dir_ref}" != "./" ]]
+			if [[ "${!command_dir}" != "./" ]]
 			then
-				cd "${!dir_ref}"
+				cd "${!command_dir}"
 			fi
 
 			eval "${!command}"
@@ -88,7 +88,7 @@ function main {
 		local command_name="${commands_list[${i}]}"
 
 		local command="${command_name}[0]"
-		local dir_ref="${command_name}[1]"
+		local command_dir="${command_name}[1]"
 
 		if [[ "${results[${i}]}" == "SUCCESS" ]]
 		then
@@ -97,7 +97,7 @@ function main {
 			local icon="✗"
 		fi
 
-		printf "[${icon}] %-7s (%s) - %s\n" "${results[${i}]}" "${durations[${i}]}" "${!dir_ref}"
+		printf "[${icon}] %-7s (%s) - %s\n" "${results[${i}]}" "${durations[${i}]}" "${!command_dir}"
 		printf "    Command: %s\n\n" "${!command}"
 	done
 
