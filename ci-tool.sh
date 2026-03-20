@@ -12,31 +12,31 @@ function main {
 	results=()
 	total_start_time=${SECONDS}
 
-	cmd_0=(
+	command_0=(
 		"ant setup-sdk && cd portal-impl && ant format-source-current-branch"
 		"./."
 	)
 
-	cmd_1=(
+	command_1=(
 		"ant setup-profile-dxp compile install-portal-snapshots"
 		"./."
 	)
 
-	cmd_2=(
+	command_2=(
 		"../gradlew :test:jenkins-results-parser:deploy --parallel"
 		"./modules"
 	)
 
-	cmd_3=(
+	command_3=(
 		"../gradlew :test:jenkins-results-parser:test"
 		"./modules"
 	)
 
 	commands_list=(
-		"cmd_0"
-		"cmd_1"
-		"cmd_2"
-		"cmd_3"
+		"command_0"
+		"command_1"
+		"command_2"
+		"command_3"
 	)
 
 	_execute_commands
@@ -49,10 +49,10 @@ function main {
 
 	for i in "${!commands_list[@]}"
 	do
-		local cmd_name="${commands_list[${i}]}"
+		local command_name="${commands_list[${i}]}"
 
-		local cmd_ref="${cmd_name}[0]"
-		local dir_ref="${cmd_name}[1]"
+		local command_ref="${command_name}[0]"
+		local dir_ref="${command_name}[1]"
 
 		if [[ "${results[${i}]}" == "SUCCESS" ]]
 		then
@@ -62,7 +62,7 @@ function main {
 		fi
 
 		printf "[${icon}] %-7s (%s) - %s\n" "${results[${i}]}" "${durations[${i}]}" "${!dir_ref}"
-		printf "    Command: %s\n\n" "${!cmd_ref}"
+		printf "    Command: %s\n\n" "${!command_ref}"
 	done
 
 	echo "================================================================================"
@@ -84,15 +84,15 @@ function main {
 function _execute_commands {
 	for i in "${!commands_list[@]}"
 	do
-		local cmd_name="${commands_list[${i}]}"
-		local cmd_start_time=${SECONDS}
+		local command_name="${commands_list[${i}]}"
+		local command_start_time=${SECONDS}
 		local exit_code
 
-		local cmd_ref="${cmd_name}[0]"
-		local dir_ref="${cmd_name}[1]"
+		local command_ref="${command_name}[0]"
+		local dir_ref="${command_name}[1]"
 
 		echo "================================================================================"
-		echo "Executing command [$((${i} + 1))/${#commands_list[@]}]: [${!dir_ref}] ${!cmd_ref}"
+		echo "Executing command [$((${i} + 1))/${#commands_list[@]}]: [${!dir_ref}] ${!command_ref}"
 		echo "================================================================================"
 
 		(
@@ -101,12 +101,12 @@ function _execute_commands {
 				cd "${!dir_ref}"
 			fi
 
-			eval "${!cmd_ref}"
+			eval "${!command_ref}"
 		)
 
 		exit_code=${?}
 
-		durations[${i}]=$(_format_duration $((${SECONDS} - ${cmd_start_time})))
+		durations[${i}]=$(_format_duration $((${SECONDS} - ${command_start_time})))
 
 		if [[ ${exit_code} -eq 0 ]]
 		then
