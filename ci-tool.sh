@@ -86,7 +86,7 @@ function _execute_commands {
 	do
 		local command_name="${commands_list[${i}]}"
 		local command_start_time=${SECONDS}
-		local exit_code
+		local exit_code=""
 
 		local command_ref="${command_name}[0]"
 		local dir_ref="${command_name}[1]"
