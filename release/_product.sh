@@ -74,7 +74,7 @@ function build_product {
 
 	lc_cd "${_PROJECTS_DIR}/${LIFERAY_PORTAL_REPOSITORY_NAME}"
 
-	$(_set_cpu_limit) ant deploy
+	$(_set_cpu_limit) ant deploy -Dbuild.profile=cms-standalone
 
 	$(_set_cpu_limit) ant deploy-portal-license-enterprise-app
 
