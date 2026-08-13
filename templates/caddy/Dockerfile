@@ -21,5 +21,6 @@ LABEL org.label-schema.vendor="Liferay, Inc."
 LABEL org.label-schema.version="${LABEL_VERSION}"
 
 RUN apk add --no-cache bash tini && \
+	apk upgrade --no-cache && \
 	\
 	mkdir -p /etc/caddy.d /public_html
