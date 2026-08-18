@@ -527,17 +527,71 @@ function _upload_to_nexus {
 		lc_log "Skipping the upload of ${file_path} to ${file_url} because it already exists."
 
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
-	else
-		lc_log INFO "Uploading ${file_path} to ${file_url}."
+	fi
 
+	local response_file=$(mktemp)
+
+	#
+	# Do not use --fail so that the response body of a failed upload is
+	# saved to ${response_file} and can be logged. Suppress the
+	# "Expect: 100-continue" header that curl adds for large uploads
+	# because the reverse proxy in front of Nexus does not always honor
+	# it.
+	#
+
+	local curl_metrics=$( \
 		curl \
-			--fail \
-			--max-time 300 \
-			--retry 3 \
-			--retry-delay 10 \
+			--header "Expect:" \
+			--max-time 1800 \
+			--output "${response_file}" \
+			--retry 5 \
+			--retry-delay 30 \
 			--silent \
+			--speed-limit 1024 \
+			--speed-time 120 \
 			--upload-file "${file_path}" \
 			--user "${LIFERAY_RELEASE_NEXUS_REPOSITORY_USER}:${LIFERAY_RELEASE_NEXUS_REPOSITORY_PASSWORD}" \
-			"${file_url}"
+			--write-out "%{http_code} %{time_total} %{speed_upload}" \
+			"${file_url}")
+
+	local http_code
+	local speed_upload
+	local time_total
+
+	read -r http_code time_total speed_upload <<< "${curl_metrics}"
+
+	lc_log INFO "HTTP response code was ${http_code} after ${time_total} seconds at ${speed_upload} bytes per second."
+
+	if [[ "${http_code}" =~ ^2 ]]
+	then
+		rm --force "${response_file}"
+
+		lc_log INFO "Upload completed successfully."
+
+		return "${LIFERAY_COMMON_EXIT_CODE_OK}"
 	fi
+
+	lc_log ERROR "Unable to upload ${file_path} to ${file_url}. HTTP response code was ${http_code}."
+
+	if [ -s "${response_file}" ]
+	then
+		lc_log ERROR "Response body was: $(head --bytes=2000 "${response_file}")"
+	fi
+
+	rm --force "${response_file}"
+
+	#
+	# A gateway error like 502 or 504 is reported by the reverse proxy in
+	# front of Nexus and does not always mean that Nexus rejected the
+	# upload, so check if the file is available before failing.
+	#
+
+	if check_url "${file_url}"
+	then
+		lc_log INFO "${file_url} is available even though the HTTP response code was ${http_code}."
+
+		return "${LIFERAY_COMMON_EXIT_CODE_OK}"
+	fi
+
+	return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 }
