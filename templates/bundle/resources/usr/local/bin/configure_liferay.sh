@@ -48,6 +48,7 @@ function main {
 	then
 		rm --force /opt/liferay/data/license/trial-commerce-enterprise-license-*.li
 		rm --force /opt/liferay/deploy/trial-dxp-license-*.xml
+		rm --force /opt/liferay/osgi/modules/trial-dxp-license-*.xml
 	fi
 
 	if [ -n "${LIFERAY_JDBC_PERIOD_DEFAULT_PERIOD_PASSWORD_FILE}" ]
