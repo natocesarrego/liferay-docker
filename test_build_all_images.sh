@@ -23,6 +23,7 @@ function main {
 		test_build_all_images_get_latest_available_zulu_version
 		test_build_all_images_has_slim_build_criteria
 		test_build_all_images_latest_is_not_slim "${_LATEST_RELEASE}"
+		test_build_all_images_trial_license_is_deleted
 	fi
 
 	tear_down
@@ -77,6 +78,11 @@ function test_build_all_images_latest_is_not_slim {
 		$(docker images --filter "reference=liferay/dxp:latest" --format "{{.ID}}")
 }
 
+function test_build_all_images_trial_license_is_deleted {
+	_test_build_all_images_trial_license_is_deleted "${_LATEST_RELEASE}" "false" "1"
+	_test_build_all_images_trial_license_is_deleted "${_LATEST_RELEASE}" "true" "0"
+}
+
 function _test_build_all_images_get_latest_available_zulu_version {
 	local latest_available_zulu_version=$(get_latest_available_zulu_version "${1}" "${2}")
 
@@ -106,6 +112,23 @@ function _test_build_all_images_is_container_healthy {
 		"1"
 
 	rm --force --recursive logs-*
+}
+
+function _test_build_all_images_trial_license_is_deleted {
+	local trial_license_count=$( \
+		docker run \
+			--entrypoint bash \
+			--env LIFERAY_CONTAINER_DISABLE_TRIAL_LICENSE="${2}" \
+			--rm \
+			"liferay/dxp:${1}" \
+			-c 'configure_liferay.sh &> /dev/null
+
+				ls \
+					/opt/liferay/deploy/trial-dxp-license-*.xml \
+					/opt/liferay/osgi/modules/trial-dxp-license-*.xml 2> /dev/null | \
+				wc --lines')
+
+	assert_equals "${trial_license_count}" "${3}"
 }
 
 main "${@}"
