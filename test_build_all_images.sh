@@ -33,8 +33,6 @@ function set_up {
 }
 
 function tear_down {
-	docker rm "liferay-container-${_LATEST_RELEASE}" &> /dev/null
-	docker rm "liferay-container-7.3.10-u36" &> /dev/null
 	docker rmi $(docker images --filter "dangling=true" --no-trunc) &> /dev/null
 	docker rmi --force "liferay/jdk11-jdk8:latest" &> /dev/null
 	docker rmi --force "liferay/jdk11:latest" &> /dev/null
