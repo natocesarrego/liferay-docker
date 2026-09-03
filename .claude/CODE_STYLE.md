@@ -420,7 +420,7 @@ git log "tags/${ga_version}..HEAD" --pretty="%s %H" | \
 	paste --delimiters=',' --serial > "${_BUILD_DIR}/release/release-notes.txt"
 ```
 
-- Break a command that takes three or more flags across lines: one argument per line, the continuation indented one tab, positionals last. An option and its value count as one flag (`--max-time 300`); positionals do not count toward the three (`sed --expression "..." --in-place file`). The exception is a command whose syntax pins the operand first, such as `find` (`find "${dir}" -name "*.sh" -type f`). The break applies everywhere, including inside an `if` / `if !` condition; commands with two or fewer flags stay on one line (`rm --force --recursive`, `grep --extended-regexp --quiet`).
+- Break a command across lines when it takes three or more flags, or when the line exceeds 80 columns (counting a tab as four columns) and has at least two flags to spread across them. To break it, put one argument per line, indent the continuation one tab, and place the positionals last. An option and its value count as one flag (`--max-time 300`); positionals do not count toward the three (`sed --expression "..." --in-place file`). The exception is a command whose syntax pins a positional first, such as `find` (`find "${dir}" -name "*.sh" -type f`). The break applies everywhere, including inside an `if` / `if !` condition. A command that matches neither trigger stays on one line (`rm --force --recursive`, `grep --extended-regexp --quiet`). Leave a line as it is when breaking cannot bring it under 80 columns, which happens when a single argument is itself longer than the limit.
 
 ```bash
 curl \
