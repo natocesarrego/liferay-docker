@@ -23,9 +23,9 @@ function check_translations_sync {
 
 	if [ -n "$( \
 		git log \
-			-1 \
 			--format="%H" \
 			--grep="LPD-91206 Update Translations" \
+			--max-count=1 \
 			master..brianchandotcom/master)" ]
 	then
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
@@ -199,7 +199,8 @@ function normalize_synced_translations {
 	lc_cd "${_PROJECTS_DIR}/liferay-portal"
 
 	local changed_translation_files=$( \
-		git show --name-only --pretty=format: HEAD | grep --extended-regexp "${_TRANSLATION_FILE_REGEX}")
+		git show --name-only --pretty=format: HEAD | \
+		grep --extended-regexp "${_TRANSLATION_FILE_REGEX}")
 
 	if [ -z "${changed_translation_files}" ]
 	then
@@ -281,7 +282,7 @@ function set_up_lang_builder {
 }
 
 function update_portal_repository {
-	trap "return ${LIFERAY_COMMON_EXIT_CODE_BAD}" ERR
+	trap 'return "${LIFERAY_COMMON_EXIT_CODE_BAD}"' ERR
 
 	lc_cd "${_PROJECTS_DIR}/liferay-portal"
 
@@ -305,7 +306,7 @@ function update_portal_repository {
 
 	git push liferay-release master
 
-	git log -1
+	git log --max-count=1
 }
 
 function upload_sources {
@@ -546,7 +547,10 @@ function _push_normalized_translations {
 	local translation_file_name=$(basename "${translation_file}")
 
 	local locale=$( \
-		echo "${translation_file_name}" | sed --regexp-extended --expression "s/^(Language|bundle)_(.+)\.properties$/\2/")
+		echo "${translation_file_name}" | \
+		sed \
+			--regexp-extended \
+			--expression "s/^(Language|bundle)_(.+)\.properties$/\2/")
 
 	if [ "${locale}" == "${translation_file_name}" ]
 	then
