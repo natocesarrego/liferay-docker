@@ -197,7 +197,7 @@ function _get_jdk_download_url {
 		return "${LIFERAY_COMMON_EXIT_CODE_OK}"
 	fi
 
-	if [ "${jdk_version}" == zulu8 ]
+	if [ "${jdk_version}" == "zulu8" ]
 	then
 		echo "https://api.azul.com/zulu/download/community/v1.0/bundles/latest/binary/?arch=${arch}&bundle_type=jdk&ext=tar.gz&hw_bitness=64&java_version=8.0.382&javafx=false&os=linux"
 

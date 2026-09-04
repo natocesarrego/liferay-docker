@@ -30,7 +30,11 @@ function generate_release_properties_file {
 		date_key="general.availability.date"
 	fi
 
-	local tomcat_version=$(grep --extended-regexp --only-matching "Apache Tomcat Version [0-9]+\.[0-9]+\.[0-9]+" "${_BUNDLES_DIR}/tomcat/RELEASE-NOTES")
+	local tomcat_version=$( \
+		grep \
+			--extended-regexp \
+			--only-matching "Apache Tomcat Version [0-9]+\.[0-9]+\.[0-9]+" \
+			"${_BUNDLES_DIR}/tomcat/RELEASE-NOTES")
 
 	tomcat_version=$(echo "${tomcat_version}" | sed --expression "s/Apache Tomcat Version //")
 
@@ -197,7 +201,8 @@ function _generate_javadocs {
 			-Dportal.dir="${_PROJECTS_DIR}/${LIFERAY_PORTAL_REPOSITORY_NAME}" \
 			-Dportal.release.edition.private="true" \
 			-Dtstamp.value="${_BUILD_TIMESTAMP}" \
-			-file "${_PROJECTS_DIR}/liferay-release-tool-ee/build-service-pack.xml" patch-doc
+			-file "${_PROJECTS_DIR}/liferay-release-tool-ee/build-service-pack.xml" \
+			patch-doc
 
 		if [[ "${?}" -ne 0 ]]
 		then
@@ -251,7 +256,10 @@ function _package_common_release {
 
 	rm --force --recursive "liferay-${LIFERAY_RELEASE_PRODUCT_NAME}-sql"
 
-	rm --force --recursive "${_BUILD_DIR}/release/liferay-${LIFERAY_RELEASE_PRODUCT_NAME}"
+	rm \
+		--force \
+		--recursive \
+		"${_BUILD_DIR}/release/liferay-${LIFERAY_RELEASE_PRODUCT_NAME}"
 
 	_generate_javadocs
 }
@@ -271,7 +279,10 @@ function _package_nightly_release {
 	zip -qr "${_BUILD_DIR}/release/liferay-${LIFERAY_RELEASE_PRODUCT_NAME}-tomcat-7.4.13.nightly-${_BUILD_TIMESTAMP}.zip" \
 		"liferay-${LIFERAY_RELEASE_PRODUCT_NAME}"
 
-	rm --force --recursive "${_BUILD_DIR}/release/liferay-${LIFERAY_RELEASE_PRODUCT_NAME}"
+	rm \
+		--force \
+		--recursive \
+		"${_BUILD_DIR}/release/liferay-${LIFERAY_RELEASE_PRODUCT_NAME}"
 }
 
 function _package_portal_dependencies {
@@ -359,7 +370,8 @@ function _package_wars {
 			-Dapp.server.shielded-container-lib.portal.dir="${_BUILD_DIR}/release/liferay-${LIFERAY_RELEASE_PRODUCT_NAME}/tomcat/webapps/ROOT/WEB-INF/shielded-container-lib" \
 			-Dapp.server.type=weblogic \
 			-Dapp.server.weblogic.portal.dir="${_BUILD_DIR}/release/liferay-${LIFERAY_RELEASE_PRODUCT_NAME}/tomcat/webapps/ROOT" \
-			-file "${_PROJECTS_DIR}/${LIFERAY_PORTAL_REPOSITORY_NAME}/build.xml" update-app-server-scripts
+			-file "${_PROJECTS_DIR}/${LIFERAY_PORTAL_REPOSITORY_NAME}/build.xml" \
+			update-app-server-scripts
 
 		zip \
 			-q \

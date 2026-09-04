@@ -14,7 +14,8 @@ function main {
 	   [ "${current_job}" == "build-release-nightly" ] ||
 	   [ "${current_job}" == "release-gold" ]
 	then
-		local buildkit_container_name=$(docker ps --filter "name=buildkit" --format "{{.Names}}")
+		local buildkit_container_name=$( \
+			docker ps --filter "name=buildkit" --format "{{.Names}}")
 
 		if [ -n "${buildkit_container_name}" ]
 		then
@@ -23,7 +24,8 @@ function main {
 			docker rm --force "${buildkit_container_name}" &> /dev/null
 		fi
 
-		local buildkit_volume_name=$(docker volume ls --filter "name=buildkit" --format "{{.Name}}")
+		local buildkit_volume_name=$( \
+			docker volume ls --filter "name=buildkit" --format "{{.Name}}")
 
 		if [ -n "${buildkit_volume_name}" ]
 		then
@@ -70,7 +72,10 @@ function main {
 		_clean_up_repository "liferay-portal"
 	elif [ "${current_job}" == "source-code-sharing" ]
 	then
-		rm --force --recursive "${workspace_dir}/narwhal/source_code_sharing/liferay-portal-ee"
+		rm \
+			--force \
+			--recursive \
+			"${workspace_dir}/narwhal/source_code_sharing/liferay-portal-ee"
 	fi
 
 	local liferay_common_cache_dir="${HOME}/.liferay-common-cache"

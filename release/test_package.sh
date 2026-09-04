@@ -166,7 +166,10 @@ function test_package_package_wars {
 		"${web_app_specification_version}" \
 		"5.0"
 
-	rm --force --recursive "${_BUILD_DIR}/release/liferay-${LIFERAY_RELEASE_PRODUCT_NAME}"
+	rm \
+		--force \
+		--recursive \
+		"${_BUILD_DIR}/release/liferay-${LIFERAY_RELEASE_PRODUCT_NAME}"
 }
 
 function test_package_portal_dependencies {
@@ -196,7 +199,10 @@ function test_package_portal_dependencies {
 
 	rm --force "${_BUILD_DIR}/release/liferay-${LIFERAY_RELEASE_PRODUCT_NAME}-client-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.zip"
 	rm --force "${_BUILD_DIR}/release/liferay-${LIFERAY_RELEASE_PRODUCT_NAME}-dependencies-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.zip"
-	rm --force --recursive "${_BUILD_DIR}/release/liferay-${LIFERAY_RELEASE_PRODUCT_NAME}"
+	rm \
+		--force \
+		--recursive \
+		"${_BUILD_DIR}/release/liferay-${LIFERAY_RELEASE_PRODUCT_NAME}"
 }
 
 function _set_up_jakarta_transform_dependencies_file {
@@ -236,7 +242,7 @@ function _test_package_generate_release_properties_file {
 
 	assert_equals \
 		release.properties \
-		test-dependencies/expected/release_$(echo "${_PRODUCT_VERSION}").properties
+		"test-dependencies/expected/release_$(echo "${_PRODUCT_VERSION}").properties"
 
 	rm --force "liferay-${LIFERAY_RELEASE_PRODUCT_NAME}-tomcat-${_PRODUCT_VERSION}-${_BUILD_TIMESTAMP}.7z.sha512"
 	rm --force --recursive "${_BUNDLES_DIR}/tomcat"

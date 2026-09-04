@@ -60,7 +60,8 @@ function _notify_info_sec {
 		return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
 	fi
 
-	local scan_results=$(echo "${1}" | sed --expression "/^Scan results/,\$p" --quiet)
+	local scan_results=$( \
+		echo "${1}" | sed --expression "/^Scan results/,\$p" --quiet)
 
 	LIFERAY_INFO_SEC_JIRA_ISSUE_KEY=$( \
 		add_jira_issue_with_description \
@@ -172,7 +173,7 @@ function _scan_docker_image {
 			--address "${console_url}" \
 			--docker-address "$( \
 				find \
-					/run/user/$(id --user) \
+					"/run/user/$(id --user)" \
 					-name docker.sock 2> /dev/null)" \
 			--password "${LIFERAY_PRISMA_CLOUD_SECRET}" \
 			--user "${LIFERAY_PRISMA_CLOUD_ACCESS_KEY}" \

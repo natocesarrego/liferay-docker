@@ -240,6 +240,14 @@ function _clean_up_release_data {
 	rm --force "${_RELEASE_ROOT_DIR}/build_release_slack_message.txt"
 }
 
+function _test_build_release_not_handle_automated_build {
+	LIFERAY_RELEASE_OUTPUT=${1}
+
+	handle_automated_build &> /dev/null
+
+	assert_equals "${?}" "${2}"
+}
+
 function _test_build_release_not_has_free_tier_slack_message {
 	LIFERAY_RELEASE_OUTPUT=${1}
 	_PRODUCT_VERSION=${2}
@@ -253,14 +261,6 @@ function _test_build_release_not_has_free_tier_slack_message {
 	unset LIFERAY_RELEASE_OUTPUT
 
 	_PRODUCT_VERSION="2025.q4.1"
-}
-
-function _test_build_release_not_handle_automated_build {
-	LIFERAY_RELEASE_OUTPUT=${1}
-
-	handle_automated_build &> /dev/null
-
-	assert_equals "${?}" "${2}"
 }
 
 main

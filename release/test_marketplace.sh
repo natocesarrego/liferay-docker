@@ -41,7 +41,7 @@ function set_up {
 
 	mkdir --parents "${marketplace_dir}"
 
-	cp actual/liferaycommerceminium4globalcss.zip  "${marketplace_dir}"
+	cp actual/liferaycommerceminium4globalcss.zip "${marketplace_dir}"
 
 	lc_cd ..
 }

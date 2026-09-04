@@ -31,7 +31,7 @@ function tear_down {
 	rm --force --recursive tomcat
 }
 
-function test_release_properties_generate_file_dxp  {
+function test_release_properties_generate_file_dxp {
 	generate_release_properties_file &> /dev/null
 
 	assert_equals \

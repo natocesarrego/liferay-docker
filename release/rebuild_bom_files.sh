@@ -49,7 +49,9 @@ function checkout_product_version {
 
 	git checkout master
 
-	local product_version_tag=$(echo "${_PRODUCT_VERSION}" | sed --regexp-extended --expression "s/-lts//g")
+	local product_version_tag=$( \
+		echo "${_PRODUCT_VERSION}" | \
+		sed --regexp-extended --expression "s/-lts//g")
 
 	git branch --delete "${product_version_tag}" 2> /dev/null
 	git tag --delete "${product_version_tag}" 2> /dev/null

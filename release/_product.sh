@@ -46,7 +46,7 @@ function add_licensing {
 
 	echo "liferay-release-tool-ee version:"
 
-	git log -1
+	git log --max-count=1
 
 	lc_cd "$(lc_get_property "${_PROJECTS_DIR}/${LIFERAY_PORTAL_REPOSITORY_NAME}/release.properties" "release.tool.dir")"
 
@@ -412,7 +412,8 @@ function obfuscate_licensing {
 		-Dportal.dir="${_PROJECTS_DIR}/${LIFERAY_PORTAL_REPOSITORY_NAME}" \
 		-Dportal.kernel.dir="${_PROJECTS_DIR}/${LIFERAY_PORTAL_REPOSITORY_NAME}/portal-kernel" \
 		-Dportal.release.edition.private=true \
-		-file build-release-license.xml obfuscate-portal
+		-file build-release-license.xml \
+		obfuscate-portal
 }
 
 function set_artifact_versions {

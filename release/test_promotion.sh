@@ -20,7 +20,11 @@ function set_up {
 }
 
 function tear_down {
-	find "${_PROMOTION_DIR}" -maxdepth 1 -path "${_PROMOTION_DIR}/release.dxp.*.pom*" -type f -delete
+	find "${_PROMOTION_DIR}" \
+		-maxdepth 1 \
+		-path "${_PROMOTION_DIR}/release.dxp.*.pom*" \
+		-type f \
+		-delete
 
 	unset _PRODUCT_VERSION
 }

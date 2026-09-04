@@ -16,7 +16,10 @@ function add_property {
 	local new_value=${2}
 	local search_key=${3}
 
-	sed --expression "/${search_key}/a\	\\${new_key}=${new_value}" --in-place "build-shared.properties"
+	sed \
+		--expression "/${search_key}/a\	\\${new_key}=${new_value}" \
+		--in-place \
+		"build-shared.properties"
 }
 
 function check_supported_versions {
@@ -171,7 +174,7 @@ function prepare_next_release_branch {
 	set_next_release_version_display_name "${product_group_version}" "${next_release_patch_version}"
 
 	set_next_release_date
-	
+
 	if [ -z "${LIFERAY_RELEASE_TEST_MODE}" ]
 	then
 		prepare_next_release_pull_request "${quarterly_release_branch}"
@@ -307,7 +310,10 @@ function reference_new_releases {
 	if [ -z "${previous_product_version}" ]
 	then
 		latest_quarterly_release="true"
-		previous_product_version=$(grep "portal.latest.bundle.version\[master\]=" "build-shared.properties" | cut --delimiter='=' --fields=2)
+		previous_product_version=$( \
+			grep "portal.latest.bundle.version\[master\]=" \
+				"build-shared.properties" | \
+			cut --delimiter='=' --fields=2)
 	fi
 
 	for component in osgi sql tools
@@ -349,7 +355,7 @@ function reference_new_releases {
 			cut --delimiter='=' --fields=2 | \
 			cut --delimiter='.' --fields=1,2)
 
-	if [ "${product_group_version}" == "${latest_product_group_version}" ] || [ "${latest_quarterly_release}" == "true" ] 
+	if [ "${product_group_version}" == "${latest_product_group_version}" ] || [ "${latest_quarterly_release}" == "true" ]
 	then
 		replace_property \
 			"portal.latest.bundle.version\[master\]" \
@@ -432,12 +438,15 @@ function replace_property {
 	local new_value=${2}
 	local search_key=${3}
 
-	sed --expression "s/${search_key}/${new_key}=${new_value}/" --in-place "build-shared.properties"
+	sed \
+		--expression "s/${search_key}/${new_key}=${new_value}/" \
+		--in-place \
+		"build-shared.properties"
 }
 
 function set_next_release_date {
 	sed \
-		--expression "s/release.info.date=.*/release.info.date=$(date --date $(echo "${LIFERAY_NEXT_RELEASE_DATE}" | sed --expression "s/[^0-9-]//g") +"%B %-d, %Y")/" \
+		--expression "s/release.info.date=.*/release.info.date=$(date --date "$(echo "${LIFERAY_NEXT_RELEASE_DATE}" | sed --expression "s/[^0-9-]//g")" +"%B %-d, %Y")/" \
 		--in-place \
 		"${_PROJECTS_DIR}/liferay-portal-ee/release.properties"
 }
@@ -493,9 +502,11 @@ function tag_release {
 	then
 		for repository in liferay-portal liferay-portal-ee
 		do
-			local temp_branch="release-$(echo "${_PRODUCT_VERSION}" | sed --regexp-extended --expression "s/-u/\./")"
+			local temp_branch="release-$( \
+				echo "${_PRODUCT_VERSION}" | \
+				sed --regexp-extended --expression "s/-u/\./")"
 
-			if [[ $(invoke_github_api_delete "brianchandotcom" "${repository}/git/refs/heads/${temp_branch}") -eq "${LIFERAY_COMMON_EXIT_CODE_BAD}" ]]
+			if [[ "$(invoke_github_api_delete "brianchandotcom" "${repository}/git/refs/heads/${temp_branch}")" -eq "${LIFERAY_COMMON_EXIT_CODE_BAD}" ]]
 			then
 				lc_log ERROR "Unable to delete temp branch ${temp_branch} in brianchandotcom/${repository}."
 
@@ -532,7 +543,8 @@ function test_boms {
 			--refresh-releases
 	else
 		local product_group_version=$(get_product_group_version)
-		local product_version_suffix=$(echo "${_PRODUCT_VERSION}" | cut --delimiter='-' --fields=2)
+		local product_version_suffix=$( \
+			echo "${_PRODUCT_VERSION}" | cut --delimiter='-' --fields=2)
 
 		blade init \
 			--liferay-version "${LIFERAY_RELEASE_PRODUCT_NAME}-${product_group_version}-${product_version_suffix}" \
@@ -632,7 +644,7 @@ function _create_tag {
 		END
 	)
 
-	if [[ $(invoke_github_api_post "${repository_owner}" "${repository}/git/tags" "${tag_data}") -eq "${LIFERAY_COMMON_EXIT_CODE_BAD}" ]]
+	if [[ "$(invoke_github_api_post "${repository_owner}" "${repository}/git/tags" "${tag_data}")" -eq "${LIFERAY_COMMON_EXIT_CODE_BAD}" ]]
 	then
 		lc_log ERROR "Unable to create tag ${product_version_without_lts_suffix} in ${repository_owner}/${repository}."
 
@@ -651,7 +663,7 @@ function _create_tag {
 		END
 	)
 
-	if [[ $(invoke_github_api_post "${repository_owner}" "${repository}/git/refs" "${ref_data}") -eq "${LIFERAY_COMMON_EXIT_CODE_BAD}" ]]
+	if [[ "$(invoke_github_api_post "${repository_owner}" "${repository}/git/refs" "${ref_data}")" -eq "${LIFERAY_COMMON_EXIT_CODE_BAD}" ]]
 	then
 		lc_log ERROR "Unable to create tag reference for ${product_version_without_lts_suffix} in ${repository_owner}/${repository}."
 

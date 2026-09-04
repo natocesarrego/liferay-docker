@@ -33,14 +33,15 @@ function copy_tld {
 		arguments+="-name \"${tld}\""
 	done
 
-	for file in $(eval find "${_PROJECTS_DIR}/${LIFERAY_PORTAL_REPOSITORY_NAME}" \
-		"${arguments}" -type f | \
-			grep \
-				--extended-regexp "(/build/|/classes/|/gradleTest/|/sdk/|/test/|/testIntegration/)" \
-				--invert-match | \
-			awk -F "/" '{print $NF, $0}' | \
-			sort --key 1,1 --unique | \
-			awk '{print $2}')
+	for file in $( \
+		eval find "${_PROJECTS_DIR}/${LIFERAY_PORTAL_REPOSITORY_NAME}" "${arguments}" -type f | \
+		grep \
+			--extended-regexp \
+			--invert-match \
+			"(/build/|/classes/|/gradleTest/|/sdk/|/test/|/testIntegration/)" | \
+		awk -F "/" '{print $NF, $0}' | \
+		sort --key 1,1 --unique | \
+		awk '{print $2}')
 	do
 		lc_log INFO "Copying file ${file} to ${1}."
 
@@ -152,7 +153,7 @@ function generate_api_jars {
 			do
 				local module_jar_basename=$(basename "${module_jar}")
 
-				if (grep $(echo "${module_jar_basename%.jar}:") "${_PROJECTS_DIR}/${LIFERAY_PORTAL_REPOSITORY_NAME}/lib/development/dependencies.properties" || grep $(echo "${module_jar_basename%.jar}:") "${_PROJECTS_DIR}/${LIFERAY_PORTAL_REPOSITORY_NAME}/lib/portal/dependencies.properties")
+				if (grep "$(echo "${module_jar_basename%.jar}:")" "${_PROJECTS_DIR}/${LIFERAY_PORTAL_REPOSITORY_NAME}/lib/development/dependencies.properties" || grep "$(echo "${module_jar_basename%.jar}:")" "${_PROJECTS_DIR}/${LIFERAY_PORTAL_REPOSITORY_NAME}/lib/portal/dependencies.properties")
 				then
 					manage_bom_jar "${module_jar}"
 				fi
@@ -188,7 +189,12 @@ function generate_api_jars {
 		manage_bom_jar "jakarta.servlet-api.jar"
 	fi
 
-	for file in $(ls api-jar/META-INF --almost-all | grep --extended-regexp --invert-match '^(alloy-util.tld|alloy.tld|c.tld|liferay.tld)$')
+	for file in $( \
+		ls api-jar/META-INF --almost-all | \
+		grep \
+			--extended-regexp \
+			--invert-match \
+			'^(alloy-util.tld|alloy.tld|c.tld|liferay.tld)$')
 	do
 		if [[ "${file}" == *.tld ]]
 		then
@@ -200,7 +206,7 @@ function generate_api_jars {
 
 	mkdir --parents api-jar/META-INF/resources
 
-	copy_tld "api-jar/META-INF/resources" "liferay-application-list.tld" "liferay-data-engine.tld" "liferay-ddm.tld" "liferay-export-import-changeset.tld" "liferay-form.tld" "liferay-staging.tld" "liferay-template.tld"  "react.tld" "soy.tld"
+	copy_tld "api-jar/META-INF/resources" "liferay-application-list.tld" "liferay-data-engine.tld" "liferay-ddm.tld" "liferay-export-import-changeset.tld" "liferay-form.tld" "liferay-staging.tld" "liferay-template.tld" "react.tld" "soy.tld"
 
 	mkdir api-jar/META-INF/resources/WEB-INF
 
@@ -356,7 +362,10 @@ function generate_pom_release_bom {
 				--expression 's/\.jar$//' \
 				--expression "s@.*/@@" \
 				--expression "s@-@.@g" | \
-			grep --extended-regexp --invert-match "(\.demo|\.sample\.|\.templates\.)" | \
+			grep \
+				--extended-regexp \
+				--invert-match \
+				"(\.demo|\.sample\.|\.templates\.)" | \
 			sort
 	)
 	do
@@ -366,8 +375,13 @@ function generate_pom_release_bom {
 		do
 			local file_name=$(basename "${artifact_url}")
 
-			local artifact_id=$(echo "${file_name}" | cut --delimiter='-' --fields=1)
-			local version=$(echo "${file_name}" | sed --expression "s@\.\(jar\|war\)\$@@" --expression "s@.*${artifact_file}-@@")
+			local artifact_id=$( \
+				echo "${file_name}" | cut --delimiter='-' --fields=1)
+			local version=$( \
+				echo "${file_name}" | \
+				sed \
+					--expression "s@\.\(jar\|war\)\$@@" \
+					--expression "s@.*${artifact_file}-@@")
 
 			if [[ "${artifact_url}" == */com/liferay/portal/* ]]
 			then
@@ -422,7 +436,7 @@ function generate_pom_release_bom_compile_only {
 		--expression "w ${pom_file_name}" \
 		"${_RELEASE_TOOL_DIR}/templates/release.bom.compile.only.pom.tpl" > /dev/null
 
-	echo  "" >> "${pom_file_name}"
+	echo "" >> "${pom_file_name}"
 
 	cut --delimiter='=' --fields=2 "${_PROJECTS_DIR}/${LIFERAY_PORTAL_REPOSITORY_NAME}/modules/releng-pom-compile-only-dependencies.properties" | while IFS=: read -r group_id artifact_id version
 	do
@@ -483,7 +497,9 @@ function generate_pom_release_bom_test {
 		org.slf4j:log4j-over-slf4j:1.7.25
 	)
 
-	local sorted_dependencies=($(printf "%s\n" "${dependencies[@]}" | sort --field-separator=':' --key=2,2))
+	local sorted_dependencies=($( \
+		printf "%s\n" "${dependencies[@]}" | \
+		sort --field-separator=':' --key=2,2))
 
 	local artifact_urls=""
 
@@ -501,7 +517,8 @@ function generate_pom_release_bom_test {
 
 	for dependency in "${sorted_dependencies[@]}"
 	do
-		local artifact_id=$(echo "${dependency}" | cut --delimiter=':' --fields=2)
+		local artifact_id=$( \
+			echo "${dependency}" | cut --delimiter=':' --fields=2)
 		local group_id=$(echo "${dependency}" | cut --delimiter=':' --fields=1)
 		local version=$(echo "${dependency}" | cut --delimiter=':' --fields=3)
 
@@ -568,7 +585,8 @@ function generate_pom_release_bom_third_party {
 
 	for dependency_property in "${dependencies_properties[@]}"
 	do
-		IFS=':' read -ra dependency_property_parts <<< "$(echo "${dependency_property}" | cut --delimiter='=' --fields=2)"
+		IFS=':' read -ra dependency_property_parts <<< "$( \
+			echo "${dependency_property}" | cut --delimiter='=' --fields=2)"
 
 		if [[ ${included_dependencies[@]} =~ "${dependency_property_parts[0]}${dependency_property_parts[1]}${dependency_property_parts[2]}" ]]
 		then

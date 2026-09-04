@@ -210,12 +210,20 @@ function update_portal_repository {
 	then
 		echo "${LIFERAY_RELEASE_GIT_REF} branch exists on remote."
 
-		git fetch --force --update-head-ok upstream "${LIFERAY_RELEASE_GIT_REF}:${LIFERAY_RELEASE_GIT_REF}"
+		git fetch \
+			--force \
+			--update-head-ok \
+			upstream \
+			"${LIFERAY_RELEASE_GIT_REF}:${LIFERAY_RELEASE_GIT_REF}"
 	elif [ -n "$(git ls-remote "${LIFERAY_PORTAL_REPOSITORY_OWNER}" refs/heads/"${LIFERAY_RELEASE_GIT_REF}")" ]
 	then
 		echo "${LIFERAY_RELEASE_GIT_REF} branch exists on ${LIFERAY_PORTAL_REPOSITORY_OWNER}'s remote."
 
-		git fetch --force --update-head-ok "${LIFERAY_PORTAL_REPOSITORY_OWNER}" "${LIFERAY_RELEASE_GIT_REF}:${LIFERAY_RELEASE_GIT_REF}"
+		git fetch \
+			--force \
+			--update-head-ok \
+			"${LIFERAY_PORTAL_REPOSITORY_OWNER}" \
+			"${LIFERAY_RELEASE_GIT_REF}:${LIFERAY_RELEASE_GIT_REF}"
 	else
 		lc_log ERROR "${LIFERAY_RELEASE_GIT_REF} does not exist."
 

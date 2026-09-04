@@ -214,7 +214,8 @@ function _deploy_liferay_marketplace_product_zip_file {
 			-j \
 			-o \
 			-q \
-			"${liferay_marketplace_product_zip_file_path}" "*.lpkg" \
+			"${liferay_marketplace_product_zip_file_path}" \
+			"*.lpkg" \
 			-x "*/*" 2> /dev/null
 	elif unzip -l "${liferay_marketplace_product_zip_file_path}" | grep "\.zip$" &> /dev/null
 	then
@@ -223,7 +224,8 @@ function _deploy_liferay_marketplace_product_zip_file {
 			-j \
 			-o \
 			-q \
-			"${liferay_marketplace_product_zip_file_path}" "*.zip" \
+			"${liferay_marketplace_product_zip_file_path}" \
+			"*.zip" \
 			-x "*/*" 2> /dev/null
 	fi
 

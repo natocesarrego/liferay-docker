@@ -220,7 +220,7 @@ function _is_supported_product_version {
 
 	if is_quarterly_release "${product_version}"
 	then
-		if [[ $(get_release_year "${product_version}") -eq 2023 ]]
+		if [[ "$(get_release_year "${product_version}")" -eq 2023 ]]
 		then
 			return 1
 		fi
@@ -378,7 +378,8 @@ function _process_products {
 			return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 		fi
 
-		for product_version in $(echo -en "${product_version_list_html}" | \
+		for product_version in $( \
+			echo -en "${product_version_list_html}" | \
 			grep \
 				--extended-regexp \
 				--only-matching \
@@ -387,8 +388,8 @@ function _process_products {
 			uniq)
 		do
 			if [ "${product_name}" == "dxp" ] &&
-			   [[ $(echo "${product_version}" | grep "7.4.13-u") ]] &&
-			   [[ $(get_release_version_trivial "${product_version}") -gt 112 ]]
+			   [[ "$(echo "${product_version}" | grep "7.4.13-u")" ]] &&
+			   [[ "$(get_release_version_trivial "${product_version}")" -gt 112 ]]
 			then
 				continue
 			fi
@@ -413,7 +414,10 @@ function _promote_product_versions {
 			then
 				lc_log INFO "Promoting ${last_version}."
 
-				sed --expression "s/\"promoted\": \"false\"/\"promoted\": \"true\"/" --in-place "${_PROMOTION_DIR}/${last_version}"
+				sed \
+					--expression "s/\"promoted\": \"false\"/\"promoted\": \"true\"/" \
+					--in-place \
+					"${_PROMOTION_DIR}/${last_version}"
 			else
 				lc_log INFO "No product version found to promote for ${product_name}-${group_version}."
 			fi

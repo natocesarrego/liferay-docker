@@ -446,7 +446,8 @@ function upload_to_docker_hub {
 }
 
 function _update_bundles_yml {
-	local product_version_key=$(echo "${_PRODUCT_VERSION}" | cut --delimiter='-' --fields=1)
+	local product_version_key=$( \
+		echo "${_PRODUCT_VERSION}" | cut --delimiter='-' --fields=1)
 
 	if yq eval ".\"${product_version_key}\" | has(\"${_PRODUCT_VERSION}\")" "${_BASE_DIR}/bundles.yml" | grep --quiet "true" ||
 	   yq eval ".quarterly | has(\"${_PRODUCT_VERSION}\")" "${_BASE_DIR}/bundles.yml" | grep --quiet "true"
@@ -462,8 +463,18 @@ function _update_bundles_yml {
 		then
 			local latest_quarterly_release_key=$(yq eval ".quarterly | keys | .[-1]" "${_BASE_DIR}/bundles.yml")
 
-			yq --indent 4 --inplace eval "del(.quarterly.\"${latest_quarterly_release_key}\".latest)" "${_BASE_DIR}/bundles.yml"
-			yq --indent 4 --inplace eval ".quarterly.\"${_PRODUCT_VERSION}\".latest = true" "${_BASE_DIR}/bundles.yml"
+			yq \
+				--indent 4 \
+				--inplace \
+				eval \
+				"del(.quarterly.\"${latest_quarterly_release_key}\".latest)" \
+				"${_BASE_DIR}/bundles.yml"
+			yq \
+				--indent 4 \
+				--inplace \
+				eval \
+				".quarterly.\"${_PRODUCT_VERSION}\".latest = true" \
+				"${_BASE_DIR}/bundles.yml"
 		else
 			local previous_quarterly_release_key=$( \
 				yq ".quarterly" "${_BASE_DIR}/bundles.yml" | \
@@ -476,7 +487,12 @@ function _update_bundles_yml {
 
 	if is_7_3_release
 	then
-		yq --indent 4 --inplace eval ".\"${product_version_key}\".\"${_PRODUCT_VERSION}\" = {}" "${_BASE_DIR}/bundles.yml"
+		yq \
+			--indent 4 \
+			--inplace \
+			eval \
+			".\"${product_version_key}\".\"${_PRODUCT_VERSION}\" = {}" \
+			"${_BASE_DIR}/bundles.yml"
 	fi
 
 	if is_7_4_u_release
@@ -484,7 +500,12 @@ function _update_bundles_yml {
 		local nightly_bundle_url=$(yq eval ".\"${product_version_key}\".\"${product_version_key}.nightly\".bundle_url" "${_BASE_DIR}/bundles.yml")
 
 		yq --indent 4 --inplace eval "del(.\"${product_version_key}\".\"${product_version_key}.nightly\")" "${_BASE_DIR}/bundles.yml"
-		yq --indent 4 --inplace eval ".\"${product_version_key}\".\"${_PRODUCT_VERSION}\" = {}" "${_BASE_DIR}/bundles.yml"
+		yq \
+			--indent 4 \
+			--inplace \
+			eval \
+			".\"${product_version_key}\".\"${_PRODUCT_VERSION}\" = {}" \
+			"${_BASE_DIR}/bundles.yml"
 		yq --indent 4 --inplace eval ".\"${product_version_key}\".\"${product_version_key}.nightly\".bundle_url = \"${nightly_bundle_url}\"" "${_BASE_DIR}/bundles.yml"
 	fi
 

@@ -46,7 +46,7 @@ function add_portal_patcher_properties_jar {
 	(
 		echo "fixed.issues=${LIFERAY_RELEASE_FIXED_ISSUES}"
 		echo "installed.patches=${_HOTFIX_NAME}"
-	)  > patcher.properties
+	) > patcher.properties
 
 	jar cfm portal-patcher-properties.jar manifest patcher.properties
 
@@ -77,7 +77,7 @@ function add_portal_patcher_service_properties_jar {
 	(
 		echo "fixed.issues=${LIFERAY_RELEASE_FIXED_ISSUES}"
 		echo "installed.patches=${_HOTFIX_NAME}"
-	)  > patcher-service.properties
+	) > patcher-service.properties
 
 	jar cfm portal-patcher-service-properties.jar manifest patcher-service.properties
 
@@ -281,7 +281,11 @@ function compare_jars {
 				fi
 			done <<< "${jar_descriptions}"
 
-			rm --force --recursive "${_BUILD_DIR}/tmp/jar1" "${_BUILD_DIR}/tmp/jar2"
+			rm \
+				--force \
+				--recursive \
+				"${_BUILD_DIR}/tmp/jar1" \
+				"${_BUILD_DIR}/tmp/jar2"
 		else
 			new_jar_descriptions=${jar_descriptions}
 		fi
@@ -343,7 +347,7 @@ function create_documentation {
 
 	writeln "{"
 	writeln "    \"build\": {"
-	writeln "        \"builder-revision\": \"${_BUILDER_SHA}\"",
+	writeln "        \"builder-revision\": \"${_BUILDER_SHA}\","
 	writeln "        \"date\": \"$(date)\","
 	writeln "        \"git-revision\": \"${_GIT_SHA}\","
 	writeln "        \"id\": \"${LIFERAY_RELEASE_HOTFIX_BUILD_ID}\""
@@ -356,7 +360,7 @@ function create_documentation {
 			tr ',' '\n' | \
 			while read -r line
 		do
-			if [ "${first_line}" == true ]
+			if [ "${first_line}" == "true" ]
 			then
 				first_line=false
 
@@ -389,7 +393,8 @@ function create_documentation {
 		do
 			local checksum=${line%% *}
 			local file=${line##* ./}
-			if [ "${first_line}" == true ]
+
+			if [ "${first_line}" == "true" ]
 			then
 				first_line=false
 			else
@@ -414,7 +419,7 @@ function create_documentation {
 
 		while read -r file
 		do
-			if [ "${first_line}" == true ]
+			if [ "${first_line}" == "true" ]
 			then
 				first_line=false
 			else
@@ -440,7 +445,8 @@ function create_hotfix {
 
 	echo "Comparing ${_BUNDLES_DIR} and ${_RELEASE_DIR}."
 
-	diff --brief --recursive "${_BUNDLES_DIR}" "${_RELEASE_DIR}" | grep --invert-match /work/Catalina
+	diff --brief --recursive "${_BUNDLES_DIR}" "${_RELEASE_DIR}" | \
+		grep --invert-match /work/Catalina
 
 	diff --brief --recursive "${_BUNDLES_DIR}" "${_RELEASE_DIR}" | \
 		grep --invert-match /work/Catalina | \
@@ -529,7 +535,8 @@ function in_hotfix_scope {
 		return "${LIFERAY_COMMON_EXIT_CODE_OK}"
 	fi
 
-	if echo "${1}" | grep --quiet "^osgi/" && ! echo "${1}" | grep --quiet "^osgi/state"
+	if echo "${1}" | grep --quiet "^osgi/" &&
+	   ! echo "${1}" | grep --quiet "^osgi/state"
 	then
 		return "${LIFERAY_COMMON_EXIT_CODE_OK}"
 	fi
