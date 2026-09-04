@@ -463,7 +463,7 @@ local http_response=$( \
 
 ## Return Codes
 
-Use the named `LIFERAY_COMMON_EXIT_CODE_*` constants instead of bare numbers, and quote them on `return` and `exit`. If no named constant corresponds to the code, leave the numeric literal unchanged.
+- Use the named `LIFERAY_COMMON_EXIT_CODE_*` constants instead of bare numbers, and quote them on `return` and `exit`. If no named constant corresponds to the code, leave the numeric literal unchanged.
 
 ```bash
 return "${LIFERAY_COMMON_EXIT_CODE_SKIPPED}"
@@ -471,7 +471,24 @@ return "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 return "${LIFERAY_COMMON_EXIT_CODE_OK}"
 ```
 
-But, in boolean functions only — the `is_*` and `has_*` predicates — prefer bare `0` and `1` in the `return` statement.
+- In boolean functions only — the `is_*` and `has_*` predicates — prefer bare `0` and `1` in the `return` statement.
+
+```bash
+function is_7_3_release {
+	if [[ "$(_get_product_version "${1}")" == 7.3* ]]
+	then
+		return 0
+	fi
+
+	return 1
+}
+```
+
+- A `trap` body is a deferred command, so wrap it in single quotes and quote the constant inside it, not `trap "return ${LIFERAY_COMMON_EXIT_CODE_BAD}" ERR`, which expands the constant when the trap is installed rather than when it fires. This covers `exit` and every signal, not just `ERR`.
+
+```bash
+trap 'return "${LIFERAY_COMMON_EXIT_CODE_BAD}"' ERR
+```
 
 ## Shared Helpers
 
