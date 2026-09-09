@@ -31,7 +31,7 @@ function calculate_results {
 		do
 			if [[ "${repository_id}" -eq 0 ]] ||
 			   [ ! -d "${pwd}/${company_id}/${repository_id}" ] ||
-			   [[ $(find "${pwd}/${company_id}/${repository_id}" -maxdepth 1 -mindepth 1 | wc --lines 2> /dev/null) -eq 0 ]]
+			   [[ "$(find "${pwd}/${company_id}/${repository_id}" -maxdepth 1 -mindepth 1 | wc --lines 2> /dev/null)" -eq 0 ]]
 			then
 				continue
 			fi
@@ -42,7 +42,7 @@ function calculate_results {
 			do
 				lcd "${pwd}/${company_id}/${repository_id}/${file_entry_id}"
 
-				if [[ $(find . -maxdepth 1 -mindepth 1 | wc --lines) -gt 0 ]]
+				if [[ "$(find . -maxdepth 1 -mindepth 1 | wc --lines)" -gt 0 ]]
 				then
 					for file_version in *
 					do
@@ -61,10 +61,10 @@ function calculate_results {
 							then
 								type="LAR"
 
-								if [[ $(find "${file_version}" -ctime +29 | wc --lines) -gt 0 ]]
+								if [[ "$(find "${file_version}" -ctime +29 | wc --lines)" -gt 0 ]]
 								then
 									echo "${file_path}" >> "${RESULTS_DIR}/${company_id}/lar_30_days"
-								elif [[ $(find "${file_version}" -ctime +6 | wc --lines) -gt 0 ]]
+								elif [[ "$(find "${file_version}" -ctime +6 | wc --lines)" -gt 0 ]]
 								then
 									echo "${file_path}" >> "${RESULTS_DIR}/${company_id}/lar_7_days"
 								fi
@@ -159,7 +159,8 @@ function print_results {
 
 			echo -en "${type},"
 
-			local count=$(wc --lines "type_${type}" | sed --expression "s/\ .*//")
+			local count=$( \
+				wc --lines "type_${type}" | sed --expression "s/\ .*//")
 
 			echo -en "${count},"
 

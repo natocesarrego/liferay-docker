@@ -77,7 +77,7 @@ function main {
 
 	if [ -d "${LIFERAY_MOUNT_DIR}/files" ]
 	then
-		if [[ $(ls --almost-all "${LIFERAY_MOUNT_DIR}/files") ]]
+		if [[ "$(ls --almost-all "${LIFERAY_MOUNT_DIR}/files")" ]]
 		then
 			echo "[LIFERAY] Copying files from ${LIFERAY_MOUNT_DIR}/files:"
 			echo ""
@@ -106,7 +106,7 @@ function main {
 
 	if [ -d "${LIFERAY_MOUNT_DIR}/deploy" ]
 	then
-		if [[ $(ls --almost-all /opt/liferay/deploy) ]]
+		if [[ "$(ls --almost-all /opt/liferay/deploy)" ]]
 		then
 			cp /opt/liferay/deploy/* "${LIFERAY_MOUNT_DIR}/deploy"
 		fi

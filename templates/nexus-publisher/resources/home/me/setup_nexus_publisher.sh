@@ -51,8 +51,14 @@ EOF
 function main {
 	sed --expression "s/GITHUB_OATH_TOKEN/${LIFERAY_NEXUS_PUBLISHER_GIT_GITHUB_OATH_TOKEN}/" --in-place .gitconfig
 	sed --expression "s/GITHUB_USER/${LIFERAY_NEXUS_PUBLISHER_GIT_GITHUB_USER}/" --in-place .gitconfig
-	sed --expression "s/USER_EMAIL/${LIFERAY_NEXUS_PUBLISHER_GIT_USER_EMAIL}/" --in-place .gitconfig
-	sed --expression "s/USER_NAME/${LIFERAY_NEXUS_PUBLISHER_GIT_USER_NAME}/" --in-place .gitconfig
+	sed \
+		--expression "s/USER_EMAIL/${LIFERAY_NEXUS_PUBLISHER_GIT_USER_EMAIL}/" \
+		--in-place \
+		.gitconfig
+	sed \
+		--expression "s/USER_NAME/${LIFERAY_NEXUS_PUBLISHER_GIT_USER_NAME}/" \
+		--in-place \
+		.gitconfig
 
 	mkdir --parents dev/projects
 

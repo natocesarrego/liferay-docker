@@ -31,7 +31,7 @@ function main {
 		then
 			echo "Container status needs to be enabled with LIFERAY_CONTAINER_STATUS_ENABLED to enable startup lock."
 
-			exit 1
+			exit "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 		fi
 
 		update_container_status acquiring-startup-lock

@@ -11,9 +11,13 @@ function create_symlink {
 		target_dir="/usr/lib/jvm/${2}-crac-${1}"
 	fi
 
-	if [ -n "${target_dir}" ] && [ ! -e "/usr/lib/jvm/${2//-/}" ]
+	if [ -n "${target_dir}" ] && [ ! -e "/usr/lib/jvm/$(echo "${2}" | sed --expression "s/-//g")" ]
 	then
-		ln --force --symbolic "${target_dir}" "/usr/lib/jvm/${2//-/}"
+		ln \
+			--force \
+			--symbolic \
+			"${target_dir}" \
+			"/usr/lib/jvm/$(echo "${2}" | sed --expression "s/-//g")"
 	fi
 }
 
@@ -23,7 +27,8 @@ function main {
 		if [ ! -e "/usr/lib/jvm/${JAVA_VERSION}" ]
 		then
 			local architecture=$(dpkg --print-architecture)
-			local zulu_version=$(echo "${JAVA_VERSION}" | tr --complement --delete '0-9')
+			local zulu_version=$( \
+				echo "${JAVA_VERSION}" | tr --complement --delete '0-9')
 
 			create_symlink "${architecture}" "zulu-${zulu_version}"
 			update-java-alternatives -s "zulu-${zulu_version}-${architecture}"

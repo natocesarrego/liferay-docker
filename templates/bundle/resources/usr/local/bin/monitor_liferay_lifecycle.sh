@@ -78,7 +78,10 @@ function main {
 				if [ "${LIFERAY_CONTAINER_TOMCAT_THREAD_ACTIVE_COUNT_ENABLED}" == "true" ] && [ -n "${LIFERAY_CONTAINER_TOMCAT_THREAD_ACTIVE_COUNT_THRESHOLD}" ]
 				then
 					local tomcat_thread_active_count=$( \
-						curl --max-time 2 --silent "http://localhost:15000/metrics" | \
+						curl \
+							--max-time 2 \
+							--silent \
+							"http://localhost:15000/metrics" | \
 							grep "^catalina_executor_activecount" | \
 							cut --delimiter=' ' --fields=2 | \
 							cut --delimiter='.' --fields=1)
@@ -151,7 +154,12 @@ function main {
 					grep --extended-regexp "${LIFERAY_CONTAINER_STATUS_ACTIVE_MODULES}" | \
 					grep --count ACTIVE)
 
-			local module_count=$(echo "${telnet_content}" | grep --count --extended-regexp "${LIFERAY_CONTAINER_STATUS_ACTIVE_MODULES}")
+			local module_count=$( \
+				echo "${telnet_content}" | \
+				grep \
+					--count \
+					--extended-regexp \
+					"${LIFERAY_CONTAINER_STATUS_ACTIVE_MODULES}")
 
 			if [[ "${module_count}" -eq 0 ]]
 			then

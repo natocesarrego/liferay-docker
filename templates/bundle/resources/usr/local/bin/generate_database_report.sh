@@ -3,7 +3,7 @@
 source /usr/local/bin/_liferay_common.sh
 
 function check_usage {
-	lc_check_utils mysql || exit 1
+	lc_check_utils mysql || exit "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 
 	_REPORTS_DIRECTORY="${LIFERAY_HOME}/data/reports"
 

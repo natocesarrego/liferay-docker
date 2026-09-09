@@ -129,8 +129,9 @@ function main {
 		fi
 	fi
 
-	find /opt/liferay/batch -type f -name "*.batch-engine-data.json" -print0 2> /dev/null | LC_ALL=C sort --zero-terminated |
-	while IFS= read -r -d "" file_name
+	find /opt/liferay/batch -type f -name "*.batch-engine-data.json" -print0 2> /dev/null | \
+		LC_ALL=C sort --zero-terminated | \
+		while IFS= read -r -d "" file_name
 	do
 		echo "Processing: ${file_name}"
 		echo ""
@@ -153,7 +154,7 @@ function main {
 
 		href="${href#*://*/}"
 
-		if [[ ! ${href} =~ ^/.* ]]
+		if [[ ! "${href}" =~ ^/.* ]]
 		then
 			href="/${href}"
 		fi
@@ -218,8 +219,8 @@ function main {
 
 			local get_response=$( \
 				curl \
-					--header "accept: application/json" \
 					--header "Authorization: Bearer ${oauth2_access_token}" \
+					--header "accept: application/json" \
 					--request 'GET' \
 					--silent \
 					--write-out "%output{${http_status_code_file}}%{http_code}" \

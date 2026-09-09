@@ -21,6 +21,9 @@ fi
 
 apt-get update
 
-DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install --no-install-recommends --yes ubuntu-advantage-tools
+DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install \
+	--no-install-recommends \
+	--yes \
+	ubuntu-advantage-tools
 
 pro attach "${LIFERAY_DOCKER_UBUNTU_PRO_TOKEN}"
