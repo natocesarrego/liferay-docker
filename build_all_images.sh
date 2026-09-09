@@ -536,7 +536,10 @@ function get_latest_docker_hub_version {
 	local token=$(curl --silent "https://auth.docker.io/token?scope=repository:liferay/${1}:pull&service=registry.docker.io" | jq --raw-output '.token')
 
 	local version=$( \
-		curl --header "Authorization: Bearer ${token}" --silent "https://registry-1.docker.io/v2/liferay/${1}/manifests/latest" | \
+		curl \
+			--header "Authorization: Bearer ${token}" \
+			--silent \
+			"https://registry-1.docker.io/v2/liferay/${1}/manifests/latest" | \
 		grep --only-matching '\\"org.label-schema.version\\":\\"[0-9]\.[0-9]\.[0-9]*\\"' | \
 		head --lines=1 | \
 		sed --expression "s/\\\\\"//g" | \
@@ -562,7 +565,10 @@ function get_latest_docker_hub_zabbix_server_version {
 	fi
 
 	local version=$( \
-		curl --header "Authorization: Bearer ${token}" --silent "https://registry-1.docker.io/v2/${image_tag}/manifests/${tag}" | \
+		curl \
+			--header "Authorization: Bearer ${token}" \
+			--silent \
+			"https://registry-1.docker.io/v2/${image_tag}/manifests/${tag}" | \
 		grep --only-matching "\\\\\"${label_name}\\\\\":\\\\\"[0-9]*\.[0-9]*\.[0-9]*\\\\\"" | \
 		head --lines=1 | \
 		sed --expression "s/\\\\\"//g" | \
@@ -577,7 +583,10 @@ function get_latest_docker_hub_zulu_version {
 	local token=$(curl --silent "https://auth.docker.io/token?scope=repository:liferay/${1}:pull&service=registry.docker.io" | jq --raw-output '.token')
 
 	local version=$( \
-		curl --header "Authorization: Bearer ${token}" --silent "https://registry-1.docker.io/v2/liferay/${1}/manifests/latest" | \
+		curl \
+			--header "Authorization: Bearer ${token}" \
+			--silent \
+			"https://registry-1.docker.io/v2/liferay/${1}/manifests/latest" | \
 		grep --only-matching "\\\\\"org.label-schema.zulu${2}_${3}_version\\\\\":\\\\\"[0-9]*\.[0-9]*\.[0-9]*\\\\\"" | \
 		head --lines=1 | \
 		sed --expression "s/\\\\\"//g" | \
@@ -601,7 +610,9 @@ function get_main_key {
 
 	for main_key in ${main_keys}
 	do
-		local count=$(echo "${version}" | grep --count --extended-regexp "${main_key}-|${main_key}\.")
+		local count=$( \
+			echo "${version}" | \
+			grep --count --extended-regexp "${main_key}-|${main_key}\.")
 
 		if [[ "${count}" -gt 0 ]]
 		then

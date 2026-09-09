@@ -354,7 +354,9 @@ function prepare_temp_directory {
 
 		local latest_tomcat_download_dir="downloads/tomcat/apache-tomcat-${latest_tomcat_version}"
 
-		local latest_tomcat_major_version=$(echo "${latest_tomcat_version}" | cut --delimiter='.' --fields=1)
+		local latest_tomcat_major_version=$( \
+			echo "${latest_tomcat_version}" | \
+			cut --delimiter='.' --fields=1)
 
 		local latest_tomcat_url="https://dlcdn.apache.org/tomcat/tomcat-${latest_tomcat_major_version}/v${latest_tomcat_version}/bin/apache-tomcat-${latest_tomcat_version}.zip"
 
@@ -364,9 +366,18 @@ function prepare_temp_directory {
 
 		mv "${TEMP_DIR}/liferay/apache-tomcat-"* "${TEMP_DIR}/liferay/${latest_tomcat_dir_name}"
 
-		rm --force --recursive "${TEMP_DIR}/liferay/${latest_tomcat_dir_name}/conf"
-		rm --force --recursive "${TEMP_DIR}/liferay/${latest_tomcat_dir_name}/temp/safeToDelete.tmp"
-		rm --force --recursive "${TEMP_DIR}/liferay/${latest_tomcat_dir_name}/webapps"
+		rm \
+			--force \
+			--recursive \
+			"${TEMP_DIR}/liferay/${latest_tomcat_dir_name}/conf"
+		rm \
+			--force \
+			--recursive \
+			"${TEMP_DIR}/liferay/${latest_tomcat_dir_name}/temp/safeToDelete.tmp"
+		rm \
+			--force \
+			--recursive \
+			"${TEMP_DIR}/liferay/${latest_tomcat_dir_name}/webapps"
 
 		cp --recursive "${TEMP_DIR}/liferay/tomcat-temp/bin/setenv.bat" "${TEMP_DIR}/liferay/${latest_tomcat_dir_name}/bin/setenv.bat"
 		cp --recursive "${TEMP_DIR}/liferay/tomcat-temp/bin/setenv.sh" "${TEMP_DIR}/liferay/${latest_tomcat_dir_name}/bin/setenv.sh"
@@ -416,7 +427,10 @@ function push_docker_image {
 	then
 		check_docker_buildx
 
-		sed --expression "1s/FROM /FROM --platform=${TARGETPLATFORM} /g" --in-place "${TEMP_DIR}/Dockerfile"
+		sed \
+			--expression "1s/FROM /FROM --platform=${TARGETPLATFORM} /g" \
+			--in-place \
+			"${TEMP_DIR}/Dockerfile"
 
 		docker buildx build \
 			--build-arg LABEL_BUILD_DATE=$(date "${CURRENT_DATE}" "+%Y-%m-%dT%H:%M:%SZ") \
@@ -456,7 +470,10 @@ function set_parent_image {
 		fi
 
 		sed --expression "s/liferay\/jdk21:latest AS liferay-jdk21/liferay\/jdk11:latest AS liferay-jdk11/g" --in-place "${TEMP_DIR}/Dockerfile"
-		sed --expression "s/FROM liferay-jdk21/FROM liferay-jdk11/g" --in-place "${TEMP_DIR}/Dockerfile"
+		sed \
+			--expression "s/FROM liferay-jdk21/FROM liferay-jdk11/g" \
+			--in-place \
+			"${TEMP_DIR}/Dockerfile"
 	elif [ "$(get_product_group_version "${LIFERAY_DOCKER_RELEASE_VERSION}")" == "7.4" ]
 	then
 		if is_nightly_release "${LIFERAY_DOCKER_RELEASE_VERSION}"
@@ -477,18 +494,27 @@ function set_parent_image {
 		fi
 
 		sed --expression "s/liferay\/jdk21:latest AS liferay-jdk21/liferay\/jdk11:latest AS liferay-jdk11/g" --in-place "${TEMP_DIR}/Dockerfile"
-		sed --expression "s/FROM liferay-jdk21/FROM liferay-jdk11/g" --in-place "${TEMP_DIR}/Dockerfile"
+		sed \
+			--expression "s/FROM liferay-jdk21/FROM liferay-jdk11/g" \
+			--in-place \
+			"${TEMP_DIR}/Dockerfile"
 	elif [[ "$(get_product_group_version "${LIFERAY_DOCKER_RELEASE_VERSION}" | tr --delete '.')" -le 73 ]]
 	then
 		sed --expression "s/liferay\/jdk21:latest AS liferay-jdk21/liferay\/jdk11-jdk8:latest AS liferay-jdk11-jdk8/g" --in-place "${TEMP_DIR}/Dockerfile"
-		sed --expression "s/FROM liferay-jdk21/FROM liferay-jdk11-jdk8/g" --in-place "${TEMP_DIR}/Dockerfile"
+		sed \
+			--expression "s/FROM liferay-jdk21/FROM liferay-jdk11-jdk8/g" \
+			--in-place \
+			"${TEMP_DIR}/Dockerfile"
 	fi
 }
 
 function update_patching_tool {
 	if [ -e "${TEMP_DIR}/liferay/tomcat" ]
 	then
-		sed --expression "s@tomcat-[0-9]*.[0-9]*.[0-9]*/@tomcat/@g" --in-place "${TEMP_DIR}/liferay/patching-tool/default.properties"
+		sed \
+			--expression "s@tomcat-[0-9]*.[0-9]*.[0-9]*/@tomcat/@g" \
+			--in-place \
+			"${TEMP_DIR}/liferay/patching-tool/default.properties"
 	fi
 
 	if [ -e "${TEMP_DIR}/liferay/patching-tool" ]

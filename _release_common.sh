@@ -322,7 +322,10 @@ function is_quarterly_release {
 }
 
 function is_quarterly_release_docker_image {
-	if is_quarterly_release "$(echo "${1}" | cut --delimiter=':' --fields=2 | cut --delimiter='-' --fields=1)"
+	if is_quarterly_release "$( \
+		echo "${1}" | \
+		cut --delimiter=':' --fields=2 | \
+		cut --delimiter='-' --fields=1)"
 	then
 		return 0
 	fi
