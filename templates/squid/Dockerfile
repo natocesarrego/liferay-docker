@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim
+FROM debian:trixie-slim
 
 ARG LABEL_BUILD_DATE
 ARG LABEL_NAME
