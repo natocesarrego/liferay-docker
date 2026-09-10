@@ -132,7 +132,7 @@ function test_build_release_handle_automated_build_cms_standalone {
 
 	assert_equals \
 		"${CI_TEST_SUITE}" \
-		"portal-release-cms" \
+		"portal-release-cms-standalone" \
 		"${LIFERAY_CMS_STANDALONE_RELEASE}" \
 		"true" \
 		"${LIFERAY_RELEASE_GIT_REF}" \

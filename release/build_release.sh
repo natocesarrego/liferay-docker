@@ -109,7 +109,7 @@ function handle_automated_build {
 		RUN_SCANCODE_PIPELINE=true
 	elif [[ "$(date --date "$(get_today)" +%w)" -eq 2 ]]
 	then
-		CI_TEST_SUITE="portal-release-cms"
+		CI_TEST_SUITE="portal-release-cms-standalone"
 		LIFERAY_CMS_STANDALONE_RELEASE=true
 		LIFERAY_RELEASE_GIT_REF="master"
 	fi
