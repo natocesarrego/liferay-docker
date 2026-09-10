@@ -9,29 +9,44 @@ function main {
 
 	trap tear_down EXIT
 
-	test_build_release_main || exit "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+	if [[ "${#}" -eq 1 ]]
+	then
+		if [ "${1}" == "test_build_release_bundle_smaller_than_1_gb_300_mb" ] ||
+		   [ "${1}" == "test_build_release_has_packaged_bundles" ] ||
+		   [ "${1}" == "test_build_release_has_slack_message" ]
+		then
+			test_build_release_main || exit "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+		elif [ "${1}" == "test_build_hotfix_has_packaged_hotfix" ]
+		then
+			test_build_hotfix_main || exit "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+		fi
 
-	test_build_release_bundle_smaller_than_1_gb_300_mb
-	test_build_release_handle_automated_build
-	test_build_release_handle_automated_build_cms_standalone
-	test_build_release_has_automated_build_failure_slack_message
-	test_build_release_has_packaged_bundles
-	test_build_release_has_slack_message
-	test_build_release_not_handle_automated_build
-	test_build_release_not_has_free_tier_slack_message
+		"${1}"
+	else
+		test_build_release_main || exit "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 
-	test_build_hotfix_main || exit "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+		test_build_release_bundle_smaller_than_1_gb_300_mb
+		test_build_release_handle_automated_build
+		test_build_release_handle_automated_build_cms_standalone
+		test_build_release_has_automated_build_failure_slack_message
+		test_build_release_has_packaged_bundles
+		test_build_release_has_slack_message
+		test_build_release_not_handle_automated_build
+		test_build_release_not_has_free_tier_slack_message
 
-	test_build_hotfix_has_packaged_hotfix
+		test_build_hotfix_main || exit "${LIFERAY_COMMON_EXIT_CODE_BAD}"
 
-	_clean_up_release_data
+		test_build_hotfix_has_packaged_hotfix
 
-	LIFERAY_RELEASE_GIT_REF="fix-pack-fix-263630758"
-	_PRODUCT_VERSION="7.3.10-u36"
+		_clean_up_release_data
 
-	test_build_hotfix_main || exit "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+		LIFERAY_RELEASE_GIT_REF="fix-pack-fix-263630758"
+		_PRODUCT_VERSION="7.3.10-u36"
 
-	test_build_hotfix_has_packaged_hotfix
+		test_build_hotfix_main || exit "${LIFERAY_COMMON_EXIT_CODE_BAD}"
+
+		test_build_hotfix_has_packaged_hotfix
+	fi
 }
 
 function set_up {
@@ -263,4 +278,4 @@ function _test_build_release_not_has_free_tier_slack_message {
 	_PRODUCT_VERSION="2025.q4.1"
 }
 
-main
+main "${@}"
