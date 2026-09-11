@@ -132,122 +132,122 @@ function main {
 	find /opt/liferay/batch -type f -name "*.batch-engine-data.json" -print0 2> /dev/null | \
 		LC_ALL=C sort --zero-terminated | \
 		while IFS= read -r -d "" file_name
-	do
-		echo "Processing: ${file_name}"
-		echo ""
+		do
+			echo "Processing: ${file_name}"
+			echo ""
 
-		local href=$(jq --raw-output ".actions.createBatch.href" "${file_name}")
+			local href=$(jq --raw-output ".actions.createBatch.href" "${file_name}")
 
-		if [ "${href}" == "null" ]
-		then
-			local class_name=$(jq --raw-output ".configuration.className" "${file_name}")
-
-			if [ "${class_name}" == "null" ]
+			if [ "${href}" == "null" ]
 			then
-				echo "Batch data file is missing configuration class name."
+				local class_name=$(jq --raw-output ".configuration.className" "${file_name}")
 
-				exit 1
+				if [ "${class_name}" == "null" ]
+				then
+					echo "Batch data file is missing configuration class name."
+
+					exit 1
+				fi
+
+				href="/o/headless-batch-engine/v1.0/import-task/${class_name}"
 			fi
 
-			href="/o/headless-batch-engine/v1.0/import-task/${class_name}"
-		fi
+			href="${href#*://*/}"
 
-		href="${href#*://*/}"
+			if [[ ! "${href}" =~ ^/.* ]]
+			then
+				href="/${href}"
+			fi
 
-		if [[ ! "${href}" =~ ^/.* ]]
-		then
-			href="/${href}"
-		fi
+			echo "HREF: ${href}"
 
-		echo "HREF: ${href}"
+			jq --raw-output ".items" "${file_name}" > /tmp/liferay_batch_entrypoint.items.json
 
-		jq --raw-output ".items" "${file_name}" > /tmp/liferay_batch_entrypoint.items.json
+			echo "Items: $(</tmp/liferay_batch_entrypoint.items.json)"
 
-		echo "Items: $(</tmp/liferay_batch_entrypoint.items.json)"
+			local parameters=$(jq --raw-output '.configuration.parameters | [map_values(. | @uri) | to_entries[] | .key + "=" + .value] | join("&")' "${file_name}" 2> /dev/null)
 
-		local parameters=$(jq --raw-output '.configuration.parameters | [map_values(. | @uri) | to_entries[] | .key + "=" + .value] | join("&")' "${file_name}" 2> /dev/null)
+			if [ "${parameters}" != "" ]
+			then
+				parameters="?${parameters}"
+			fi
 
-		if [ "${parameters}" != "" ]
-		then
-			parameters="?${parameters}"
-		fi
+			echo "Parameters: ${parameters}"
 
-		echo "Parameters: ${parameters}"
-
-		local http_status_code_file=$(mktemp)
-
-		local post_response=$( \
-			curl \
-				--data @/tmp/liferay_batch_entrypoint.items.json \
-				--header "Accept: application/json" \
-				--header "Authorization: Bearer ${oauth2_access_token}" \
-				--header "Content-Type: application/json" \
-				--request POST \
-				--silent \
-				--write-out "%output{${http_status_code_file}}%{http_code}" \
-				${LIFERAY_BATCH_CURL_OPTIONS} \
-				"${lxc_dxp_server_protocol}://${lxc_dxp_main_domain}${href}${parameters}")
-
-		local http_status_code=$(cat "${http_status_code_file}")
-
-		if [[ "${http_status_code}" -ge 400 ]]
-		then
-			echo "POST ${lxc_dxp_server_protocol}://${lxc_dxp_main_domain}${href}${parameters} errored with HTTP status ${http_status_code}."
-
-			exit 1
-		fi
-
-		echo "POST Response: ${post_response}"
-		echo ""
-
-		if [ ! -n "${post_response}" ]
-		then
-			echo "Received empty POST response. Check Liferay logs for more information."
-
-			rm /tmp/liferay_batch_entrypoint.items.json
-
-			exit 1
-		fi
-
-		local external_reference_code=$(jq --raw-output ".externalReferenceCode" <<< "${post_response}")
-
-		local status=$(jq --raw-output ".executeStatus//.status" <<< "${post_response}")
-
-		until [ "${status}" == "COMPLETED" ] || [ "${status}" == "FAILED" ] || [ "${status}" == "NOT_FOUND" ]
-		do
 			local http_status_code_file=$(mktemp)
 
-			local get_response=$( \
+			local post_response=$( \
 				curl \
+					--data @/tmp/liferay_batch_entrypoint.items.json \
+					--header "Accept: application/json" \
 					--header "Authorization: Bearer ${oauth2_access_token}" \
-					--header "accept: application/json" \
-					--request 'GET' \
+					--header "Content-Type: application/json" \
+					--request POST \
 					--silent \
 					--write-out "%output{${http_status_code_file}}%{http_code}" \
 					${LIFERAY_BATCH_CURL_OPTIONS} \
-					"${lxc_dxp_server_protocol}://${lxc_dxp_main_domain}/o/headless-batch-engine/v1.0/import-task/by-external-reference-code/${external_reference_code}")
+					"${lxc_dxp_server_protocol}://${lxc_dxp_main_domain}${href}${parameters}")
+
+			local http_status_code=$(cat "${http_status_code_file}")
 
 			if [[ "${http_status_code}" -ge 400 ]]
 			then
-				echo "GET ${lxc_dxp_server_protocol}://${lxc_dxp_main_domain}/o/headless-batch-engine/v1.0/import-task/by-external-reference-code/${external_reference_code} errored with HTTP status ${http_status_code}."
+				echo "POST ${lxc_dxp_server_protocol}://${lxc_dxp_main_domain}${href}${parameters} errored with HTTP status ${http_status_code}."
 
 				exit 1
 			fi
 
-			status=$(jq --raw-output '.executeStatus//.status' <<< "${get_response}")
+			echo "POST Response: ${post_response}"
+			echo ""
 
-			echo "Execute Status: ${status}"
+			if [ ! -n "${post_response}" ]
+			then
+				echo "Received empty POST response. Check Liferay logs for more information."
+
+				rm /tmp/liferay_batch_entrypoint.items.json
+
+				exit 1
+			fi
+
+			local external_reference_code=$(jq --raw-output ".externalReferenceCode" <<< "${post_response}")
+
+			local status=$(jq --raw-output ".executeStatus//.status" <<< "${post_response}")
+
+			until [ "${status}" == "COMPLETED" ] || [ "${status}" == "FAILED" ] || [ "${status}" == "NOT_FOUND" ]
+			do
+				local http_status_code_file=$(mktemp)
+
+				local get_response=$( \
+					curl \
+						--header "Authorization: Bearer ${oauth2_access_token}" \
+						--header "accept: application/json" \
+						--request 'GET' \
+						--silent \
+						--write-out "%output{${http_status_code_file}}%{http_code}" \
+						${LIFERAY_BATCH_CURL_OPTIONS} \
+						"${lxc_dxp_server_protocol}://${lxc_dxp_main_domain}/o/headless-batch-engine/v1.0/import-task/by-external-reference-code/${external_reference_code}")
+
+				if [[ "${http_status_code}" -ge 400 ]]
+				then
+					echo "GET ${lxc_dxp_server_protocol}://${lxc_dxp_main_domain}/o/headless-batch-engine/v1.0/import-task/by-external-reference-code/${external_reference_code} errored with HTTP status ${http_status_code}."
+
+					exit 1
+				fi
+
+				status=$(jq --raw-output '.executeStatus//.status' <<< "${get_response}")
+
+				echo "Execute Status: ${status}"
+			done
+
+			rm /tmp/liferay_batch_entrypoint.items.json
+
+			if [ "${status}" == "FAILED" ]
+			then
+				echo "Batch import task failed. Check Liferay logs for more information."
+
+				exit 1
+			fi
 		done
-
-		rm /tmp/liferay_batch_entrypoint.items.json
-
-		if [ "${status}" == "FAILED" ]
-		then
-			echo "Batch import task failed. Check Liferay logs for more information."
-
-			exit 1
-		fi
-	done
 }
 
 main

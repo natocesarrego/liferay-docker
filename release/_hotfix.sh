@@ -359,18 +359,18 @@ function create_documentation {
 		echo "${LIFERAY_RELEASE_HOTFIX_FIXED_ISSUES}" | \
 			tr ',' '\n' | \
 			while read -r line
-		do
-			if [ "${first_line}" == "true" ]
-			then
-				first_line=false
+			do
+				if [ "${first_line}" == "true" ]
+				then
+					first_line=false
 
-				write "        "
-			else
-				write ","
-			fi
+					write "        "
+				else
+					write ","
+				fi
 
-			write "\"${line}\""
-		done
+				write "\"${line}\""
+			done
 
 		writeln ""
 	fi
@@ -451,80 +451,80 @@ function create_hotfix {
 	diff --brief --recursive "${_BUNDLES_DIR}" "${_RELEASE_DIR}" | \
 		grep --invert-match /work/Catalina | \
 		while read -r change
-	do
-		if echo "${change}" | grep "^Only in ${_RELEASE_DIR}" &> /dev/null
-		then
-			local removed_file=$(echo "${change}" | sed --expression "s/^Only in //")
-
-			removed_file=$( \
-				echo "${removed_file}" | \
-				sed --expression "s#: #/#" | \
-				sed --expression "s#${_RELEASE_DIR}##")
-			removed_file=$(echo "${removed_file}" | sed --expression "s#^/##")
-
-			echo "${removed_file}"
-
-			if [ ! -f "${_RELEASE_DIR}/${removed_file}" ]
+		do
+			if echo "${change}" | grep "^Only in ${_RELEASE_DIR}" &> /dev/null
 			then
-				echo "Skipping ${removed_file}."
+				local removed_file=$(echo "${change}" | sed --expression "s/^Only in //")
 
-				continue
-			fi
+				removed_file=$( \
+					echo "${removed_file}" | \
+					sed --expression "s#: #/#" | \
+					sed --expression "s#${_RELEASE_DIR}##")
+				removed_file=$(echo "${removed_file}" | sed --expression "s#^/##")
 
-			if in_hotfix_scope "${removed_file}"
-			then
-				echo "Removing ${removed_file}."
+				echo "${removed_file}"
 
-				transform_file_name "${removed_file}" >> "${_BUILD_DIR}/hotfix/removed_files"
-			fi
-		elif echo "${change}" | grep "^Only in ${_BUNDLES_DIR}" &> /dev/null
-		then
-			local new_file=$(echo "${change}" | sed --expression "s/^Only in //")
-
-			new_file=$( \
-				echo "${new_file}" | \
-				sed --expression "s#: #/#" | \
-				sed --expression "s#${_BUNDLES_DIR}##")
-			new_file=$(echo "${new_file}" | sed --expression "s#^/##")
-
-			if [ ! -f "${_BUNDLES_DIR}/${new_file}" ]
-			then
-				echo "Skipping ${new_file}."
-
-				continue
-			fi
-
-			if in_hotfix_scope "${new_file}"
-			then
-				echo "Adding ${new_file}."
-
-				add_file_to_hotfix "${new_file}"
-			fi
-		else
-			local changed_file=$(echo "${change}" | sed --expression "s/^Files //")
-
-			changed_file=${changed_file%% *}
-			changed_file=$(echo "${changed_file}" | sed --expression "s#${_BUNDLES_DIR}##")
-			changed_file=$(echo "${changed_file}" | sed --expression "s#^/##")
-
-			if [ ! -f "${_BUNDLES_DIR}/${changed_file}" ]
-			then
-				echo "Skipping ${changed_file}."
-
-				continue
-			fi
-
-			if in_hotfix_scope "${changed_file}"
-			then
-				if echo "${changed_file}" | grep --quiet ".[jw]ar$"
+				if [ ! -f "${_RELEASE_DIR}/${removed_file}" ]
 				then
-					manage_jar "${changed_file}"
-				else
-					add_file_to_hotfix "${changed_file}"
+					echo "Skipping ${removed_file}."
+
+					continue
+				fi
+
+				if in_hotfix_scope "${removed_file}"
+				then
+					echo "Removing ${removed_file}."
+
+					transform_file_name "${removed_file}" >> "${_BUILD_DIR}/hotfix/removed_files"
+				fi
+			elif echo "${change}" | grep "^Only in ${_BUNDLES_DIR}" &> /dev/null
+			then
+				local new_file=$(echo "${change}" | sed --expression "s/^Only in //")
+
+				new_file=$( \
+					echo "${new_file}" | \
+					sed --expression "s#: #/#" | \
+					sed --expression "s#${_BUNDLES_DIR}##")
+				new_file=$(echo "${new_file}" | sed --expression "s#^/##")
+
+				if [ ! -f "${_BUNDLES_DIR}/${new_file}" ]
+				then
+					echo "Skipping ${new_file}."
+
+					continue
+				fi
+
+				if in_hotfix_scope "${new_file}"
+				then
+					echo "Adding ${new_file}."
+
+					add_file_to_hotfix "${new_file}"
+				fi
+			else
+				local changed_file=$(echo "${change}" | sed --expression "s/^Files //")
+
+				changed_file=${changed_file%% *}
+				changed_file=$(echo "${changed_file}" | sed --expression "s#${_BUNDLES_DIR}##")
+				changed_file=$(echo "${changed_file}" | sed --expression "s#^/##")
+
+				if [ ! -f "${_BUNDLES_DIR}/${changed_file}" ]
+				then
+					echo "Skipping ${changed_file}."
+
+					continue
+				fi
+
+				if in_hotfix_scope "${changed_file}"
+				then
+					if echo "${changed_file}" | grep --quiet ".[jw]ar$"
+					then
+						manage_jar "${changed_file}"
+					else
+						add_file_to_hotfix "${changed_file}"
+					fi
 				fi
 			fi
-		fi
-	done
+		done
 
 	rm --force --recursive "${_RELEASE_DIR}"
 }

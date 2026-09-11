@@ -372,40 +372,40 @@ function generate_pom_release_bom {
 		grep --extended-regexp "/(com\.liferay\.|)${artifact_file}/" /tmp/artifact_urls.txt | \
 			sort | \
 			while IFS= read -r artifact_url
-		do
-			local file_name=$(basename "${artifact_url}")
+			do
+				local file_name=$(basename "${artifact_url}")
 
-			local artifact_id=$( \
-				echo "${file_name}" | cut --delimiter='-' --fields=1)
-			local version=$( \
-				echo "${file_name}" | \
-				sed \
-					--expression "s@\.\(jar\|war\)\$@@" \
-					--expression "s@.*${artifact_file}-@@")
+				local artifact_id=$( \
+					echo "${file_name}" | cut --delimiter='-' --fields=1)
+				local version=$( \
+					echo "${file_name}" | \
+					sed \
+						--expression "s@\.\(jar\|war\)\$@@" \
+						--expression "s@.*${artifact_file}-@@")
 
-			if [[ "${artifact_url}" == */com/liferay/portal/* ]]
-			then
-				group_id="com.liferay.portal"
-			elif [[ "${artifact_url}" == */com/liferay/commerce/* ]]
-			then
-				group_id="com.liferay.commerce"
-			else
-				group_id="com.liferay"
-			fi
+				if [[ "${artifact_url}" == */com/liferay/portal/* ]]
+				then
+					group_id="com.liferay.portal"
+				elif [[ "${artifact_url}" == */com/liferay/commerce/* ]]
+				then
+					group_id="com.liferay.commerce"
+				else
+					group_id="com.liferay"
+				fi
 
-			if grep --quiet "(\t)*<groupId>${group_id}</groupId>\n(\t)*<artifactId>${artifact_id}</artifactId>\n\(\t)*<version>${version}</version>" "${pom_file_name}"
-			then
-				continue
-			fi
+				if grep --quiet "(\t)*<groupId>${group_id}</groupId>\n(\t)*<artifactId>${artifact_id}</artifactId>\n\(\t)*<version>${version}</version>" "${pom_file_name}"
+				then
+					continue
+				fi
 
-			(
-				echo -e "\t\t\t<dependency>"
-				echo -e "\t\t\t\t<groupId>${group_id}</groupId>"
-				echo -e "\t\t\t\t<artifactId>${artifact_id}</artifactId>"
-				echo -e "\t\t\t\t<version>${version}</version>"
-				echo -e "\t\t\t</dependency>"
-			) >> "${pom_file_name}"
-		done
+				(
+					echo -e "\t\t\t<dependency>"
+					echo -e "\t\t\t\t<groupId>${group_id}</groupId>"
+					echo -e "\t\t\t\t<artifactId>${artifact_id}</artifactId>"
+					echo -e "\t\t\t\t<version>${version}</version>"
+					echo -e "\t\t\t</dependency>"
+				) >> "${pom_file_name}"
+			done
 	done
 
 	(
