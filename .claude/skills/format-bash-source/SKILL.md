@@ -59,7 +59,7 @@ For every target file, read it and apply the rules from `.claude/CODE_STYLE.md` 
 - **Commands**: `awk` parameters wrapped in `""` (the field separator counts as a parameter — rewrite the attached `-F=` / `-Fx` forms to `-F "="` / `-F "x"`) and `awk` instructions in `''`, `sed` regex expressions in `""` (even when they contain `$`) with the program always passed via `--expression`, never as a bare positional argument (`sed --expression "s/a/b/"`, not `sed "s/a/b/"`) — this applies to standalone single-script `sed` and to `sed` nested in a command substitution; long form of flags preferred (e.g. `xargs --null`, not `xargs -0`); flags ordered alphabetically whether inline or broken, except order-dependent ones (`find` primaries, repeated `sed --expression`, `sed`'s `--regexp-extended`, which must precede `--expression`, and `zip`'s `-i`/`-x` include/exclude filters, which trail the input file list they act on rather than sorting in with the other flags); commands broken one argument per line with positionals last (e.g. `sed --expression "..." --in-place file`) when they carry three or more flags (e.g. `curl`) or when they exceed eighty columns (counting a tab as four columns) and carry at least two flags to spread, except a command whose syntax pins a positional first (`find`'s path), with an option and its value counting as one flag, positionals counting toward neither threshold, anything else staying inline, the break applying even inside `if` / `if !` conditions, and a line being left alone when it is still over eighty columns after breaking because a single argument is itself that long; put a space between a redirection operator and its target (`&> /dev/null`, not `&>/dev/null`), but `2>&1`, `>&2`, and `<(...)` / `>(...)` stay attached.
 - **Control flow**: `then` (including after `elif`) and `do` on their own line, single-bracket `[ ... ]` tests by default but `[[ ... ]]` for pattern/regex matching, `${BASH_SOURCE[0]}` comparisons, lexicographic `<`/`>` string comparisons, and numeric comparisons (`-eq`, `-ge`, etc.) — but a numeric comparison whose operator is held in a variable (`[ "${a}" "${operator}" "${b}" ]`) stays single-bracket, since `[[ ... ]]` needs a literal operator — `==` for strings, aligned multiline conditions, no parentheses around a single boolean function, variable, command, or pipeline (parentheses only for combined conditions, with `(( ))` arithmetic and awk/jq program `if (...)` left untouched).
 - **Indentation/spacing**: tabs only, single blank line between logical statements, no blank line just inside `{` / `}`.
-- **Pipelines**: long pipelines and `curl`-style commands broken across lines with `| \` continuations indented one tab; a space after `$(` when a pipeline or command is broken inside a command substitution.
+- **Pipelines**: long pipelines and `curl`-style commands broken across lines with `| \` continuations indented one tab; a space after `$(` when a pipeline or command is broken inside a command substitution; a compound command (`while`, `for`, `until`, `if`) ending a broken pipeline taking the continuation indent like any other stage, with its `do`/`done` (or `then`/`fi`) and body aligned to that stage rather than left at the opening statement's indent.
 - **Return codes**: named `LIFERAY_COMMON_EXIT_CODE_*` constants, quoted (but boolean functions return bare `0`/`1`); a `trap` body single-quoted with the constant quoted inside it (`trap 'return "${LIFERAY_COMMON_EXIT_CODE_BAD}"' ERR`).
 - **Comments / shared helpers**: `#`-delimited comment blocks, `lc_*` helpers over reimplementation. Do not convert between `echo` and `lc_log` — that choice is semantic and is left to the author, not the formatter.
 
@@ -135,6 +135,16 @@ grep -nE '(^|[^[])\[ [^]]*-(eq|ne|lt|le|gt|ge)( |\])' "${files[@]}"
 # is a violation.
 grep -nE 'trap +"[^"]*(return|exit)' "${files[@]}"
 grep -nE "trap +'[^']*(return|exit) +\\\$\{" "${files[@]}"
+
+# A compound command (`while`, `for`, `until`, `if`) ending a broken pipeline keeps its
+# `do`/`then` aligned with itself. Every hit is a `do`/`then` indented less than the
+# compound command it belongs to, which happens when the pipeline continuation indented
+# the compound command but left its block at the opening statement's indent.
+awk '
+	/^[\t]*(while|for|until|if|elif) / { ci = match($0, /[^\t]/) - 1; pend = 1; next }
+	pend && /^[\t]*(do|then)$/ { di = match($0, /[^\t]/) - 1; if (di < ci) print FILENAME":"FNR }
+	{ pend = 0 }
+' "${files[@]}"
 
 # Blank-line layout around functions (each must report nothing). These catch
 # sort/relocation dropping the separator between definitions, or a stray blank
